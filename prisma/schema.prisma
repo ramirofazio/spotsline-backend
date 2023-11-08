@@ -1,0 +1,97 @@
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+model User {
+    id           String        @id @default(uuid())
+    name         String
+    dni          Int?          @unique
+    email        String        @unique
+    password     String
+    active       Boolean       @default(true)
+    roleId       Int
+    role         Role          @relation(fields: [roleId], references: [id])
+    profile      UserProfile?
+    shoppingCart ShoppingCart?
+    orders       Order[]
+}
+
+model UserProfile {
+    id        Int     @id @default(autoincrement())
+    user      User    @relation(fields: [userId], references: [id])
+    userId    String  @unique
+    avatar    String? @default("https://media.istockphoto.com/id/1337144146/vector/default-avatar-profile-icon-vector.jpg?s=612x612&w=0&k=20&c=BIbFwuv7FxTWvh5S3vB6bkT0Qv8Vn8N5Ffseq84ClGI=")
+    cellPhone String?
+    address   String?
+}
+
+model Role {
+    id   Int    @id @default(autoincrement())
+    type String
+    user User[]
+}
+
+model Order {
+    id           String          @id @default(uuid())
+    user         User            @relation(fields: [userId], references: [id])
+    userId       String          @unique
+    trackingCode String
+    state        String
+    address      String
+    clientName   String
+    city         City?
+    products     OrderProducts[]
+}
+
+model OrderProducts {
+    product   Product @relation(fields: [productId], references: [id])
+    productId Int     @unique
+    order     Order   @relation(fields: [orderId], references: [id])
+    orderId   String  @unique
+
+    @@id([productId, orderId])
+}
+
+model City {
+    postalCode Int    @id // ? Cargar data de ciudades a la DB || esperar a la API de correo
+    order      Order  @relation(fields: [orderId], references: [id])
+    orderId    String @unique
+    name       String
+    province   String
+}
+
+model ShoppingCart {
+    id         Int              @id @default(autoincrement())
+    user       User             @relation(fields: [userId], references: [id])
+    userId     String           @unique
+    totalPrice Int
+    products   ProductsOnCart[]
+}
+
+model ProductsOnCart {
+    shoppingCart   ShoppingCart @relation(fields: [shoppingCartId], references: [id])
+    shoppingCartId Int
+    product        Product      @relation(fields: [productId], references: [id])
+    productId      Int
+    quantity       Int
+    price          Int?
+
+    @@id([shoppingCartId, productId])
+}
+
+model Product {
+    id             Int              @unique
+    name           String
+    price          Int
+    description    String?
+    published      Boolean
+    type           Int
+    updated        String
+    OrderProducts  OrderProducts?
+    ProductsOnCart ProductsOnCart[]
+}
