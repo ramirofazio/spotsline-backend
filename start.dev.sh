@@ -4,7 +4,7 @@
 docker compose -p spotsline up postgres --build -d
 
 # Espera 40 segundos
-sleep 20
+sleep 40
 
 # Ejecuta las migraciones de Prisma
 npx prisma migrate dev
