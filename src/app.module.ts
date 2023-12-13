@@ -9,6 +9,7 @@ import { CheckoutModule } from './checkout/checkout.module';
 import { ProductsModule } from './products/products.module';
 import { MailsModule } from './mails/mails.module';
 import { OrdersModule } from './orders/orders.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { OrdersModule } from './orders/orders.module';
     ProductsModule,
     MailsModule,
     OrdersModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],
