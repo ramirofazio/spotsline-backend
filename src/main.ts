@@ -3,8 +3,8 @@ import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import type { NestExpressApplication } from '@nestjs/platform-express';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-import { RoleService } from './role/role.service';
 import { env } from 'process';
+import { TestDbCloudService } from './test-db-cloud/test-db-cloud.service';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
@@ -25,7 +25,6 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('docu', app, document);
 
-  await app.get(RoleService).createRolesIfNotExist(); //? Crea los roles si no existen cuando se monta la API
   app.useGlobalPipes(
     new ValidationPipe({
       //? Deja pasar solo la info explicitamente declarada en los DTO's
@@ -38,5 +37,6 @@ async function bootstrap() {
     }),
   );
   await app.listen(3000);
+  await app.get(TestDbCloudService).testDb();
 }
 bootstrap();
