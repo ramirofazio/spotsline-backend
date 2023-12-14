@@ -1,28 +1,5 @@
-version: "3.9"
+version: '3.9'
 services:
-  postgres:
-    image: postgres
-    hostname: postgres
-    env_file:
-      - ./.env
-    environment:
-      - POSTGRES_USER=${DATABASE_USER}
-      - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
-      - POSTGRES_DB=spotsline-db
-    ports:
-      - ${POSTGRES_PORT}:5432
-    networks:
-      - spotsline
-    volumes:
-      - ./db-data:/var/lib/postgresql/data
-      - ./db-data-backup:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U root -d spotsline-db -h postgres -p 5432"]
-      interval: 1m30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
-      start_interval: 5s
   frontend:
     build:
       context: ../spotsline-frontend
@@ -41,9 +18,5 @@ services:
       - ${NEST_PORT}:3000
     networks:
       - spotsline
-    depends_on:
-      postgres:
-        condition: service_healthy
-        restart: true
 networks:
-   spotsline:
+  spotsline:
