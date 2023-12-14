@@ -22,14 +22,14 @@ export class AuthService {
         throw new HttpException('cliente no encontrado', HttpStatus.NOT_FOUND);
       }
 
-      //todo: Logica JTW
-      const match = await bcrypt.compare(password, client.password);
-      if (!match) {
-        throw new HttpException(
-          'contraseña incorrecta',
-          HttpStatus.UNAUTHORIZED,
-        );
-      }
+      //   //todo: Agregar props a CLOUD-DB
+      //   const match = await bcrypt.compare(password, client.password);
+      //   if (!match) {
+      //     throw new HttpException(
+      //       'contraseña incorrecta',
+      //       HttpStatus.UNAUTHORIZED,
+      //     );
+      //   }
 
       const payload = { sub: client.id, username: client.email };
       return {
@@ -45,7 +45,7 @@ export class AuthService {
     email,
     token,
     newPassword,
-    newConfirmPassword,
+    newPasswordConfirm,
   }: PasswordResetRequest): Promise<HttpStatus> {
     //todo: actualizar contraseña del client y cambiar prop `firstTime: false`
 

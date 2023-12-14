@@ -5,6 +5,8 @@ import { JwtModule } from '@nestjs/jwt';
 import { jwtConstants } from './constants';
 import { ClientsModule } from 'src/clients/clients.module';
 import { PrismaModule } from 'src/prisma/prisma.module';
+import { APP_GUARD } from '@nestjs/core';
+import { AuthGuard } from './auth.guard';
 
 @Module({
   imports: [
@@ -16,7 +18,7 @@ import { PrismaModule } from 'src/prisma/prisma.module';
       signOptions: { expiresIn: '2d' },
     }),
   ],
-  providers: [AuthService],
+  providers: [AuthService, { provide: APP_GUARD, useClass: AuthGuard }], //? Delara protegidas todas las rutas de este modulo por default
   controllers: [AuthController],
 })
 export class AuthModule {}
