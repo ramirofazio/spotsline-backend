@@ -19,7 +19,7 @@ class IsEqualConstraint implements ValidatorConstraintInterface {
   }
 }
 
-export class signInDto {
+export class SignInDto {
   @IsString()
   @IsNotEmpty()
   email: string;
@@ -47,7 +47,7 @@ export class initPasswordResetRequest {
   email: string;
 }
 
-export class confirmPasswordResetRequest {
+export class PasswordResetRequest {
   @IsString()
   @IsNotEmpty()
   token: string;

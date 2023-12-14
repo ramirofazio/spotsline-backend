@@ -6,7 +6,7 @@ import { Product, RawProduct } from './products.dto';
 export class ProductsService {
   constructor(private prisma: PrismaService) {}
 
-  productSelectOpt = {
+  productsSelectOpt = {
     id: true,
     oferta: true,
     codpro: true,
@@ -26,7 +26,7 @@ export class ProductsService {
         take: take,
         skip: skip,
         where: { incluido: true },
-        select: this.productSelectOpt,
+        select: this.productsSelectOpt,
       });
 
       if (!products) {
@@ -43,7 +43,7 @@ export class ProductsService {
     try {
       const product = await this.prisma.stock.findFirst({
         where: { incluido: true, id: id },
-        select: this.productSelectOpt,
+        select: this.productsSelectOpt,
       });
 
       if (!product) {
