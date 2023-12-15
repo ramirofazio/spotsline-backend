@@ -70,7 +70,7 @@ export class AuthService {
     return await this.mail.test(email, temporal_access_token);
   }
 
-  async confirmResetPassword(
+  async confirmPasswordReset(
     data: PasswordResetRequestDTO,
   ): Promise<HttpStatus> {
     const verify = await this.jwt.verify(data.token);
