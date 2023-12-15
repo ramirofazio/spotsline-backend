@@ -13,6 +13,8 @@ export interface RawClient {
   cond_vta: Decimal;
   inhabilitado: boolean;
   visualiza: boolean;
+  clave: string;
+  firstSignIn: boolean;
 }
 
 export class Client {
@@ -28,11 +30,8 @@ export class Client {
   sellCondition: number;
   active: boolean;
   canSee: boolean;
-
-  //todo: Agregar a DB-CLOUD
   password: string;
   firstSignIn: boolean;
-  //todo
 
   constructor(rawClient: RawClient) {
     const {
@@ -48,6 +47,8 @@ export class Client {
       cond_vta,
       inhabilitado,
       visualiza,
+      clave,
+      firstSignIn,
     } = rawClient;
 
     this.id = nrocli;
@@ -62,7 +63,7 @@ export class Client {
     this.sellCondition = Number(cond_vta);
     this.active = inhabilitado;
     this.canSee = visualiza;
-    this.firstSignIn = true; //! CAMBIAR CUANDO ESTE EN DB-CLOUD
-    this.password = '12345'; //! CAMBIAR CUANDO ESTE EN DB-CLOUD
+    this.password = clave;
+    this.firstSignIn = firstSignIn;
   }
 }

@@ -6,6 +6,7 @@ import {
   ValidatorConstraint,
   Validate,
 } from 'class-validator';
+import { Client } from 'src/clients/clients.dto';
 
 @ValidatorConstraint({ name: 'isEqual', async: false })
 class IsEqualConstraint implements ValidatorConstraintInterface {
@@ -28,26 +29,14 @@ export class SignInDto {
   @IsNotEmpty()
   password: string;
 }
-
-export class activeUserDTO {
-  @IsString()
-  @IsNotEmpty()
-  token: string;
-
-  @IsString()
-  @IsNotEmpty()
-  @IsEmail()
-  email: string;
-}
-
-export class initPasswordResetRequest {
+export class InitPasswordResetRequestDTO {
   @IsString()
   @IsEmail()
   @IsNotEmpty()
   email: string;
 }
 
-export class PasswordResetRequest {
+export class PasswordResetRequestDTO {
   @IsString()
   @IsNotEmpty()
   token: string;
@@ -65,4 +54,9 @@ export class PasswordResetRequest {
   @IsNotEmpty()
   @Validate(IsEqualConstraint, ['newPassword'])
   newPasswordConfirm: string;
+}
+
+export class SignInResponseDTO {
+  access_token: string;
+  client: Client;
 }

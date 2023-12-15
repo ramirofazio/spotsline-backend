@@ -1,7 +1,17 @@
-import { Body, Controller, Patch, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Param,
+  Patch,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { PasswordResetRequest, SignInDto } from './auth.dto';
-import { AuthGuard } from './auth.guard';
+import {
+  InitPasswordResetRequestDTO,
+  PasswordResetRequestDTO,
+  SignInDto,
+} from './auth.dto';
 import { Public } from './publicDecorator';
 
 @Controller('auth')
@@ -16,7 +26,13 @@ export class AuthController {
 
   //? Esta ruta es privada solo con JWT en header valido ;)
   @Patch('first-time-password')
-  async firstTimePassword(@Body() body: PasswordResetRequest) {
+  async firstTimePassword(@Body() body: PasswordResetRequestDTO) {
     return await this.auth.firstTimePassword(body);
+  }
+
+  @Public()
+  @Post('init-password-reset/')
+  async initPasswordReset(@Body() data: InitPasswordResetRequestDTO) {
+    return await this.auth.initPasswordReset(data);
   }
 }
