@@ -55,6 +55,8 @@ export class SellerService {
         where: { codven: seller.sellerId },
         data: { clave: bcrypt.hashSync(newPassword, 10), firstSignIn: true },
       });
+
+      return HttpStatus.OK;
     } catch (e) {
       throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
@@ -75,6 +77,6 @@ export class SellerService {
       data: { clave: bcrypt.hashSync(newPassword, 10) },
     });
 
-    //todo: Estaria bueno que directamente lo loggee y devuela el access_token
+    return HttpStatus.OK;
   }
 }

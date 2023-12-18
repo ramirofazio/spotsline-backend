@@ -5,7 +5,6 @@ import {
   ValidatorConstraintInterface,
   ValidatorConstraint,
   Validate,
-  IsOptional,
 } from 'class-validator';
 import { User } from 'src/users/users.dto';
 

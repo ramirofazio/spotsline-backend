@@ -34,10 +34,19 @@ export class UsersService {
       const clientResponse = await this.clients.firstTimePassword(data);
 
       if (!clientResponse) {
-        await this.sellers.firstTimePassword(data);
+        const sellerResponse = await this.sellers.firstTimePassword(data);
+
+        if (!sellerResponse) {
+          throw new HttpException(
+            'usuario no encontrado',
+            HttpStatus.NOT_FOUND,
+          );
+        }
+
+        return sellerResponse;
       }
 
-      return HttpStatus.OK;
+      return clientResponse;
     } catch (e) {
       throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
@@ -50,10 +59,19 @@ export class UsersService {
       const clientResponse = await this.clients.updateForgottenPassword(data);
 
       if (!clientResponse) {
-        await this.sellers.updateForgottenPassword(data);
+        const sellerResponse = await this.sellers.updateForgottenPassword(data);
+
+        if (!sellerResponse) {
+          throw new HttpException(
+            'usuario no encontrado',
+            HttpStatus.NOT_FOUND,
+          );
+        }
+
+        return sellerResponse;
       }
 
-      return HttpStatus.OK;
+      return clientResponse;
     } catch (e) {
       throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
