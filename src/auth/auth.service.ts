@@ -4,32 +4,31 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { ClientsService } from 'src/clients/clients.service';
-import { PrismaService } from 'src/prisma/prisma.service';
 import {
   InitPasswordResetRequestDTO,
   PasswordResetRequestDTO,
   SignInDto,
   SignInResponseDTO,
 } from './auth.dto';
-import { Client } from 'src/clients/clients.dto';
 const bcrypt = require('bcrypt');
 import { JwtService } from '@nestjs/jwt';
 import { MailsService } from 'src/mails/mails.service';
+import { UsersService } from 'src/users/users.service';
+import { User } from 'src/users/users.dto';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private clients: ClientsService,
+    private users: UsersService,
     private jwt: JwtService,
     private mail: MailsService,
   ) {}
 
   async signIn({ email, password }: SignInDto): Promise<SignInResponseDTO> {
     try {
-      const client: Client = await this.clients.findByEmail(email);
+      const user: User = await this.users.findUserByEmail(email);
 
-      const match = await bcrypt.compare(password, client.password);
+      const match = await bcrypt.compare(password, user.password);
       if (!match) {
         throw new HttpException(
           'contraseña incorrecta',
@@ -37,11 +36,11 @@ export class AuthService {
         );
       }
 
-      const payload = { sub: client.id, username: client.email };
+      const payload = { sub: user.id, username: user.email };
 
       return {
         access_token: await this.jwt.signAsync(payload),
-        client,
+        user,
       };
     } catch (e) {
       throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -50,7 +49,7 @@ export class AuthService {
 
   async firstTimePassword(data: PasswordResetRequestDTO): Promise<HttpStatus> {
     try {
-      return await this.clients.firstTimePassword(data);
+      return await this.users.firstTimePassword(data);
     } catch (e) {
       throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
@@ -59,9 +58,9 @@ export class AuthService {
   async initPasswordReset({
     email,
   }: InitPasswordResetRequestDTO): Promise<HttpStatus> {
-    const client: Client = await this.clients.findByEmail(email);
+    const user: User = await this.users.findUserByEmail(email);
 
-    const payload = { sub: client.id, username: client.email };
+    const payload = { sub: user.id, username: user.email };
 
     const temporal_access_token = await this.jwt.signAsync(payload, {
       expiresIn: '1h',
@@ -73,12 +72,6 @@ export class AuthService {
   async confirmPasswordReset(
     data: PasswordResetRequestDTO,
   ): Promise<HttpStatus> {
-    const verify = await this.jwt.verify(data.token);
-
-    if (!verify) {
-      throw new UnauthorizedException();
-    }
-
-    return await this.clients.updateForgottenPassword(data);
+    return await this.users.updateForgottenPassword(data);
   }
 }

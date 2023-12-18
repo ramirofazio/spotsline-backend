@@ -1,4 +1,9 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Client, RawClient } from './clients.dto';
 import { PasswordResetRequestDTO } from 'src/auth/auth.dto';
@@ -25,7 +30,7 @@ export class ClientsService {
     firstSignIn: true,
   };
 
-  async findByEmail(email: string): Promise<Client> {
+  async findByEmail(email: string): Promise<Client | null> {
     try {
       const rawClient: RawClient = await this.prisma.cliente.findFirst({
         where: { email: email },
@@ -33,7 +38,7 @@ export class ClientsService {
       });
 
       if (!rawClient) {
-        throw new HttpException('cliente no encontrado', HttpStatus.NOT_FOUND);
+        return null;
       }
 
       return new Client(rawClient);
@@ -42,26 +47,22 @@ export class ClientsService {
     }
   }
 
-  async firstTimePassword({
-    email,
-    newPassword,
-  }: PasswordResetRequestDTO): Promise<any> {
+  async firstTimePassword({ email, newPassword }: PasswordResetRequestDTO) {
     try {
       const client: Client = await this.findByEmail(email);
 
-      if (client.password) {
-        throw new HttpException(
-          'contraseña existente en cliente',
-          HttpStatus.CONFLICT,
-        );
+      if (!client) {
+        return null;
+      }
+
+      if (client.firstSignIn) {
+        throw new UnauthorizedException();
       }
 
       await this.prisma.cliente.update({
         where: { nrocli: client.id },
-        data: { clave: bcrypt.hashSync(newPassword, 10) },
+        data: { clave: bcrypt.hashSync(newPassword, 10), firstSignIn: true },
       });
-
-      return HttpStatus.OK;
     } catch (e) {
       throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
@@ -73,12 +74,15 @@ export class ClientsService {
   }: PasswordResetRequestDTO): Promise<HttpStatus> {
     const client: Client = await this.findByEmail(email);
 
+    if (!client) {
+      return null;
+    }
+
     await this.prisma.cliente.update({
       where: { nrocli: client.id },
       data: { clave: bcrypt.hashSync(newPassword, 10) },
     });
 
-    return HttpStatus.OK;
     //todo: Estaria bueno que directamente lo loggee y devuela el access_token
   }
 }
