@@ -1,45 +1,39 @@
 import {
-  HttpException,
-  HttpStatus,
   Injectable,
+  HttpStatus,
+  HttpException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { Client, RawClient } from './clients.dto';
+import { RawSeller, Seller } from './sellers.dto';
 import { PasswordResetRequestDTO } from 'src/auth/auth.dto';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
-export class ClientsService {
+export class SellerService {
   constructor(private prisma: PrismaService) {}
 
-  async findByEmail(email: string): Promise<Client | null> {
+  async findByEmail(email: string): Promise<Seller | null> {
     try {
-      const rawClient: RawClient = await this.prisma.cliente.findFirst({
+      const rawSeller: RawSeller = await this.prisma.vende.findFirst({
         where: { email: email },
         select: {
-          nrocli: true,
-          razsoc: true,
-          fantasia: true,
-          direcc: true,
-          direcom: true,
-          telef1: true,
-          cuit: true,
-          lista: true,
+          id: true,
+          codven: true,
           email: true,
-          cond_vta: true,
-          inhabilitado: true,
-          visualiza: true,
+          nombre: true,
           clave: true,
+          comision: true,
+          comicob: true,
           firstSignIn: true,
         },
       });
 
-      if (!rawClient) {
+      if (!rawSeller) {
         return null;
       }
 
-      return new Client(rawClient);
+      return new Seller(rawSeller);
     } catch (e) {
       throw new HttpException(e.message, HttpStatus.NOT_FOUND);
     }
@@ -47,18 +41,18 @@ export class ClientsService {
 
   async firstTimePassword({ email, newPassword }: PasswordResetRequestDTO) {
     try {
-      const client: Client = await this.findByEmail(email);
+      const seller: Seller = await this.findByEmail(email);
 
-      if (!client) {
+      if (!seller) {
         return null;
       }
 
-      if (client.firstSignIn) {
+      if (seller.firstSignIn) {
         throw new UnauthorizedException();
       }
 
-      await this.prisma.cliente.update({
-        where: { nrocli: client.id },
+      await this.prisma.vende.update({
+        where: { codven: seller.sellerId },
         data: { clave: bcrypt.hashSync(newPassword, 10), firstSignIn: true },
       });
 
@@ -72,19 +66,17 @@ export class ClientsService {
     email,
     newPassword,
   }: PasswordResetRequestDTO): Promise<HttpStatus> {
-    const client: Client = await this.findByEmail(email);
+    const seller: Seller = await this.findByEmail(email);
 
-    if (!client) {
+    if (!seller) {
       return null;
     }
 
-    await this.prisma.cliente.update({
-      where: { nrocli: client.id },
+    await this.prisma.vende.update({
+      where: { codven: seller.sellerId },
       data: { clave: bcrypt.hashSync(newPassword, 10) },
     });
 
     return HttpStatus.OK;
-
-    //todo: Estaria bueno que directamente lo loggee y devuela el access_token
   }
 }

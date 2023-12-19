@@ -10,7 +10,7 @@ export class TestDbCloudService {
 
     if (!client) {
       throw new HttpException(
-        'CLOUD DB NO CONECTADA',
+        '##### CLOUD DB NO CONECTADA #####',
         HttpStatus.PRECONDITION_FAILED,
       );
     }

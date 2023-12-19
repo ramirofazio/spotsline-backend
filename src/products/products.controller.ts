@@ -16,8 +16,16 @@ export class ProductsController {
     return await this.productsService.getPaginatedProducts(take, skip);
   }
 
-  @Get('/:id')
+  @Public()
+  @Get('detail/:id')
   async getOneProduct(@Param('id') id: number): Promise<Product> {
     return await this.productsService.getOneProduct(id);
+  }
+
+  @Public()
+  @Get('categories')
+  async getCategories(): Promise<String[]> {
+    console.log('entre');
+    return await this.productsService.getCategories();
   }
 }
