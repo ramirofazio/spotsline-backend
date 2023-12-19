@@ -13,28 +13,26 @@ import * as bcrypt from 'bcrypt';
 export class ClientsService {
   constructor(private prisma: PrismaService) {}
 
-  clientsSelectOpt = {
-    nrocli: true,
-    razsoc: true,
-    fantasia: true,
-    direcc: true,
-    direcom: true,
-    telef1: true,
-    cuit: true,
-    lista: true,
-    email: true,
-    cond_vta: true,
-    inhabilitado: true,
-    visualiza: true,
-    clave: true,
-    firstSignIn: true,
-  };
-
   async findByEmail(email: string): Promise<Client | null> {
     try {
       const rawClient: RawClient = await this.prisma.cliente.findFirst({
         where: { email: email },
-        select: this.clientsSelectOpt,
+        select: {
+          nrocli: true,
+          razsoc: true,
+          fantasia: true,
+          direcc: true,
+          direcom: true,
+          telef1: true,
+          cuit: true,
+          lista: true,
+          email: true,
+          cond_vta: true,
+          inhabilitado: true,
+          visualiza: true,
+          clave: true,
+          firstSignIn: true,
+        },
       });
 
       if (!rawClient) {

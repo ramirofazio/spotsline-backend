@@ -1,9 +1,4 @@
-import {
-  HttpException,
-  HttpStatus,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import {
   InitPasswordResetRequestDTO,
   PasswordResetRequestDTO,
@@ -14,7 +9,7 @@ const bcrypt = require('bcrypt');
 import { JwtService } from '@nestjs/jwt';
 import { MailsService } from 'src/mails/mails.service';
 import { UsersService } from 'src/users/users.service';
-import { User } from 'src/users/users.dto';
+import { User, UserResponse } from 'src/users/users.dto';
 import { env } from 'process';
 
 @Injectable()
@@ -40,10 +35,11 @@ export class AuthService {
       }
 
       const payload = { sub: user.id, username: user.email };
+      const responseUser = new UserResponse(user);
 
       return {
         access_token: await this.jwt.signAsync(payload),
-        user,
+        user: responseUser,
       };
     } catch (e) {
       throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -72,7 +68,9 @@ export class AuthService {
     return await this.mail.test(email, temporal_access_token);
   }
 
-  async confirmPasswordReset(data: PasswordResetRequestDTO): Promise<any> {
+  async confirmPasswordReset(
+    data: PasswordResetRequestDTO,
+  ): Promise<SignInResponseDTO> {
     const res = await this.users.updateForgottenPassword(data);
 
     if (res === 200) {

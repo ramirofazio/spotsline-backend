@@ -12,8 +12,10 @@ export interface RawProduct {
   precio4: Decimal;
   precio5: Decimal;
   precio6: Decimal;
+  rubro: number;
+  subrub: Decimal;
+  marca: Decimal;
 }
-
 export class Product {
   id: number;
   offer: boolean;
@@ -26,9 +28,12 @@ export class Product {
   precio4: Decimal;
   precio5: Decimal;
   precio6: Decimal;
+  category: string;
+  subRub: string;
+  marca: string;
 
-  constructor(rawProduct: RawProduct) {
-    const {
+  constructor(
+    {
       id,
       oferta,
       codpro,
@@ -40,8 +45,11 @@ export class Product {
       precio4,
       precio5,
       precio6,
-    } = rawProduct;
-
+    }: RawProduct,
+    rubro: string,
+    subRubro: string,
+    marca: string,
+  ) {
     this.id = id;
     this.offer = oferta;
     this.productCode = codpro.trim();
@@ -53,5 +61,8 @@ export class Product {
     this.precio4 = precio4;
     this.precio5 = precio5;
     this.precio6 = precio6;
+    this.category = rubro.trim();
+    this.subRub = subRubro.trim();
+    this.marca = marca.trim();
   }
 }
