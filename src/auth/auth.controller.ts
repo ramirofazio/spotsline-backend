@@ -36,8 +36,7 @@ export class AuthController {
     return await this.auth.initPasswordReset(data);
   }
 
-  @Public()
-  @Post('confirm-password-reset')
+  @Patch('confirm-password-reset')
   async confirmPasswordReset(@Body() data: PasswordResetRequestDTO) {
     return await this.auth.confirmPasswordReset(data);
   }

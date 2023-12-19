@@ -63,7 +63,7 @@ export class Client {
     this.sellCondition = Number(cond_vta);
     this.active = inhabilitado;
     this.canSee = visualiza;
-    this.password = clave;
+    this.password = clave.trim();
     this.firstSignIn = firstSignIn;
   }
 }

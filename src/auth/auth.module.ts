@@ -8,6 +8,7 @@ import { PrismaModule } from 'src/prisma/prisma.module';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './auth.guard';
 import { MailsModule } from 'src/mails/mails.module';
+import { UsersModule } from 'src/users/users.module';
 
 @Module({
   imports: [
@@ -16,7 +17,7 @@ import { MailsModule } from 'src/mails/mails.module';
       secret: jwtConstants.secret,
       signOptions: { expiresIn: '2d' },
     }),
-    ClientsModule,
+    UsersModule,
     PrismaModule,
     MailsModule,
   ],
