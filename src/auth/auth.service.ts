@@ -65,7 +65,7 @@ export class AuthService {
       expiresIn: '2h',
     });
 
-    return await this.mail.test(email, temporal_access_token);
+    return await this.mail.sendInitPasswordReset(email, temporal_access_token);
   }
 
   async confirmPasswordReset(
