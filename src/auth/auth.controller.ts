@@ -38,6 +38,7 @@ export class AuthController {
 
   @Patch('confirm-password-reset')
   async confirmPasswordReset(@Body() data: PasswordResetRequestDTO) {
+    console.log("entro al controller")
     return await this.auth.confirmPasswordReset(data);
   }
 }

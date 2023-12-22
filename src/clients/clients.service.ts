@@ -71,19 +71,20 @@ export class ClientsService {
   async updateForgottenPassword({
     email,
     newPassword,
-  }: PasswordResetRequestDTO): Promise<HttpStatus> {
+  }: PasswordResetRequestDTO): Promise<Client> {
     const client: Client = await this.findByEmail(email);
-
+    console.log("entro a lcient")
     if (!client) {
       return null;
     }
 
-    await this.prisma.cliente.update({
+    const updated = await this.prisma.cliente.update({
       where: { nrocli: client.id },
       data: { clave: bcrypt.hashSync(newPassword, 10) },
     });
 
-    return HttpStatus.OK;
+    HttpStatus.OK;
+    return new Client(updated) 
 
     //todo: Estaria bueno que directamente lo loggee y devuela el access_token
   }
