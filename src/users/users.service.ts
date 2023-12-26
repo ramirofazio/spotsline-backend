@@ -3,14 +3,16 @@ import { Client } from 'src/clients/clients.dto';
 import { ClientsService } from 'src/clients/clients.service';
 import { SellerService } from 'src/seller/seller.service';
 import { Seller } from 'src/seller/sellers.dto';
-import { User } from './users.dto';
+import { CCorriente, UpdateCurrentAccountDTO, User } from './users.dto';
 import { PasswordResetRequestDTO } from 'src/auth/auth.dto';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class UsersService {
   constructor(
     private clients: ClientsService,
     private sellers: SellerService,
+    private prisma: PrismaService,
   ) {}
 
   async findUserByEmail(email: string): Promise<User> {
@@ -72,6 +74,74 @@ export class UsersService {
       }
 
       return clientResponse;
+    } catch (e) {
+      throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  async getCurrentAccount(nroCli: string): Promise<CCorriente> {
+    try {
+      const cta = await this.prisma.clicta.findUnique({
+        where: { id: Number(nroCli) },
+        select: {
+          saldo: true,
+          debe: true,
+          haber: true,
+          cobro: true,
+          fecha: true,
+          fechafac: true,
+          tipodoc: true,
+          letra: true,
+          punto: true,
+          numero: true,
+          //? Agregar props que sean necesarias
+        },
+      });
+
+      if (!cta) {
+        throw new HttpException(
+          'cuenta corriente no encontrada',
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      return cta;
+    } catch (e) {
+      throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  async updateCurrentAccount(
+    nroCli: string,
+    { cobro, debe, haber, saldo }: UpdateCurrentAccountDTO,
+  ): Promise<CCorriente> {
+    try {
+      const cta = await this.prisma.clicta.update({
+        where: { id: Number(nroCli) },
+        data: { cobro, debe, haber, saldo },
+        select: {
+          saldo: true,
+          debe: true,
+          haber: true,
+          cobro: true,
+          fecha: true,
+          fechafac: true,
+          tipodoc: true,
+          letra: true,
+          punto: true,
+          numero: true,
+          //? Agregar props que sean necesarias
+        },
+      });
+
+      if (!cta) {
+        throw new HttpException(
+          'cuenta corriente no encontrada',
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      return cta;
     } catch (e) {
       throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }

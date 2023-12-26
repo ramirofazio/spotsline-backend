@@ -11,6 +11,7 @@ import { MailsModule } from './mails/mails.module';
 import { OrdersModule } from './orders/orders.module';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
+import { ShoppingCartModule } from './shopping-cart/shopping-cart.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { UsersModule } from './users/users.module';
     OrdersModule,
     AuthModule,
     UsersModule,
+    ShoppingCartModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],
