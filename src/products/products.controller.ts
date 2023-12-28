@@ -25,7 +25,6 @@ export class ProductsController {
   @Public()
   @Get('categories')
   async getCategories(): Promise<String[]> {
-    console.log('entre');
     return await this.productsService.getCategories();
   }
 }
