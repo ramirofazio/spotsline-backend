@@ -73,7 +73,7 @@ export class AuthService {
   ): Promise<SignInResponseDTO> {
     const res = await this.users.updateForgottenPassword(data);
 
-    if (res === 200) {
+    if (res) {
       return this.signIn({ email: data.email, password: data.newPassword });
     }
   }
