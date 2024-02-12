@@ -15,7 +15,7 @@ export class SellerService {
 
   async findByEmail(email: string): Promise<Seller | null> {
     try {
-      const rawSeller: RawSeller = await this.prisma.vende.findFirst({
+      const rawSeller: any = await this.prisma.vende.findFirst({
         where: { email: email },
         select: {
           id: true,
@@ -25,7 +25,7 @@ export class SellerService {
           clave: true,
           comision: true,
           comicob: true,
-          firstSignIn: true,
+          //firstSignIn: true,
         },
       });
 
@@ -53,7 +53,9 @@ export class SellerService {
 
       await this.prisma.vende.update({
         where: { codven: seller.sellerId },
-        data: { clave: bcrypt.hashSync(newPassword, 10), firstSignIn: true },
+        data: {
+          clave: bcrypt.hashSync(newPassword, 10) /* , firstSignIn: true */,
+        },
       });
 
       return HttpStatus.OK;
@@ -65,18 +67,19 @@ export class SellerService {
   async updateForgottenPassword({
     email,
     newPassword,
-  }: PasswordResetRequestDTO): Promise<HttpStatus> {
+  }: PasswordResetRequestDTO): Promise<Seller> {
     const seller: Seller = await this.findByEmail(email);
-
+    console.log('entro a seller');
     if (!seller) {
       return null;
     }
 
-    await this.prisma.vende.update({
+    const updated = await this.prisma.vende.update({
       where: { codven: seller.sellerId },
       data: { clave: bcrypt.hashSync(newPassword, 10) },
     });
 
-    return HttpStatus.OK;
+    HttpStatus.OK;
+    return new Seller(updated);
   }
 }
