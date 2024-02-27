@@ -8,6 +8,12 @@ export class ProductsController {
   constructor(private productsService: ProductsService) {}
 
   @Public()
+  @Get('all')
+  async getAllProducts(): Promise<Product[]> {
+    return await this.productsService.getAllProducts();
+  }
+
+  @Public()
   @Get('pag')
   async getPaginatedProducts(
     @Query('take') take: number,

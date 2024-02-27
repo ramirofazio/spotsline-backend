@@ -23,6 +23,51 @@ export class ProductsService {
     marca: true,
   };
 
+  async getAllProducts(): Promise<Product[]> {
+    try {
+      const products: RawProduct[] = await this.prisma.stock.findMany({
+        where: { incluido: true },
+        select: this.productsSelectOpt,
+      });
+
+      // Utiliza Promise.all para esperar a que todas las promesas se resuelvan
+      const cleanProducts: Product[] = await Promise.all(
+        products.map(async (p) => {
+          const [rubro, subRubro, marca] = await this.prisma.$transaction([
+            this.prisma.rubros.findFirst({
+              where: { codigo: p.rubro },
+              select: { descri: true },
+            }),
+            this.prisma.subrub.findFirst({
+              where: { codigo: p.subrub },
+              select: { descri: true },
+            }),
+            this.prisma.marcas.findFirst({
+              where: { codigo: p.marca },
+              select: { descripcion: true },
+            }),
+          ]);
+
+          if (!rubro || !subRubro || !marca) {
+            console.error('Datos de producto incompletos');
+            return null;
+          }
+
+          return new Product(
+            p,
+            rubro.descri,
+            subRubro.descri,
+            marca.descripcion,
+          );
+        }),
+      );
+
+      return cleanProducts.filter((product) => product !== null);
+    } catch (e) {
+      throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
   async getPaginatedProducts(take: number, skip: number): Promise<Product[]> {
     try {
       const products: RawProduct[] = await this.prisma.stock.findMany({
@@ -35,7 +80,7 @@ export class ProductsService {
       if (!products.length) {
         // Cambiado de !products a !products.length para verificar array vacío
         throw new HttpException(
-          'productos no encontrado',
+          'productos no encontrados',
           HttpStatus.NOT_FOUND,
         );
       }
