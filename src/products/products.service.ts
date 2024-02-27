@@ -23,46 +23,18 @@ export class ProductsService {
     marca: true,
   };
 
-  async getAllProducts(): Promise<Product[]> {
+  async getAllProducts(): Promise<number> {
     try {
       const products: RawProduct[] = await this.prisma.stock.findMany({
         where: { incluido: true },
         select: this.productsSelectOpt,
       });
 
-      // Utiliza Promise.all para esperar a que todas las promesas se resuelvan
-      const cleanProducts: Product[] = await Promise.all(
-        products.map(async (p) => {
-          const [rubro, subRubro, marca] = await this.prisma.$transaction([
-            this.prisma.rubros.findFirst({
-              where: { codigo: p.rubro },
-              select: { descri: true },
-            }),
-            this.prisma.subrub.findFirst({
-              where: { codigo: p.subrub },
-              select: { descri: true },
-            }),
-            this.prisma.marcas.findFirst({
-              where: { codigo: p.marca },
-              select: { descripcion: true },
-            }),
-          ]);
+      //! @Jhony
+      //? Esto da 1708 productos, que serian arpox 85 paginas. Habria que ver, porque para mi no TODOS van, y claramente al ser tantos productos se necesitan buenos filtros para  buscar puntualmente lo que buscan
+      //? La searchbar deberia buscar en una ruta y que aparezcan skeletons mientra carga la busqueda
 
-          if (!rubro || !subRubro || !marca) {
-            console.error('Datos de producto incompletos');
-            return null;
-          }
-
-          return new Product(
-            p,
-            rubro.descri,
-            subRubro.descri,
-            marca.descripcion,
-          );
-        }),
-      );
-
-      return cleanProducts.filter((product) => product !== null);
+      return products.length;
     } catch (e) {
       throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }

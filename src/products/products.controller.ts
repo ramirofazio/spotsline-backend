@@ -9,7 +9,7 @@ export class ProductsController {
 
   @Public()
   @Get('all')
-  async getAllProducts(): Promise<Product[]> {
+  async getAllProducts(): Promise<number> {
     return await this.productsService.getAllProducts();
   }
 
