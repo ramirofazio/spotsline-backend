@@ -1,6 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import {
   InitPasswordResetRequestDTO,
+  JwtAutoSignInDTO,
   PasswordResetRequestDTO,
   SignInDto,
   SignInResponseDTO,
@@ -19,6 +20,26 @@ export class AuthService {
     private jwt: JwtService,
     private mail: MailsService,
   ) {}
+
+  async jwtAutoSignIn({
+    jwt,
+    email,
+  }: JwtAutoSignInDTO): Promise<SignInResponseDTO> {
+    try {
+      const verify = await this.jwt.verifyAsync(jwt);
+
+      if (verify) {
+        const user: User = await this.users.findUserByEmail(email);
+
+        return {
+          access_token: jwt,
+          user: new UserResponse(user),
+        };
+      }
+    } catch (e) {
+      throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
 
   async signIn({ email, password }: SignInDto): Promise<SignInResponseDTO> {
     try {
