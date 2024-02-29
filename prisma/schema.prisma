@@ -88,6 +88,7 @@ model cliente {
   firstSignIn  Boolean? @default(false, map: "DF__cliente__firstSi__37776261")
   firstSignIn2 Boolean? @default(true, map: "DF__cliente__firstSi__5D9D0B49")
   firstSignIn3 Boolean? @default(true, map: "DF__cliente__firstSi__5E912F82")
+  web_role     Int?     @default(0, map: "DF__cliente__web_rol__70AFDFBD")
 
   @@index([razsoc], map: "IX_cliente")
 }
@@ -3487,6 +3488,7 @@ model vende {
   limitedesc  Decimal  @default(0, map: "DF_vende_limitedesc") @db.Decimal(5, 2)
   limitedCT   Decimal  @default(0, map: "DF_vende_limitedCT") @db.Decimal(5, 2)
   firstSignIn Boolean? @default(false, map: "DF__vende__firstSign__4A8A36D5")
+  web_role    Int?     @default(0, map: "DF__vende__web_role__71A403F6")
 }
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.

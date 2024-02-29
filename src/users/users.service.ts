@@ -59,7 +59,7 @@ export class UsersService {
   ): Promise<Seller | Client> {
     try {
       const clientResponse = await this.clients.updateForgottenPassword(data);
-  
+
       if (!clientResponse) {
         const sellerResponse = await this.sellers.updateForgottenPassword(data);
 

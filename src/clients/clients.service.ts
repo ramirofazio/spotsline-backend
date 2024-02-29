@@ -32,6 +32,7 @@ export class ClientsService {
           visualiza: true,
           clave: true,
           firstSignIn: true,
+          web_role: true,
         },
       });
 

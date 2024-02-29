@@ -25,7 +25,8 @@ export class SellerService {
           clave: true,
           comision: true,
           comicob: true,
-          //firstSignIn: true,
+          firstSignIn: true,
+          web_role: true,
         },
       });
 
