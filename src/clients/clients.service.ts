@@ -75,7 +75,6 @@ export class ClientsService {
     newPassword,
   }: PasswordResetRequestDTO): Promise<Client> {
     const client: Client = await this.findByEmail(email);
-    console.log('entro a lcient');
     if (!client) {
       return null;
     }
@@ -87,7 +86,5 @@ export class ClientsService {
 
     HttpStatus.OK;
     return new Client(updated);
-
-    //todo: Estaria bueno que directamente lo loggee y devuela el access_token
   }
 }
