@@ -1,6 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Product, RawProduct } from './products.dto';
+import { MobbexItem, RequestItem } from 'src/mobbex/mobbex.dto';
 
 @Injectable()
 export class ProductsService {
@@ -22,6 +23,32 @@ export class ProductsService {
     subrub: true,
     marca: true,
   };
+
+  async findCheckoutProducts(
+    items: RequestItem[],
+    userPriceList: number,
+  ): Promise<MobbexItem[]> {
+    const cleanItems = Promise.all(
+      items.map(async ({ qty, id }) => {
+        const item: RawProduct = await this.prisma.stock.findFirstOrThrow({
+          where: { id: id },
+          select: this.productsSelectOpt,
+        });
+        if (item) {
+          const totalItemsAmount = item['precio' + userPriceList] * qty;
+
+          return {
+            description: item.descri.trim(),
+            quantity: Number(qty),
+            total: Number(totalItemsAmount),
+            image: 'imagen',
+          };
+        }
+      }),
+    );
+
+    return cleanItems;
+  }
 
   async getAllProducts(): Promise<number> {
     try {

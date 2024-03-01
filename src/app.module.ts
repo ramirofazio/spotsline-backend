@@ -12,6 +12,7 @@ import { OrdersModule } from './orders/orders.module';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { ShoppingCartModule } from './shopping-cart/shopping-cart.module';
+import { MobbexModule } from './mobbex/mobbex.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { ShoppingCartModule } from './shopping-cart/shopping-cart.module';
     AuthModule,
     UsersModule,
     ShoppingCartModule,
+    MobbexModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],

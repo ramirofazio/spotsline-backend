@@ -13,21 +13,41 @@ import * as bcrypt from 'bcrypt';
 export class SellerService {
   constructor(private prisma: PrismaService) {}
 
+  selectOpt = {
+    id: true,
+    codven: true,
+    email: true,
+    nombre: true,
+    clave: true,
+    comision: true,
+    comicob: true,
+    firstSignIn: true,
+    web_role: true,
+  };
+
+  async findById(id: number): Promise<Seller | null> {
+    try {
+      //TODO ACTUALIZAR ANY
+      const rawSeller: any = await this.prisma.vende.findUnique({
+        where: { codven: id },
+        select: this.selectOpt,
+      });
+
+      if (!rawSeller) {
+        return null;
+      }
+
+      return new Seller(rawSeller);
+    } catch (e) {
+      throw new HttpException(e.message, HttpStatus.NOT_FOUND);
+    }
+  }
+
   async findByEmail(email: string): Promise<Seller | null> {
     try {
       const rawSeller: any = await this.prisma.vende.findFirst({
         where: { email: email },
-        select: {
-          id: true,
-          codven: true,
-          email: true,
-          nombre: true,
-          clave: true,
-          comision: true,
-          comicob: true,
-          firstSignIn: true,
-          web_role: true,
-        },
+        select: this.selectOpt,
       });
 
       if (!rawSeller) {

@@ -3,7 +3,12 @@ import { Client } from 'src/clients/clients.dto';
 import { ClientsService } from 'src/clients/clients.service';
 import { SellerService } from 'src/seller/seller.service';
 import { Seller } from 'src/seller/sellers.dto';
-import { CCorriente, UpdateCurrentAccountDTO, User } from './users.dto';
+import {
+  CCorriente,
+  SellerUser,
+  UpdateCurrentAccountDTO,
+  User,
+} from './users.dto';
 import { PasswordResetRequestDTO } from 'src/auth/auth.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 
@@ -15,7 +20,18 @@ export class UsersService {
     private prisma: PrismaService,
   ) {}
 
-  async findUserByEmail(email: string): Promise<User> {
+  async findUserById(id: number): Promise<User> {
+    //? Solo busca usuarios en la tabla CLIENTE, para crear el checkout
+    const client: Client = await this.clients.findById(id);
+
+    if (!client) {
+      throw new HttpException('usuario no encontrado', HttpStatus.NOT_FOUND);
+    }
+
+    return new User(client);
+  }
+
+  async findUserByEmail(email: string): Promise<User | SellerUser> {
     const client: Client = await this.clients.findByEmail(email);
 
     if (client) {
@@ -24,7 +40,7 @@ export class UsersService {
       const seller: Seller = await this.sellers.findByEmail(email);
 
       if (seller) {
-        return new User(seller);
+        return new SellerUser(seller);
       }
 
       throw new HttpException('usuario no encontrado', HttpStatus.NOT_FOUND);

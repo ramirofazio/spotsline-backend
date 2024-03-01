@@ -1,7 +1,23 @@
 import { Decimal } from '@prisma/client/runtime/library';
 import { IsNotEmpty, IsNumber } from 'class-validator';
-
 export class User {
+  id: number;
+  email: string;
+  password: string;
+  firstSignIn: boolean;
+  web_role: number;
+  priceList: number;
+
+  constructor({ id, email, password, firstSignIn, web_role, priceList }) {
+    this.id = id;
+    this.email = email;
+    this.password = password;
+    this.firstSignIn = firstSignIn;
+    this.web_role = web_role;
+    this.priceList = priceList;
+  }
+}
+export class SellerUser {
   id: number;
   email: string;
   password: string;
