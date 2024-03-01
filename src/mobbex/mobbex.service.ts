@@ -27,7 +27,7 @@ export class MobbexService {
     const { email, fantasyName }: User =
       await this.usersService.findUserById(userId);
     //TODO Aca deberia crear una orden de pago con estado `pending` para luego modificarlo a `complete` cuando se confirme el pago (Catchear return de mobbex y hacer post a `/order/confirm` o algo asi)
-
+    //? Otra opcion para no armar tanta logica en la DB puede ser guardar los datos necesarios para la orden en localStorage y cuando vuelva a la web, depende el estado que mande un POST con los datos de la orden ya confirmada
     return {
       total: total,
       reference: `Fecha: ${new Date().toLocaleDateString()}. Cliente: ${email}.`,
@@ -49,6 +49,7 @@ export class MobbexService {
 
     const total = this.calculateTotal(mobbexItems, discount);
     //TODO Aca deberia crear una orden de pago con estado `pending` para luego modificarlo a `complete` cuando se confirme el pago (Catchear return de mobbex y hacer post a `/order/confirm` o algo asi)
+    //? Otra opcion para no armar tanta logica en la DB puede ser guardar los datos necesarios para la orden en localStorage y cuando vuelva a la web, depende el estado que mande un POST con los datos de la orden ya confirmada
 
     return {
       total: total,
