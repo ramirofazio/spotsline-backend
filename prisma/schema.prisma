@@ -3564,3 +3564,23 @@ model sucursal {
 
   @@ignore
 }
+
+model order_products {
+  id        String  @id(map: "PK__order_pr__3213E83F3A1CCFE5") @default(dbgenerated("newid()"), map: "DF__order_produc__id__0B63D5F9") @db.UniqueIdentifier
+  orderId   String? @db.VarChar(Max)
+  qty       Int?
+  productId Int?
+}
+
+model web_orders {
+  id             String  @id(map: "PK__web_orde__3213E83F18B72CB2") @default(dbgenerated("newid()"), map: "DF__web_orders__id__05AAFCA3") @db.UniqueIdentifier
+  userId         Int?
+  email          String? @db.VarChar(Max)
+  name           String? @db.VarChar(Max)
+  totalPrice     Int?
+  discount       Int?    @default(0, map: "DF__web_order__disco__0887694E")
+  mobbexId       String? @db.VarChar(Max)
+  status         Int?
+  date           String? @db.VarChar(Max)
+  order_products String? @db.VarChar(Max)
+}
