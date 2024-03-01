@@ -1,5 +1,7 @@
 import { Decimal } from '@prisma/client/runtime/library';
 import { IsNotEmpty, IsNumber } from 'class-validator';
+import { Client } from 'src/clients/clients.dto';
+import { Seller } from 'src/seller/sellers.dto';
 export class User {
   id: number;
   email: string;
@@ -7,14 +9,24 @@ export class User {
   firstSignIn: boolean;
   web_role: number;
   priceList: number;
+  fantasyName: string;
 
-  constructor({ id, email, password, firstSignIn, web_role, priceList }) {
+  constructor({
+    id,
+    email,
+    password,
+    firstSignIn,
+    web_role,
+    priceList,
+    fantasyName,
+  }: Client) {
     this.id = id;
     this.email = email;
     this.password = password;
     this.firstSignIn = firstSignIn;
     this.web_role = web_role;
     this.priceList = priceList;
+    this.fantasyName = fantasyName;
   }
 }
 export class SellerUser {
@@ -24,7 +36,7 @@ export class SellerUser {
   firstSignIn: boolean;
   web_role: number;
 
-  constructor({ id, email, password, firstSignIn, web_role }) {
+  constructor({ id, email, password, firstSignIn, web_role }: Seller) {
     this.id = id;
     this.email = email;
     this.password = password;

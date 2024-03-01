@@ -8,7 +8,17 @@ import {
   IsOptional,
 } from 'class-validator';
 
-export class CheckoutRequest {
+export class PaymentOrderDTO {
+  @IsNumber()
+  @IsNotEmpty()
+  total: number;
+
+  @IsNumber()
+  @IsNotEmpty()
+  userId: number;
+}
+
+export class CheckoutRequestDTO {
   @IsNumber()
   @IsOptional()
   discount?: number;
@@ -21,11 +31,11 @@ export class CheckoutRequest {
   @IsNotEmpty()
   @ArrayMinSize(1)
   @ValidateNested({ each: true })
-  @Type(() => RequestItem)
-  items: RequestItem[];
+  @Type(() => RequestItemDTO)
+  items: RequestItemDTO[];
 }
 
-export class RequestItem {
+export class RequestItemDTO {
   @IsNotEmpty()
   @IsNumber()
   id: number;
@@ -48,7 +58,7 @@ export interface MobbexItem {
   image: string;
 }
 
-export interface MobbexBody {
+export interface MobbexCheckoutBody {
   total: number;
   currency: string;
   reference: string;
@@ -57,4 +67,11 @@ export interface MobbexBody {
   return_url: string;
   test?: boolean;
   customer: MobbexCustomer;
+}
+
+export interface MobbexPayOrderBody {
+  total: number;
+  description: string;
+  reference: string;
+  return_url: string;
 }

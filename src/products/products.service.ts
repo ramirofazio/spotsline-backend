@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Product, RawProduct } from './products.dto';
-import { MobbexItem, RequestItem } from 'src/mobbex/mobbex.dto';
+import { MobbexItem, RequestItemDTO } from 'src/mobbex/mobbex.dto';
 
 @Injectable()
 export class ProductsService {
@@ -25,7 +25,7 @@ export class ProductsService {
   };
 
   async findCheckoutProducts(
-    items: RequestItem[],
+    items: RequestItemDTO[],
     userPriceList: number,
   ): Promise<MobbexItem[]> {
     const cleanItems = Promise.all(
