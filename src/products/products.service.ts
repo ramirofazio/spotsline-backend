@@ -35,7 +35,10 @@ export class ProductsService {
           select: this.productsSelectOpt,
         });
         if (item) {
-          const totalItemsAmount = item['precio' + userPriceList] * qty;
+          //? Accede dinamicamente a los precios de los productos dependiendo de la lista que tenga enlazada el Cliente
+          const priceProperty = `precio${userPriceList}`;
+
+          const totalItemsAmount = item[priceProperty] * qty;
 
           return {
             description: item.descri.trim(),
