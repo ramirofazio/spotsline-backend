@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { Product, RawProduct } from './products.dto';
+import { Pagination, Product, RawProduct } from './products.dto';
 
 @Injectable()
 export class ProductsService {
@@ -23,18 +23,88 @@ export class ProductsService {
     marca: true,
   };
 
-  async getAllProducts(): Promise<number> {
+  async getAllProducts({
+    page,
+    take,
+    search,
+  }: {
+    page: number;
+    take: number;
+    search: string;
+  }): Promise<Pagination> {
     try {
+      take = formatTake(take);
+      page = formatPage(page);
+      const skip = take * page - take;
+      const where =
+        search !== 'null'
+          ? {
+              descri: {
+                contains: search,
+              },
+              incluido: true,
+            }
+          : { incluido: true };
+
       const products: RawProduct[] = await this.prisma.stock.findMany({
-        where: { incluido: true },
+        take,
+        skip,
+        where,
         select: this.productsSelectOpt,
       });
 
-      //! @Jhony
-      //? Esto da 1708 productos, que serian arpox 85 paginas. Habria que ver, porque para mi no TODOS van, y claramente al ser tantos productos se necesitan buenos filtros para  buscar puntualmente lo que buscan
-      //? La searchbar deberia buscar en una ruta y que aparezcan skeletons mientra carga la busqueda
+      const count = await this.prisma.stock.count({ where });
 
-      return products.length;
+      if (!products.length) {
+        // Cambiado de !products a !products.length para verificar array vacío
+        throw new HttpException(
+          'productos no encontrados',
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      const cleanProducts: Product[] = await Promise.all(
+        products.map(async (p) => {
+          const [rubro, subRubro, marca] = await this.prisma.$transaction([
+            this.prisma.rubros.findFirst({
+              where: { codigo: p.rubro },
+              select: { descri: true },
+            }),
+            this.prisma.subrub.findFirst({
+              where: { codigo: p.subrub },
+              select: { descri: true },
+            }),
+            this.prisma.marcas.findFirst({
+              where: { codigo: p.marca },
+              select: { descripcion: true },
+            }),
+          ]);
+
+          if (!rubro || !subRubro || !marca) {
+            console.error('Datos de producto incompletos');
+            return null;
+          }
+
+          return new Product(
+            p,
+            rubro.descri,
+            subRubro.descri,
+            marca.descripcion,
+          );
+        }),
+      );
+
+      return {
+        metadata: {
+          total_pages: Math.ceil(count / take),
+          total_items: count,
+          items_per_page: take,
+          current_page: page,
+          search_term: search,
+          next_page: Math.ceil(count / take) - page <= 0 ? null : page + 1,
+        },
+        rows: cleanProducts.filter((product) => product !== null),
+      };
     } catch (e) {
       throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
@@ -152,3 +222,16 @@ export class ProductsService {
     }
   }
 }
+
+const MAX_TAKE_PER_QUERY = 50;
+
+const formatTake = (value: number): number => {
+  let x = Number(value);
+  if (x > MAX_TAKE_PER_QUERY || Number.isNaN(x)) {
+    x = MAX_TAKE_PER_QUERY;
+  }
+
+  return x;
+};
+
+const formatPage = (value: number): number => Number(value) || 1;
