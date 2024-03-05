@@ -15,6 +15,7 @@ export interface RawClient {
   visualiza: boolean;
   clave: string;
   firstSignIn: boolean;
+  web_role: number;
 }
 
 export class Client {
@@ -32,6 +33,7 @@ export class Client {
   canSee: boolean;
   password: string;
   firstSignIn: boolean;
+  web_role: number;
 
   constructor(rawClient: RawClient) {
     const {
@@ -49,6 +51,7 @@ export class Client {
       visualiza,
       clave,
       firstSignIn,
+      web_role,
     } = rawClient;
 
     this.id = nrocli;
@@ -65,5 +68,6 @@ export class Client {
     this.canSee = visualiza;
     this.password = clave.trim();
     this.firstSignIn = firstSignIn;
+    this.web_role = web_role;
   }
 }

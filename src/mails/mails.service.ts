@@ -125,7 +125,11 @@ export class MailsService {
                 <tr style="width: 100%">
                   <td>
                     <a
-                      href="http://localhost:5173?reset=true&amp;&amp;access_token=${temporal_access_token}"
+                      href="${
+                        process.env.NODE_ENV === 'production'
+                          ? 'https://www.spotsline.com.ar'
+                          : 'http://localhost:5173'
+                      }?reset=true&amp;&amp;access_token=${temporal_access_token}&amp;&amp;email=${email}"
                       style="
                         color: #000000;
                         background-color: #f9ce41;
@@ -268,11 +272,11 @@ export class MailsService {
 `,
       });
 
+      console.log(data);
+
       if (!data.error) {
         return HttpStatus.OK;
       }
-
-      console.log(data);
     } catch (e) {
       throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }

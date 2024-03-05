@@ -56,3 +56,13 @@ export class SignInResponseDTO {
   access_token: string;
   user: UserResponse;
 }
+
+export class JwtAutoSignInDTO {
+  @IsNotEmpty()
+  @IsString()
+  email: string;
+
+  @IsNotEmpty()
+  @IsString()
+  jwt: string;
+}

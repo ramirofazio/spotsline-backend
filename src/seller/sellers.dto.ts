@@ -9,6 +9,7 @@ export interface RawSeller {
   comision: Decimal;
   comicob: Decimal;
   firstSignIn: boolean;
+  web_role: number;
 }
 
 export class Seller {
@@ -20,10 +21,20 @@ export class Seller {
   comission: number;
   sellComission: number;
   firstSignIn: boolean;
+  web_role: number;
 
   constructor(rawClient: RawSeller) {
-    const { id, codven, email, nombre, clave, comision, comicob, firstSignIn } =
-      rawClient;
+    const {
+      id,
+      codven,
+      email,
+      nombre,
+      clave,
+      comision,
+      comicob,
+      firstSignIn,
+      web_role,
+    } = rawClient;
 
     this.id = id;
     this.sellerId = Number(codven);
@@ -33,5 +44,6 @@ export class Seller {
     this.comission = Number(comision);
     this.sellComission = Number(comicob);
     this.firstSignIn = firstSignIn;
+    this.web_role = web_role;
   }
 }

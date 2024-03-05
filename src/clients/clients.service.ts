@@ -32,6 +32,7 @@ export class ClientsService {
           visualiza: true,
           clave: true,
           firstSignIn: true,
+          web_role: true,
         },
       });
 
@@ -53,13 +54,15 @@ export class ClientsService {
         return null;
       }
 
-      if (client.firstSignIn) {
+      if (!client.firstSignIn) {
+        //? si el cliente ya hizo su primer inicio, tira el error
         throw new UnauthorizedException();
       }
 
+      //? Pongo firstSignIn en true para chequear que ya hizo su primer inicio
       await this.prisma.cliente.update({
         where: { nrocli: client.id },
-        data: { clave: bcrypt.hashSync(newPassword, 10), firstSignIn: true },
+        data: { clave: bcrypt.hashSync(newPassword, 10), firstSignIn: false },
       });
 
       return HttpStatus.OK;
@@ -73,7 +76,6 @@ export class ClientsService {
     newPassword,
   }: PasswordResetRequestDTO): Promise<Client> {
     const client: Client = await this.findByEmail(email);
-    console.log("entro a lcient")
     if (!client) {
       return null;
     }
@@ -84,8 +86,6 @@ export class ClientsService {
     });
 
     HttpStatus.OK;
-    return new Client(updated) 
-
-    //todo: Estaria bueno que directamente lo loggee y devuela el access_token
+    return new Client(updated);
   }
 }

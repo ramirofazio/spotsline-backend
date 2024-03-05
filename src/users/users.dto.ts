@@ -6,12 +6,14 @@ export class User {
   email: string;
   password: string;
   firstSignIn: boolean;
+  web_role: number;
 
-  constructor({ id, email, password, firstSignIn }) {
+  constructor({ id, email, password, firstSignIn, web_role }) {
     this.id = id;
     this.email = email;
     this.password = password;
     this.firstSignIn = firstSignIn;
+    this.web_role = web_role;
   }
 }
 
@@ -19,11 +21,13 @@ export class UserResponse {
   id: number;
   email: string;
   firstSignIn: boolean;
+  web_role: number;
 
-  constructor({ id, email, firstSignIn }) {
+  constructor({ id, email, firstSignIn, web_role }) {
     this.id = id;
     this.email = email;
     this.firstSignIn = firstSignIn;
+    this.web_role = web_role;
   }
 }
 

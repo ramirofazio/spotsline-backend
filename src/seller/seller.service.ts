@@ -25,7 +25,8 @@ export class SellerService {
           clave: true,
           comision: true,
           comicob: true,
-          //firstSignIn: true,
+          firstSignIn: true,
+          web_role: true,
         },
       });
 
@@ -47,14 +48,16 @@ export class SellerService {
         return null;
       }
 
-      if (seller.firstSignIn) {
+      if (!seller.firstSignIn) {
+        //? si el vendedor ya hizo su primer inicio, tira el error
         throw new UnauthorizedException();
       }
 
+      //? Pongo firstSignIn en true para chequear que ya hizo su primer inicio
       await this.prisma.vende.update({
         where: { codven: seller.sellerId },
         data: {
-          clave: bcrypt.hashSync(newPassword, 10) /* , firstSignIn: true */,
+          clave: bcrypt.hashSync(newPassword, 10) /* , firstSignIn: false */,
         },
       });
 

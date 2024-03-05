@@ -9,6 +9,7 @@ import {
 import { AuthService } from './auth.service';
 import {
   InitPasswordResetRequestDTO,
+  JwtAutoSignInDTO,
   PasswordResetRequestDTO,
   SignInDto,
 } from './auth.dto';
@@ -22,6 +23,12 @@ export class AuthController {
   @Post('sign-in')
   async signIn(@Body() body: SignInDto) {
     return await this.auth.signIn(body);
+  }
+
+  @Public()
+  @Post('jwt-auto-sign-in')
+  async jwtAutoSignIn(@Body() body: JwtAutoSignInDTO) {
+    return await this.auth.jwtAutoSignIn(body);
   }
 
   //? Esta ruta es privada solo con JWT en header valido ;)
@@ -38,7 +45,6 @@ export class AuthController {
 
   @Patch('confirm-password-reset')
   async confirmPasswordReset(@Body() data: PasswordResetRequestDTO) {
-    console.log("entro al controller")
     return await this.auth.confirmPasswordReset(data);
   }
 }
