@@ -16,6 +16,7 @@ export interface RawProduct {
   subrub: Decimal;
   marca: Decimal;
 }
+
 export class Product {
   id: number;
   offer: boolean;
@@ -65,4 +66,16 @@ export class Product {
     this.subRub = subRubro.trim();
     this.marca = marca.trim();
   }
+}
+
+export interface Pagination {
+  metadata: {
+    total_pages: number;
+    total_items: number;
+    items_per_page: number;
+    current_page: number;
+    search_term: string;
+    next_page: number;
+  };
+  rows: Product[];
 }

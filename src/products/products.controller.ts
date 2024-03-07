@@ -1,6 +1,6 @@
 import { Controller, Query, Get, Param } from '@nestjs/common';
 import { ProductsService } from './products.service';
-import { Product } from './products.dto';
+import { Pagination, Product } from './products.dto';
 import { Public } from 'src/auth/publicDecorator';
 
 @Controller('products')
@@ -8,9 +8,13 @@ export class ProductsController {
   constructor(private productsService: ProductsService) {}
 
   @Public()
-  @Get('all')
-  async getAllProducts(): Promise<number> {
-    return await this.productsService.getAllProducts();
+  @Get('')
+  async getAllProducts(
+    @Query('page') page: number,
+    @Query('take') take: number,
+    @Query('search') search: string,
+  ): Promise<Pagination> {
+    return await this.productsService.getAllProducts({ page, take, search });
   }
 
   @Public()
