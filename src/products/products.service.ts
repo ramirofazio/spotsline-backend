@@ -24,6 +24,30 @@ export class ProductsService {
     marca: true,
   };
 
+  async getOrderProductsData(
+    items: RequestItemDTO[],
+    userPriceList: number,
+  ): Promise<any> {
+    const cleanItems = items.map(async ({ qty, id }) => {
+      const item: RawProduct = await this.prisma.stock.findFirstOrThrow({
+        where: { id: id },
+        select: this.productsSelectOpt,
+      });
+      if (item) {
+        //? Accede dinamicamente a los precios de los productos dependiendo de la lista que tenga enlazada el Cliente
+        const priceProperty = `precio${userPriceList}`;
+
+        const totalItemsAmount = item[priceProperty] * qty;
+
+        return {
+          total: Number(totalItemsAmount),
+        };
+      }
+    });
+
+    return cleanItems;
+  }
+
   async findCheckoutProducts(
     items: RequestItemDTO[],
     userPriceList: number,

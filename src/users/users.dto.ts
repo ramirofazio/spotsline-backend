@@ -1,6 +1,15 @@
 import { Decimal } from '@prisma/client/runtime/library';
-import { IsNotEmpty, IsNumber } from 'class-validator';
+import { Type } from 'class-transformer';
+import {
+  ArrayMinSize,
+  IsArray,
+  IsNotEmpty,
+  IsNumber,
+  IsString,
+  ValidateNested,
+} from 'class-validator';
 import { Client } from 'src/clients/clients.dto';
+import { RequestItemDTO } from 'src/mobbex/mobbex.dto';
 import { Seller } from 'src/seller/sellers.dto';
 export class User {
   id: number;
@@ -90,4 +99,28 @@ export class UpdateCurrentAccountDTO {
   cobro: Decimal;
 
   //? Estos datos son mockup, no se bien si hay que modificar esto, pero es para armar la estructura
+}
+export class OrderBodyDTO {
+  @IsNumber()
+  @IsNotEmpty()
+  discount?: number;
+
+  @IsNumber()
+  @IsNotEmpty()
+  userId: number;
+
+  @IsArray()
+  @IsNotEmpty()
+  @ArrayMinSize(1)
+  @ValidateNested({ each: true })
+  @Type(() => RequestItemDTO)
+  items: RequestItemDTO[];
+
+  @IsNotEmpty()
+  @IsString()
+  transactionId: string;
+
+  @IsNotEmpty()
+  @IsString()
+  type: string;
 }

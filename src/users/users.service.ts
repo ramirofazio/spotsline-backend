@@ -5,12 +5,15 @@ import { SellerService } from 'src/seller/seller.service';
 import { Seller } from 'src/seller/sellers.dto';
 import {
   CCorriente,
+  OrderBodyDTO,
   SellerUser,
   UpdateCurrentAccountDTO,
   User,
 } from './users.dto';
 import { PasswordResetRequestDTO } from 'src/auth/auth.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { ProductsService } from 'src/products/products.service';
+import { RequestItemDTO } from 'src/mobbex/mobbex.dto';
 
 @Injectable()
 export class UsersService {
@@ -18,6 +21,7 @@ export class UsersService {
     private clients: ClientsService,
     private sellers: SellerService,
     private prisma: PrismaService,
+    private products: ProductsService,
   ) {}
 
   async findUserById(id: number): Promise<User> {
@@ -161,5 +165,56 @@ export class UsersService {
     } catch (e) {
       throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
+  }
+
+  async createOrder({
+    items,
+    transactionId,
+    type,
+    userId,
+    discount,
+  }: OrderBodyDTO) {
+    const { email, id, fantasyName, priceList } =
+      await this.findUserById(userId);
+
+    const { subtotal } = await this.products.getOrderProductsData(
+      items,
+      priceList,
+    );
+
+    const totalDiscount = (discount / 100) * subtotal;
+
+    const total = subtotal - totalDiscount;
+
+    if (email && id) {
+      //?  Si existe el cliente en la DB
+      const newOrder = await this.prisma.web_orders.create({
+        data: {
+          date: new Date().toISOString(),
+          discount: discount,
+          email: email,
+          mobbexId: transactionId,
+          name: fantasyName,
+          userId: userId,
+          subtotal: subtotal,
+          total: total,
+          type: type,
+        },
+      });
+
+      if (newOrder) {
+        items.map(async ({ qty, id }) => {
+          await this.prisma.order_products.create({
+            data: {
+              orderId: newOrder.id,
+              productId: id,
+              qty: qty,
+            },
+          });
+        });
+      }
+    }
+
+    return HttpStatus.OK;
   }
 }
