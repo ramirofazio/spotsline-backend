@@ -8,11 +8,21 @@ import {
   Post,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { UpdateCurrentAccountDTO, OrderBodyDTO } from './users.dto';
+import {
+  UpdateCurrentAccountDTO,
+  OrderBodyDTO,
+  UserOrdersDTO,
+  CleanOrders,
+} from './users.dto';
 
 @Controller('users')
 export class UsersController {
   constructor(private userService: UsersService) {}
+
+  @Get('orders')
+  async getUserOrders(@Body() { id }: { id: number }): Promise<CleanOrders[]> {
+    return await this.userService.getUserOrders(id);
+  }
 
   @Post('create-order')
   async createOrder(@Body() body: OrderBodyDTO): Promise<HttpStatus> {

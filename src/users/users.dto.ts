@@ -9,7 +9,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { Client } from 'src/clients/clients.dto';
-import { RequestItemDTO } from 'src/mobbex/mobbex.dto';
+import { MobbexItem, RequestItemDTO } from 'src/mobbex/mobbex.dto';
 import { Seller } from 'src/seller/sellers.dto';
 export class User {
   id: number;
@@ -123,4 +123,43 @@ export class OrderBodyDTO {
   @IsNotEmpty()
   @IsString()
   type: string;
+}
+
+export class UserOrdersDTO {
+  @IsNumber()
+  @IsNotEmpty()
+  discount?: number;
+
+  @IsNumber()
+  @IsNotEmpty()
+  userId: number;
+
+  @IsArray()
+  @IsNotEmpty()
+  @ArrayMinSize(1)
+  @ValidateNested({ each: true })
+  @Type(() => RequestItemDTO)
+  items: RequestItemDTO[];
+
+  @IsNotEmpty()
+  @IsString()
+  transactionId: string;
+
+  @IsNotEmpty()
+  @IsString()
+  type: string;
+}
+
+export interface UserOrders {
+  id: string;
+  date: string;
+  discount: number;
+  mobbexId: string;
+  total: number;
+  subtotal: Decimal;
+  type: string;
+}
+
+export interface CleanOrders extends UserOrders {
+  products: MobbexItem[];
 }

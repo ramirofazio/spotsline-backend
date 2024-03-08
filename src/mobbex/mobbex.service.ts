@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { User } from 'src/users/users.dto';
 import { UsersService } from 'src/users/users.service';
@@ -24,16 +24,20 @@ export class MobbexService {
     total,
     userId,
   }: PaymentOrderDTO): Promise<MobbexPayOrderBody> {
-    const { email, fantasyName }: User =
-      await this.usersService.findUserById(userId);
-    //TODO Aca deberia crear una orden de pago con estado `pending` para luego modificarlo a `complete` cuando se confirme el pago (Catchear return de mobbex y hacer post a `/order/confirm` o algo asi)
-    //? Otra opcion para no armar tanta logica en la DB puede ser guardar los datos necesarios para la orden en localStorage y cuando vuelva a la web, depende el estado que mande un POST con los datos de la orden ya confirmada
-    return {
-      total: total,
-      reference: `Fecha: ${new Date().toLocaleDateString()}. Cliente: ${email}.`,
-      description: `${fantasyName} quiere pagar $${total} de su Cuenta Corriente.`,
-      return_url: env.MOBBEX_X_RETURN_URL,
-    };
+    try {
+      const { email, fantasyName }: User =
+        await this.usersService.findUserById(userId);
+      //TODO Aca deberia crear una orden de pago con estado `pending` para luego modificarlo a `complete` cuando se confirme el pago (Catchear return de mobbex y hacer post a `/order/confirm` o algo asi)
+      //? Otra opcion para no armar tanta logica en la DB puede ser guardar los datos necesarios para la orden en localStorage y cuando vuelva a la web, depende el estado que mande un POST con los datos de la orden ya confirmada
+      return {
+        total: total,
+        reference: `Fecha: ${new Date().toLocaleDateString()}. Cliente: ${email}.`,
+        description: `${fantasyName} quiere pagar $${total} de su Cuenta Corriente.`,
+        return_url: env.MOBBEX_X_RETURN_URL,
+      };
+    } catch (e) {
+      throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
   async generateBody({
@@ -41,37 +45,45 @@ export class MobbexService {
     items,
     discount,
   }: CheckoutRequestDTO): Promise<MobbexCheckoutBody> {
-    const { email, priceList }: User =
-      await this.usersService.findUserById(userId);
+    try {
+      const { email, priceList }: User =
+        await this.usersService.findUserById(userId);
 
-    const mobbexItems: MobbexItem[] =
-      await this.productsService.findCheckoutProducts(items, priceList);
+      const mobbexItems: MobbexItem[] =
+        await this.productsService.findCheckoutProducts(items, priceList);
 
-    const total = this.calculateTotal(mobbexItems, discount);
-    //TODO Aca deberia crear una orden de pago con estado `pending` para luego modificarlo a `complete` cuando se confirme el pago (Catchear return de mobbex y hacer post a `/order/confirm` o algo asi)
-    //? Otra opcion para no armar tanta logica en la DB puede ser guardar los datos necesarios para la orden en localStorage y cuando vuelva a la web, depende el estado que mande un POST con los datos de la orden ya confirmada
+      const total = this.calculateTotal(mobbexItems, discount);
+      //TODO Aca deberia crear una orden de pago con estado `pending` para luego modificarlo a `complete` cuando se confirme el pago (Catchear return de mobbex y hacer post a `/order/confirm` o algo asi)
+      //? Otra opcion para no armar tanta logica en la DB puede ser guardar los datos necesarios para la orden en localStorage y cuando vuelva a la web, depende el estado que mande un POST con los datos de la orden ya confirmada
 
-    return {
-      total: total,
-      currency: 'ARS',
-      reference: `${new Date().toLocaleDateString()} ${String(userId)}`,
-      description: `Venta WEB para ${email}`,
-      items: mobbexItems,
-      return_url: env.MOBBEX_X_RETURN_URL,
-      customer: {
-        email: email,
-        name: email.split('@')[0],
-        identification: String(userId),
-      },
-    };
+      return {
+        total: total,
+        currency: 'ARS',
+        reference: `${new Date().toLocaleDateString()} ${String(userId)}`,
+        description: `Venta WEB para ${email}`,
+        items: mobbexItems,
+        return_url: env.MOBBEX_X_RETURN_URL,
+        customer: {
+          email: email,
+          name: email.split('@')[0],
+          identification: String(userId),
+        },
+      };
+    } catch (e) {
+      throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
   calculateTotal(items: MobbexItem[], discount: number): number {
-    const itemsTotals: number[] = items.map(({ total }) => total);
+    try {
+      const itemsTotals: number[] = items.map(({ total }) => total);
 
-    const total = itemsTotals.reduce((acc, num) => acc + num, 0);
+      const total = itemsTotals.reduce((acc, num) => acc + num, 0);
 
-    const totalDiscount = (discount / 100) * total;
+      const totalDiscount = (discount / 100) * total;
 
-    return total - totalDiscount;
+      return total - totalDiscount;
+    } catch (e) {
+      throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 }
