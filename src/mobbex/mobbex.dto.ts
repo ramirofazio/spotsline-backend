@@ -66,6 +66,7 @@ export interface MobbexCheckoutBody {
   items: MobbexItem[];
   return_url: string;
   test?: boolean;
+  sources: Array<string>;
   customer: MobbexCustomer;
 }
 
