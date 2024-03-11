@@ -3,9 +3,21 @@ import { Client } from 'src/clients/clients.dto';
 import { ClientsService } from 'src/clients/clients.service';
 import { SellerService } from 'src/seller/seller.service';
 import { Seller } from 'src/seller/sellers.dto';
-import { CCorriente, UpdateCurrentAccountDTO, User } from './users.dto';
+import {
+  CCorriente,
+  CleanOrders,
+  OrderBodyDTO,
+  SellerUser,
+  UpdateCurrentAccountDTO,
+  User,
+  UserOrders,
+  UserOrdersDTO,
+} from './users.dto';
 import { PasswordResetRequestDTO } from 'src/auth/auth.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { ProductsService } from 'src/products/products.service';
+import { OrderProduct, RawOrderProduct } from 'src/products/products.dto';
+import { MobbexItem, RequestItemDTO } from 'src/mobbex/mobbex.dto';
 
 @Injectable()
 export class UsersService {
@@ -13,21 +25,103 @@ export class UsersService {
     private clients: ClientsService,
     private sellers: SellerService,
     private prisma: PrismaService,
+    private products: ProductsService,
   ) {}
 
-  async findUserByEmail(email: string): Promise<User> {
-    const client: Client = await this.clients.findByEmail(email);
+  async getUserOrders(id: number): Promise<CleanOrders[]> {
+    try {
+      const { priceList } = await this.findUserById(id);
 
-    if (client) {
-      return new User(client);
-    } else {
-      const seller: Seller = await this.sellers.findByEmail(email);
+      const userOrders: UserOrders[] = await this.prisma.web_orders.findMany({
+        where: { userId: id },
+        select: {
+          id: true,
+          date: true,
+          discount: true,
+          mobbexId: true,
+          total: true,
+          subtotal: true,
+          type: true,
+        },
+      });
 
-      if (seller) {
-        return new User(seller);
+      if (!userOrders) {
+        throw new HttpException(
+          'hubo un error al recuperar los datos de las ordenes',
+          HttpStatus.NOT_FOUND,
+        );
       }
 
-      throw new HttpException('usuario no encontrado', HttpStatus.NOT_FOUND);
+      const cleanOrders: CleanOrders[] = await Promise.all(
+        userOrders.map(async (order) => {
+          const orderProducts: RawOrderProduct[] =
+            await this.prisma.order_products.findMany({
+              where: { orderId: order.id },
+              select: { productId: true, qty: true },
+            });
+
+          if (!orderProducts) {
+            throw new HttpException(
+              'hubo un error al recuperar los datos de las ordenes',
+              HttpStatus.NOT_FOUND,
+            );
+          }
+
+          const newOrderProducts: RequestItemDTO[] = orderProducts.map(
+            (el) => new OrderProduct(el),
+          );
+
+          const cleanOrderProducts: MobbexItem[] =
+            await this.products.findCheckoutProducts(
+              newOrderProducts,
+              priceList,
+            );
+
+          return {
+            ...order,
+            products: [...cleanOrderProducts],
+          };
+        }),
+      );
+
+      return cleanOrders;
+    } catch (e) {
+      throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  async findUserById(id: number): Promise<User> {
+    try {
+      //? Solo busca usuarios en la tabla CLIENTE, para crear el checkout
+      const client: Client = await this.clients.findById(id);
+
+      if (!client) {
+        throw new HttpException('usuario no encontrado', HttpStatus.NOT_FOUND);
+      }
+
+      return new User(client);
+    } catch (e) {
+      throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  async findUserByEmail(email: string): Promise<User | SellerUser> {
+    try {
+      const client: Client = await this.clients.findByEmail(email);
+
+      if (client) {
+        return new User(client);
+      } else {
+        const seller: Seller = await this.sellers.findByEmail(email);
+
+        if (seller) {
+          return new SellerUser(seller);
+        }
+
+        throw new HttpException('usuario no encontrado', HttpStatus.NOT_FOUND);
+      }
+    } catch (e) {
+      throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -145,5 +239,53 @@ export class UsersService {
     } catch (e) {
       throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
+  }
+
+  async createOrder({
+    items,
+    transactionId,
+    type,
+    userId,
+    discount,
+  }: OrderBodyDTO) {
+    const { email, id, fantasyName, priceList } =
+      await this.findUserById(userId);
+
+    const subtotal = await this.products.getOrderProductsData(items, priceList);
+
+    const totalDiscount = (discount / 100) * subtotal;
+
+    const total = subtotal - totalDiscount;
+
+    if (email && id) {
+      //?  Si existe el cliente en la DB
+      const newOrder = await this.prisma.web_orders.create({
+        data: {
+          date: new Date().toISOString(),
+          discount: discount,
+          email: email,
+          mobbexId: transactionId,
+          name: fantasyName,
+          userId: userId,
+          subtotal: subtotal,
+          total: total,
+          type: type,
+        },
+      });
+
+      if (newOrder) {
+        items.map(async ({ qty, id }) => {
+          await this.prisma.order_products.create({
+            data: {
+              orderId: newOrder.id,
+              productId: id,
+              qty: qty,
+            },
+          });
+        });
+      }
+    }
+
+    return HttpStatus.OK;
   }
 }

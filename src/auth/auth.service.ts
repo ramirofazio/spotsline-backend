@@ -10,7 +10,7 @@ const bcrypt = require('bcrypt');
 import { JwtService } from '@nestjs/jwt';
 import { MailsService } from 'src/mails/mails.service';
 import { UsersService } from 'src/users/users.service';
-import { User, UserResponse } from 'src/users/users.dto';
+import { SellerUser, User, UserResponse } from 'src/users/users.dto';
 import { env } from 'process';
 
 @Injectable()
@@ -29,7 +29,7 @@ export class AuthService {
       const verify = await this.jwt.verifyAsync(jwt);
 
       if (verify) {
-        const user: User = await this.users.findUserByEmail(email);
+        const user: User | SellerUser = await this.users.findUserByEmail(email);
 
         return {
           access_token: jwt,
@@ -43,7 +43,7 @@ export class AuthService {
 
   async signIn({ email, password }: SignInDto): Promise<SignInResponseDTO> {
     try {
-      const user: User = await this.users.findUserByEmail(email);
+      const user: User | SellerUser = await this.users.findUserByEmail(email);
 
       if (password !== env.DEFAULT_USER_PASSWORD) {
         const match = await bcrypt.compare(password, user.password);
@@ -78,7 +78,7 @@ export class AuthService {
   async initPasswordReset({
     email,
   }: InitPasswordResetRequestDTO): Promise<HttpStatus> {
-    const user: User = await this.users.findUserByEmail(email);
+    const user: User | SellerUser = await this.users.findUserByEmail(email);
 
     const payload = { sub: user.id, username: user.email };
 

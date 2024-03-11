@@ -15,7 +15,7 @@ import { UsersModule } from 'src/users/users.module';
     JwtModule.register({
       global: true,
       secret: jwtConstants.secret,
-      signOptions: { expiresIn: '2d' },
+      signOptions: { expiresIn: '15d' },
     }),
     UsersModule,
     PrismaModule,

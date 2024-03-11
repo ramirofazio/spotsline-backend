@@ -13,27 +13,46 @@ import * as bcrypt from 'bcrypt';
 export class ClientsService {
   constructor(private prisma: PrismaService) {}
 
+  selectOpt = {
+    nrocli: true,
+    razsoc: true,
+    fantasia: true,
+    direcc: true,
+    direcom: true,
+    telef1: true,
+    cuit: true,
+    lista: true,
+    email: true,
+    cond_vta: true,
+    inhabilitado: true,
+    visualiza: true,
+    clave: true,
+    firstSignIn: true,
+    web_role: true,
+  };
+
+  async findById(id: number): Promise<Client | null> {
+    try {
+      const rawClient: RawClient = await this.prisma.cliente.findUnique({
+        where: { nrocli: id },
+        select: this.selectOpt,
+      });
+
+      if (!rawClient) {
+        return null;
+      }
+
+      return new Client(rawClient);
+    } catch (e) {
+      throw new HttpException(e.message, HttpStatus.NOT_FOUND);
+    }
+  }
+
   async findByEmail(email: string): Promise<Client | null> {
     try {
       const rawClient: RawClient = await this.prisma.cliente.findFirst({
         where: { email: email },
-        select: {
-          nrocli: true,
-          razsoc: true,
-          fantasia: true,
-          direcc: true,
-          direcom: true,
-          telef1: true,
-          cuit: true,
-          lista: true,
-          email: true,
-          cond_vta: true,
-          inhabilitado: true,
-          visualiza: true,
-          clave: true,
-          firstSignIn: true,
-          web_role: true,
-        },
+        select: this.selectOpt,
       });
 
       if (!rawClient) {

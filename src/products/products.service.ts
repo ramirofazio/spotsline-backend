@@ -1,6 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { Pagination, Product, RawProduct } from './products.dto';
+import { Product, RawProduct, Pagination } from './products.dto';
+import { MobbexItem, RequestItemDTO } from 'src/mobbex/mobbex.dto';
 
 @Injectable()
 export class ProductsService {
@@ -22,6 +23,68 @@ export class ProductsService {
     subrub: true,
     marca: true,
   };
+
+  async getOrderProductsData(items: RequestItemDTO[], userPriceList: number) {
+    try {
+      const cleanItemsAmount = await Promise.all(
+        items.map(async ({ qty, id }) => {
+          const item: RawProduct = await this.prisma.stock.findFirstOrThrow({
+            where: { id: id },
+            select: this.productsSelectOpt,
+          });
+          if (item) {
+            //? Accede dinamicamente a los precios de los productos dependiendo de la lista que tenga enlazada el Cliente
+            const priceProperty = `precio${userPriceList}`;
+
+            const totalItemsAmount = item[priceProperty] * qty;
+
+            return Number(totalItemsAmount);
+          }
+        }),
+      );
+
+      //? Sumo el array de precios totales x productos para obtener el subtotal
+      const subtotal = cleanItemsAmount.reduce((acc, num) => acc + num);
+
+      return subtotal;
+    } catch (e) {
+      throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  async findCheckoutProducts(
+    items: RequestItemDTO[],
+    userPriceList: number,
+  ): Promise<MobbexItem[]> {
+    try {
+      const cleanItems = Promise.all(
+        items.map(async ({ qty, id }) => {
+          const item: RawProduct = await this.prisma.stock.findFirstOrThrow({
+            where: { id: id },
+            select: this.productsSelectOpt,
+          });
+          if (item) {
+            //? Accede dinamicamente a los precios de los productos dependiendo de la lista que tenga enlazada el Cliente
+            const priceProperty = `precio${userPriceList}`;
+
+            const totalItemsAmount = item[priceProperty] * qty;
+
+            return {
+              description: item.descri.trim(),
+              quantity: Number(qty),
+              total: Number(totalItemsAmount),
+              //! ACTUALIZAR
+              image: 'imagen',
+            };
+          }
+        }),
+      );
+
+      return cleanItems;
+    } catch (e) {
+      throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
 
   async getAllProducts({
     page,

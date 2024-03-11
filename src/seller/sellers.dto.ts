@@ -23,7 +23,7 @@ export class Seller {
   firstSignIn: boolean;
   web_role: number;
 
-  constructor(rawClient: RawSeller) {
+  constructor(rawSeller: RawSeller) {
     const {
       id,
       codven,
@@ -34,7 +34,7 @@ export class Seller {
       comicob,
       firstSignIn,
       web_role,
-    } = rawClient;
+    } = rawSeller;
 
     this.id = id;
     this.sellerId = Number(codven);

@@ -79,3 +79,18 @@ export interface Pagination {
   };
   rows: Product[];
 }
+
+export class OrderProduct {
+  id: number;
+  qty: number;
+
+  constructor({ productId, qty }) {
+    this.id = productId;
+    this.qty = qty;
+  }
+}
+
+export interface RawOrderProduct {
+  productId: number;
+  qty: number;
+}
