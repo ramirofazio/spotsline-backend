@@ -4,12 +4,13 @@ import {
   DeleteObjectCommand,
   PutObjectCommand,
   S3Client,
+  GetObjectCommand,
 } from '@aws-sdk/client-s3';
 import { env } from 'process';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
-export class AwsS3UploadService {
+export class awsService {
   private readonly s3Client = new S3Client({
     region: this.configService.get('AWS_S3_REGION'),
   });
@@ -27,6 +28,12 @@ export class AwsS3UploadService {
     product_id: number,
   ): Promise<HttpStatus> {
     try {
+      const exist = await this.checkImageExists(originalname);
+
+      if (exist) {
+        return HttpStatus.ACCEPTED;
+      }
+
       const res = await this.s3Client.send(
         new PutObjectCommand({
           Bucket: this.bucketName,
@@ -45,14 +52,17 @@ export class AwsS3UploadService {
       const imageUrl = `${this.bucketUrl}${originalname}`;
 
       //? Busco el producto y le enlazo la imagen guardada
-      const { codpro } = await this.prisma.stock.findFirst({
+      const { codpro, pathfoto2 } = await this.prisma.stock.findFirst({
         where: { id: product_id },
       });
 
       if (codpro) {
         await this.prisma.stock.update({
           where: { codpro: codpro },
-          data: { pathfoto2: imageUrl },
+          //? Guardo un string con todos los url de las imagenes. En FE usar !pathfoto2.split("-").map((img) => img === fotoProd)
+          data: {
+            pathfoto2: pathfoto2 ? `${pathfoto2} - ${imageUrl}` : imageUrl,
+          },
         });
       }
 
@@ -90,6 +100,21 @@ export class AwsS3UploadService {
       return HttpStatus.OK;
     } catch (e) {
       throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  async checkImageExists(key: string): Promise<boolean> {
+    try {
+      //? Valido si la imagen existe en el bucket para no duplicarla
+      await this.s3Client.send(
+        new GetObjectCommand({
+          Bucket: this.bucketName,
+          Key: key,
+        }),
+      );
+      return true;
+    } catch (error) {
+      return false;
     }
   }
 }

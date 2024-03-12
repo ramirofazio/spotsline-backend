@@ -11,12 +11,11 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { Public } from 'src/auth/publicDecorator';
-import { AwsS3UploadService } from './aws-s3-upload.service';
+import { awsService } from './aws.service';
 
 @Controller('aws-s3-upload')
-export class AwsS3UploadController {
-  constructor(private readonly uploadService: AwsS3UploadService) {}
+export class awsController {
+  constructor(private readonly awsService: awsService) {}
 
   @Post('/:product_id')
   @UseInterceptors(FileInterceptor('file'))
@@ -32,13 +31,13 @@ export class AwsS3UploadController {
     file: Express.Multer.File,
     @Param('product_id') product_id: number,
   ): Promise<HttpStatus> {
-    return await this.uploadService.uploadProductImage(file, product_id);
+    return await this.awsService.uploadProductImage(file, product_id);
   }
 
   @Delete(':product_id')
   async deleteProductImage(
     @Param('product_id') product_id: number,
   ): Promise<HttpStatus> {
-    return await this.uploadService.deleteProductImage(product_id);
+    return await this.awsService.deleteProductImage(product_id);
   }
 }
