@@ -12,7 +12,8 @@ import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { ShoppingCartModule } from './shopping-cart/shopping-cart.module';
 import { MobbexModule } from './mobbex/mobbex.module';
-
+import { ConfigModule } from '@nestjs/config';
+import { awsModule } from './aws/aws.module';
 @Module({
   imports: [
     PrismaModule,
@@ -25,6 +26,8 @@ import { MobbexModule } from './mobbex/mobbex.module';
     UsersModule,
     ShoppingCartModule,
     MobbexModule,
+    awsModule,
+    ConfigModule.forRoot({ isGlobal: true }),
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],
