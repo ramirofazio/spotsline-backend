@@ -71,3 +71,52 @@ export class Client {
     this.web_role = web_role;
   }
 }
+
+export class ClientProfileResponse {
+  id: number;
+  socialReason: string;
+  fantasyName: string;
+  address: string;
+  businessAdress: string;
+  celphone: string;
+  cuit: number;
+  priceList: number;
+  email: string;
+  sellCondition: number;
+  active: boolean;
+  canSee: boolean;
+  firstSignIn: boolean;
+  web_role: number;
+
+  constructor({
+    id,
+    socialReason,
+    fantasyName,
+    address,
+    businessAdress,
+    celphone,
+    cuit,
+    priceList,
+    email,
+    sellCondition,
+    active,
+    canSee,
+    firstSignIn,
+    web_role,
+  }: Client) {
+    this.id = id;
+    this.socialReason = socialReason;
+    this.fantasyName = fantasyName;
+    this.address = address;
+    this.businessAdress = businessAdress;
+    this.celphone = celphone;
+    this.cuit = cuit;
+    this.priceList = priceList;
+    this.email = email;
+    this.sellCondition = sellCondition;
+    this.active = active;
+    this.canSee = canSee;
+    this.firstSignIn = firstSignIn;
+    this.web_role = web_role;
+  }
+}

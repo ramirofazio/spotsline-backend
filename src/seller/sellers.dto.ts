@@ -47,3 +47,33 @@ export class Seller {
     this.web_role = web_role;
   }
 }
+export class SellerProfileResponse {
+  id: number;
+  sellerId: number;
+  email: string;
+  name: string;
+  comission: number;
+  sellComission: number;
+  firstSignIn: boolean;
+  web_role: number;
+
+  constructor({
+    id,
+    sellerId,
+    email,
+    name,
+    comission,
+    sellComission,
+    firstSignIn,
+    web_role,
+  }: Seller) {
+    this.id = id;
+    this.sellerId = sellerId;
+    this.email = email;
+    this.name = name;
+    this.comission = comission;
+    this.sellComission = sellComission;
+    this.firstSignIn = firstSignIn;
+    this.web_role = web_role;
+  }
+}

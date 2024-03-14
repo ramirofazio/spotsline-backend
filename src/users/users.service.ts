@@ -1,8 +1,13 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { Client } from 'src/clients/clients.dto';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
+import { Client, ClientProfileResponse } from 'src/clients/clients.dto';
 import { ClientsService } from 'src/clients/clients.service';
 import { SellerService } from 'src/seller/seller.service';
-import { Seller } from 'src/seller/sellers.dto';
+import { Seller, SellerProfileResponse } from 'src/seller/sellers.dto';
 import {
   CCorriente,
   CleanOrders,
@@ -11,13 +16,13 @@ import {
   UpdateCurrentAccountDTO,
   User,
   UserOrders,
-  UserOrdersDTO,
 } from './users.dto';
 import { PasswordResetRequestDTO } from 'src/auth/auth.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ProductsService } from 'src/products/products.service';
 import { OrderProduct, RawOrderProduct } from 'src/products/products.dto';
 import { MobbexItem, RequestItemDTO } from 'src/mobbex/mobbex.dto';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class UsersService {
@@ -26,7 +31,23 @@ export class UsersService {
     private sellers: SellerService,
     private prisma: PrismaService,
     private products: ProductsService,
+    private jwt: JwtService,
   ) {}
+
+  async getUserData(
+    token: string,
+  ): Promise<ClientProfileResponse | SellerProfileResponse> {
+    try {
+      const userData: ClientProfileResponse | SellerProfileResponse =
+        await this.getUserProfileDataWithJwt(token);
+
+      if (userData) {
+        return userData;
+      }
+    } catch (e) {
+      throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
 
   async getUserOrders(id: number): Promise<CleanOrders[]> {
     try {
@@ -287,5 +308,30 @@ export class UsersService {
     }
 
     return HttpStatus.OK;
+  }
+  async getUserProfileDataWithJwt(jwt: string): Promise<any> {
+    const verify = await this.jwt.verifyAsync(jwt);
+
+    if (!verify) {
+      throw new UnauthorizedException();
+    }
+
+    try {
+      const client: Client = await this.clients.findById(verify.sub);
+
+      if (client) {
+        return new ClientProfileResponse(client);
+      } else {
+        const seller: Seller = await this.sellers.findByEmail(verify.sub);
+
+        if (seller) {
+          return new SellerProfileResponse(seller);
+        }
+
+        throw new HttpException('usuario no encontrado', HttpStatus.NOT_FOUND);
+      }
+    } catch (e) {
+      throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 }
