@@ -3,6 +3,7 @@ import { Type } from 'class-transformer';
 import {
   ArrayMinSize,
   IsArray,
+  IsEmail,
   IsNotEmpty,
   IsNumber,
   IsString,
@@ -162,4 +163,23 @@ export interface UserOrders {
 
 export interface CleanOrders extends UserOrders {
   products: MobbexItem[];
+}
+
+export class UpdateUserDataDTO {
+  @IsNotEmpty()
+  @IsNumber()
+  id: number;
+
+  @IsNotEmpty()
+  @IsString()
+  username: string;
+
+  @IsNotEmpty()
+  @IsString()
+  cuit: string;
+
+  @IsNotEmpty()
+  @IsString()
+  @IsEmail()
+  email: string;
 }

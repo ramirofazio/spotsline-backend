@@ -14,6 +14,7 @@ import {
   OrderBodyDTO,
   SellerUser,
   UpdateCurrentAccountDTO,
+  UpdateUserDataDTO,
   User,
   UserOrders,
 } from './users.dto';
@@ -33,6 +34,45 @@ export class UsersService {
     private products: ProductsService,
     private jwt: JwtService,
   ) {}
+
+  async updateUserData({
+    id,
+    username,
+    cuit,
+    email,
+  }: UpdateUserDataDTO): Promise<HttpStatus.OK> {
+    //TODO VER QUE ONDA ESTO CON LOS SELLERS
+
+    console.log(username, typeof cuit, email);
+
+    try {
+      await this.prisma.cliente.update({
+        where: { nrocli: id },
+        data: {
+          fantasia: username,
+          cuit: cuit,
+          email: email,
+        },
+      });
+
+      return HttpStatus.OK;
+    } catch (e) {
+      throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  async getOneOrder(order_id: string, token: string): Promise<CleanOrders> {
+    try {
+      const userData: ClientProfileResponse | SellerProfileResponse =
+        await this.getUserProfileDataWithJwt(token);
+
+      const userOrders = await this.getUserOrders(userData.id);
+
+      return userOrders.find((order) => order.id === order_id);
+    } catch (e) {
+      throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
 
   async getUserProfileData(
     token: string,
@@ -309,7 +349,9 @@ export class UsersService {
 
     return HttpStatus.OK;
   }
-  async getUserProfileDataWithJwt(jwt: string): Promise<any> {
+  async getUserProfileDataWithJwt(
+    jwt: string,
+  ): Promise<ClientProfileResponse | SellerProfileResponse> {
     const verify = await this.jwt.verifyAsync(jwt);
 
     if (!verify) {

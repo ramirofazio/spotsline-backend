@@ -14,7 +14,10 @@ import {
   UpdateCurrentAccountDTO,
   OrderBodyDTO,
   CleanOrders,
+  UpdateUserDataDTO,
 } from './users.dto';
+import { ClientProfileResponse } from 'src/clients/clients.dto';
+import { SellerProfileResponse } from 'src/seller/sellers.dto';
 
 @Controller('users')
 export class UsersController {
@@ -23,7 +26,7 @@ export class UsersController {
   @Get('profile')
   async getUserProfileData(
     @Headers('authorization') authorizationHeader: string,
-  ) {
+  ): Promise<ClientProfileResponse | SellerProfileResponse> {
     if (!authorizationHeader) {
       throw new UnauthorizedException();
     }
@@ -37,9 +40,34 @@ export class UsersController {
     return await this.userService.getUserProfileData(token);
   }
 
-  @Get('orders')
-  async getUserOrders(@Body() { id }: { id: number }): Promise<CleanOrders[]> {
+  @Post('update-data')
+  async updateUserData(
+    @Body() body: UpdateUserDataDTO,
+  ): Promise<HttpStatus.OK> {
+    return this.userService.updateUserData(body);
+  }
+
+  @Get('orders/:id')
+  async getUserOrders(@Param('id') id: number): Promise<CleanOrders[]> {
     return await this.userService.getUserOrders(id);
+  }
+
+  @Get('order/:order_id')
+  async getOneOrder(
+    @Headers('authorization') authorizationHeader: string,
+    @Param('order_id') order_id: string,
+  ): Promise<CleanOrders> {
+    if (!authorizationHeader) {
+      throw new UnauthorizedException();
+    }
+
+    const [bearer, token] = authorizationHeader.split(' ');
+
+    if (bearer !== 'Bearer' || !token) {
+      throw new UnauthorizedException('Invalid authorization header format');
+    }
+
+    return await this.userService.getOneOrder(order_id, token);
   }
 
   @Post('create-order')
