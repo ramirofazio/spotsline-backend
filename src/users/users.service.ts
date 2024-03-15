@@ -34,7 +34,7 @@ export class UsersService {
     private jwt: JwtService,
   ) {}
 
-  async getUserData(
+  async getUserProfileData(
     token: string,
   ): Promise<ClientProfileResponse | SellerProfileResponse> {
     try {

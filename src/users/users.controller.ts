@@ -21,7 +21,9 @@ export class UsersController {
   constructor(private userService: UsersService) {}
 
   @Get('profile')
-  async getOneUserData(@Headers('authorization') authorizationHeader: string) {
+  async getUserProfileData(
+    @Headers('authorization') authorizationHeader: string,
+  ) {
     if (!authorizationHeader) {
       throw new UnauthorizedException();
     }
@@ -32,7 +34,7 @@ export class UsersController {
       throw new UnauthorizedException('Invalid authorization header format');
     }
 
-    return await this.userService.getUserData(token);
+    return await this.userService.getUserProfileData(token);
   }
 
   @Get('orders')
