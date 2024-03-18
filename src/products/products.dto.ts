@@ -68,7 +68,7 @@ export class Product {
     this.category = rubro.trim();
     this.subRub = subRubro.trim();
     this.marca = marca.trim();
-    this.pathfoto = pathfoto
+    this.pathfoto = pathfoto.trim()
   }
 }
 

@@ -30,9 +30,8 @@ export class ProductsController {
   @Get('featured')
   async getFeaturedProducts(
     @Query('take') take: number,
-    @Query('skip') skip: number,
   ): Promise<Product[]> {
-    return await this.productsService.getPaginatedProducts(take, skip);
+    return await this.productsService.getFeaturedProdutcs(take);
   }
 
   @Public()

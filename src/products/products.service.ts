@@ -120,13 +120,13 @@ export class ProductsService {
       const count = await this.prisma.stock.count({ where });
 
       if (!products.length) {
-        // Cambiado de !products a !products.length para verificar array vacío
         throw new HttpException(
           'productos no encontrados',
           HttpStatus.NOT_FOUND,
         );
       }
 
+      // TODO modularizar servicio para parsear los productos
       const cleanProducts: Product[] = await Promise.all(
         products.map(async (p) => {
           const [rubro, subRubro, marca] = await this.prisma.$transaction([
@@ -148,7 +148,7 @@ export class ProductsService {
             console.error('Datos de producto incompletos');
             return null;
           }
-          
+
           return new Product(
             p,
             rubro.descri,
@@ -227,6 +227,50 @@ export class ProductsService {
     } catch (e) {
       throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
+  }
+
+  async getFeaturedProdutcs(take: number) {
+    const products: RawProduct[] = await this.prisma.stock.findMany({
+      take: take,
+      skip: 0,
+      where: { 
+        incluido: true, 
+        /* featured: true, */ // TODO verificar con una propiedad que el producto esta "FEATURED"
+        pathfoto: { not: '' } 
+      },
+      select: this.productsSelectOpt,
+    });
+
+    if (!products.length) {
+      throw new HttpException('productos no encontrados', HttpStatus.NOT_FOUND);
+    }
+
+    const cleanProducts: Product[] = await Promise.all(
+      products.map(async (p) => {
+        const [rubro, subRubro, marca] = await this.prisma.$transaction([
+          this.prisma.rubros.findFirst({
+            where: { codigo: p.rubro },
+            select: { descri: true },
+          }),
+          this.prisma.subrub.findFirst({
+            where: { codigo: p.subrub },
+            select: { descri: true },
+          }),
+          this.prisma.marcas.findFirst({
+            where: { codigo: p.marca },
+            select: { descripcion: true },
+          }),
+        ]);
+
+        if (!rubro || !subRubro || !marca) {
+          console.error('Datos de producto incompletos');
+          return null;
+        }
+
+        return new Product(p, rubro.descri, subRubro.descri, marca.descripcion);
+      }),
+    );
+    return cleanProducts;
   }
 
   async getOneProduct(id: number): Promise<Product> {
