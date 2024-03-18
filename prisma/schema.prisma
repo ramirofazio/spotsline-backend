@@ -231,6 +231,7 @@ model stock {
   ubicacionid   Int      @default(0, map: "DF_stock_ubicacionid")
   chkptopedido  Boolean  @default(false, map: "DF_stock_chkptopedido")
   pathfoto2     String   @default("", map: "DF_stock_pathfoto2") @db.VarChar(Max)
+  featured      Boolean? @default(false, map: "DF__stock__featured__29E85D19")
 
   @@index([descri], map: "IX_stock_1", clustered: true)
 }

@@ -232,13 +232,12 @@ export class ProductsService {
   async getFeaturedProdutcs(take: number) {
     const products: RawProduct[] = await this.prisma.stock.findMany({
       take: take,
-      skip: 0,
       where: { 
-        incluido: true, 
-        /* featured: true, */ // TODO verificar con una propiedad que el producto esta "FEATURED"
-        pathfoto: { not: '' } 
+        incluido: true,
+        featured: true, 
+        pathfoto: { not: '' } // ? Cuando esten cargadas als imagenes de s3 cambiar a "pathfoto2"
       },
-      select: this.productsSelectOpt,
+      select: {...this.productsSelectOpt, featured: true},
     });
 
     if (!products.length) {
