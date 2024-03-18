@@ -27,6 +27,15 @@ export class ProductsController {
   }
 
   @Public()
+  @Get('featured')
+  async getFeaturedProducts(
+    @Query('take') take: number,
+    @Query('skip') skip: number,
+  ): Promise<Product[]> {
+    return await this.productsService.getPaginatedProducts(take, skip);
+  }
+
+  @Public()
   @Get('detail/:id')
   async getOneProduct(@Param('id') id: number): Promise<Product> {
     return await this.productsService.getOneProduct(id);

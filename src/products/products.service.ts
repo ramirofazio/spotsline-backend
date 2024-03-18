@@ -22,6 +22,7 @@ export class ProductsService {
     rubro: true,
     subrub: true,
     marca: true,
+    pathfoto: true,
   };
 
   async getOrderProductsData(items: RequestItemDTO[], userPriceList: number) {
@@ -147,7 +148,7 @@ export class ProductsService {
             console.error('Datos de producto incompletos');
             return null;
           }
-
+          
           return new Product(
             p,
             rubro.descri,
