@@ -15,6 +15,7 @@ export interface RawProduct {
   rubro: number;
   subrub: Decimal;
   marca: Decimal;
+  pathfoto: string;
 }
 
 export class Product {
@@ -32,6 +33,7 @@ export class Product {
   category: string;
   subRub: string;
   marca: string;
+  pathfoto: string;
 
   constructor(
     {
@@ -46,6 +48,7 @@ export class Product {
       precio4,
       precio5,
       precio6,
+      pathfoto,
     }: RawProduct,
     rubro: string,
     subRubro: string,
@@ -65,6 +68,7 @@ export class Product {
     this.category = rubro.trim();
     this.subRub = subRubro.trim();
     this.marca = marca.trim();
+    this.pathfoto = pathfoto.trim()
   }
 }
 
@@ -94,3 +98,9 @@ export interface RawOrderProduct {
   productId: number;
   qty: number;
 }
+
+export interface UpdateFeatured {
+  productCode: string;
+  featured: boolean;
+}
+

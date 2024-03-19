@@ -1,6 +1,11 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { Product, RawProduct, Pagination } from './products.dto';
+import {
+  Product,
+  RawProduct,
+  Pagination,
+  UpdateFeatured,
+} from './products.dto';
 import { MobbexItem, RequestItemDTO } from 'src/mobbex/mobbex.dto';
 
 @Injectable()
@@ -22,6 +27,7 @@ export class ProductsService {
     rubro: true,
     subrub: true,
     marca: true,
+    pathfoto: true,
   };
 
   async getOrderProductsData(items: RequestItemDTO[], userPriceList: number) {
@@ -119,13 +125,13 @@ export class ProductsService {
       const count = await this.prisma.stock.count({ where });
 
       if (!products.length) {
-        // Cambiado de !products a !products.length para verificar array vacío
         throw new HttpException(
           'productos no encontrados',
           HttpStatus.NOT_FOUND,
         );
       }
 
+      // TODO modularizar servicio para parsear los productos
       const cleanProducts: Product[] = await Promise.all(
         products.map(async (p) => {
           const [rubro, subRubro, marca] = await this.prisma.$transaction([
@@ -228,13 +234,76 @@ export class ProductsService {
     }
   }
 
+  async getFeaturedProdutcs(take: number) {
+    const products: RawProduct[] = await this.prisma.stock.findMany({
+      take: take,
+      where: {
+        incluido: true,
+        featured: true,
+        pathfoto: { not: '' }, // ? Cuando esten cargadas als imagenes de s3 cambiar a "pathfoto2"
+      },
+      select: { ...this.productsSelectOpt, featured: true },
+    });
+
+    if (!products.length) {
+      throw new HttpException('productos no encontrados', HttpStatus.NOT_FOUND);
+    }
+
+    const cleanProducts: Product[] = await Promise.all(
+      products.map(async (p) => {
+        const [rubro, subRubro, marca] = await this.prisma.$transaction([
+          this.prisma.rubros.findFirst({
+            where: { codigo: p.rubro },
+            select: { descri: true },
+          }),
+          this.prisma.subrub.findFirst({
+            where: { codigo: p.subrub },
+            select: { descri: true },
+          }),
+          this.prisma.marcas.findFirst({
+            where: { codigo: p.marca },
+            select: { descripcion: true },
+          }),
+        ]);
+
+        if (!rubro || !subRubro || !marca) {
+          console.error('Datos de producto incompletos');
+          return null;
+        }
+
+        return new Product(p, rubro.descri, subRubro.descri, marca.descripcion);
+      }),
+    );
+    return cleanProducts;
+  }
+
+  async editFeatured(body: UpdateFeatured): Promise<string> {
+    const { productCode, featured } = body;
+    const updated = await this.prisma.stock.update({
+      where: { codpro: productCode},
+      data: {
+        featured,
+      },
+    });
+
+    if (!updated) {
+      throw new HttpException(
+        `producto con codpro=${productCode}, no encontrado`,
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    HttpStatus.ACCEPTED
+    return `Se actualizo el producto ${productCode} con featured=${featured}`
+  }
+
   async getOneProduct(id: number): Promise<Product> {
     try {
       const product = await this.prisma.stock.findFirst({
         where: { id: id, incluido: true },
         select: this.productsSelectOpt,
       });
-
+      
       if (!product) {
         throw new HttpException('producto no encontrado', HttpStatus.NOT_FOUND);
       }

@@ -1,6 +1,6 @@
-import { Controller, Query, Get, Param } from '@nestjs/common';
+import { Controller, Query, Get, Param, Put, Body } from '@nestjs/common';
 import { ProductsService } from './products.service';
-import { Pagination, Product } from './products.dto';
+import { Pagination, Product, UpdateFeatured } from './products.dto';
 import { Public } from 'src/auth/publicDecorator';
 
 @Controller('products')
@@ -24,6 +24,20 @@ export class ProductsController {
     @Query('skip') skip: number,
   ): Promise<Product[]> {
     return await this.productsService.getPaginatedProducts(take, skip);
+  }
+
+  @Public()
+  @Get('featured')
+  async getFeaturedProducts(
+    @Query('take') take: number,
+  ): Promise<Product[]> {
+    return await this.productsService.getFeaturedProdutcs(take);
+  }
+
+  @Public()
+  @Put('edit_featured')
+  async editFeatured(@Body() body: UpdateFeatured): Promise<string> {
+    return await this.productsService.editFeatured(body);
   }
 
   @Public()
