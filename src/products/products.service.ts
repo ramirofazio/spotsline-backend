@@ -1,6 +1,11 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { Product, RawProduct, Pagination } from './products.dto';
+import {
+  Product,
+  RawProduct,
+  Pagination,
+  UpdateFeatured,
+} from './products.dto';
 import { MobbexItem, RequestItemDTO } from 'src/mobbex/mobbex.dto';
 
 @Injectable()
@@ -232,12 +237,12 @@ export class ProductsService {
   async getFeaturedProdutcs(take: number) {
     const products: RawProduct[] = await this.prisma.stock.findMany({
       take: take,
-      where: { 
+      where: {
         incluido: true,
-        featured: true, 
-        pathfoto: { not: '' } // ? Cuando esten cargadas als imagenes de s3 cambiar a "pathfoto2"
+        featured: true,
+        pathfoto: { not: '' }, // ? Cuando esten cargadas als imagenes de s3 cambiar a "pathfoto2"
       },
-      select: {...this.productsSelectOpt, featured: true},
+      select: { ...this.productsSelectOpt, featured: true },
     });
 
     if (!products.length) {
@@ -272,13 +277,26 @@ export class ProductsService {
     return cleanProducts;
   }
 
+  async editFeatured(body: UpdateFeatured): Promise<any> {
+    const { productCode, featured } = body;
+    const updated = await this.prisma.stock.update({
+      where: { codpro: productCode},
+      data: {
+        featured,
+      },
+    });
+
+    HttpStatus.ACCEPTED
+    return updated
+  }
+
   async getOneProduct(id: number): Promise<Product> {
     try {
       const product = await this.prisma.stock.findFirst({
         where: { id: id, incluido: true },
         select: this.productsSelectOpt,
       });
-
+      
       if (!product) {
         throw new HttpException('producto no encontrado', HttpStatus.NOT_FOUND);
       }

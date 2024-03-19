@@ -98,3 +98,9 @@ export interface RawOrderProduct {
   productId: number;
   qty: number;
 }
+
+export interface UpdateFeatured {
+  productCode: string;
+  featured: boolean;
+}
+
