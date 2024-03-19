@@ -277,7 +277,7 @@ export class ProductsService {
     return cleanProducts;
   }
 
-  async editFeatured(body: UpdateFeatured): Promise<any> {
+  async editFeatured(body: UpdateFeatured): Promise<string> {
     const { productCode, featured } = body;
     const updated = await this.prisma.stock.update({
       where: { codpro: productCode},
@@ -286,8 +286,15 @@ export class ProductsService {
       },
     });
 
+    if (!updated) {
+      throw new HttpException(
+        `producto con codpro=${productCode}, no encontrado`,
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
     HttpStatus.ACCEPTED
-    return updated
+    return `Se actualizo el producto ${productCode} con featured=${featured}`
   }
 
   async getOneProduct(id: number): Promise<Product> {

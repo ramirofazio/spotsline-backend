@@ -36,7 +36,7 @@ export class ProductsController {
 
   @Public()
   @Put('edit_featured')
-  async editFeatured(@Body() body: UpdateFeatured): Promise<String[]> {
+  async editFeatured(@Body() body: UpdateFeatured): Promise<string> {
     return await this.productsService.editFeatured(body);
   }
 
