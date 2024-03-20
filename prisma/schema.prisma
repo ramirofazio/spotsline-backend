@@ -3585,3 +3585,10 @@ model web_orders {
   subtotal Decimal? @db.Decimal(18, 0)
   type     String?  @db.VarChar(50)
 }
+
+model cupons {
+  id                 Int      @id(map: "PK__cupons__3213E83F5F24C716") @default(autoincrement())
+  name               String?  @db.NVarChar(255)
+  discountPercentaje Int?
+  enabled            Boolean? @default(false, map: "DF__cupons__enabled__650922E7")
+}
