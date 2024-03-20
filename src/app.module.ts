@@ -14,7 +14,7 @@ import { ShoppingCartModule } from './shopping-cart/shopping-cart.module';
 import { MobbexModule } from './mobbex/mobbex.module';
 import { ConfigModule } from '@nestjs/config';
 import { AwsModule } from './aws/aws.module';
-import { CuponsModule } from './cupons/cupons.module';
+import { CouponsModule } from './cupons/coupons.module';
 @Module({
   imports: [
     PrismaModule,
@@ -28,7 +28,7 @@ import { CuponsModule } from './cupons/cupons.module';
     ShoppingCartModule,
     MobbexModule,
     AwsModule,
-    CuponsModule,
+    CouponsModule,
     ConfigModule.forRoot({ isGlobal: true }),
   ],
   controllers: [AppController],

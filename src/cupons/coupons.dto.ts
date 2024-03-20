@@ -1,5 +1,5 @@
 
-export interface CreateCupon {
+export interface CreateCoupon {
   name: string;
   discountPercentaje: number;
 }
@@ -9,7 +9,7 @@ export interface ChangeState {
   enabled: boolean;
 }
 
-export interface Cupon {
+export interface Coupon {
   id: number;
   name: string;
   discountPercentaje: number;
