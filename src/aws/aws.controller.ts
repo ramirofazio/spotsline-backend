@@ -11,11 +11,11 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { awsService } from './aws.service';
+import { AwsService } from './aws.service';
 
 @Controller('aws-s3-upload')
-export class awsController {
-  constructor(private readonly awsService: awsService) {}
+export class AwsController {
+  constructor(private readonly awsService: AwsService) {}
 
   @Post('/:product_id')
   @UseInterceptors(FileInterceptor('file'))

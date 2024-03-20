@@ -10,7 +10,7 @@ import { env } from 'process';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
-export class awsService {
+export class AwsService {
   private readonly s3Client = new S3Client({
     region: this.configService.get('AWS_S3_REGION'),
   });
