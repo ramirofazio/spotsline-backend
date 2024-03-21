@@ -17,6 +17,12 @@ export interface RawProduct {
   marca: Decimal;
 }
 
+export interface RawProducts {
+  codigo: Decimal;
+  urlPhoto?: string;
+  descripcion: string;
+}
+
 export class Product {
   id: number;
   offer: boolean;
@@ -49,7 +55,7 @@ export class Product {
     }: RawProduct,
     rubro: string,
     subRubro: string,
-    marca: string,
+    marca?: string,
   ) {
     this.id = id;
     this.offer = oferta;
@@ -64,7 +70,7 @@ export class Product {
     this.precio6 = precio6;
     this.category = rubro.trim();
     this.subRub = subRubro.trim();
-    this.marca = marca.trim();
+    this.marca = marca;
   }
 }
 
@@ -77,7 +83,7 @@ export interface Pagination {
     search_term: string;
     next_page: number;
   };
-  rows: Product[];
+  rows: RawProducts[];
 }
 
 export class OrderProduct {

@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { Product, RawProduct, Pagination } from './products.dto';
+import { Product, RawProducts, Pagination, RawProduct } from './products.dto';
 import { MobbexItem, RequestItemDTO } from 'src/mobbex/mobbex.dto';
 
 @Injectable()
@@ -99,64 +99,48 @@ export class ProductsService {
       take = formatTake(take);
       page = formatPage(page);
       const skip = take * page - take;
-      const where =
-        search !== 'null'
-          ? {
-              descri: {
-                contains: search,
-              },
-              incluido: true,
-            }
-          : { incluido: true };
 
-      const products: RawProduct[] = await this.prisma.stock.findMany({
+      const where = {
+        NOT: {
+          codigo: 9999,
+        },
+      };
+
+      const products: RawProducts[] = await this.prisma.marcas.findMany({
         take,
         skip,
         where,
-        select: this.productsSelectOpt,
+        select: {
+          codigo: true,
+          descripcion: true,
+        },
       });
 
-      const count = await this.prisma.stock.count({ where });
+      const rows: RawProducts[] = await Promise.all(
+        products.map(async (marca) => {
+          const product = await this.prisma.stock.findFirst({
+            where: {
+              marca: marca.codigo,
+            },
+            select: {
+              pathfoto2: true,
+            },
+          });
+
+          return {
+            ...marca,
+            urlPhoto: product?.pathfoto2,
+          };
+        }),
+      );
+      const count = await this.prisma.marcas.count({ where });
 
       if (!products.length) {
-        // Cambiado de !products a !products.length para verificar array vacío
         throw new HttpException(
           'productos no encontrados',
           HttpStatus.NOT_FOUND,
         );
       }
-
-      const cleanProducts: Product[] = await Promise.all(
-        products.map(async (p) => {
-          const [rubro, subRubro, marca] = await this.prisma.$transaction([
-            this.prisma.rubros.findFirst({
-              where: { codigo: p.rubro },
-              select: { descri: true },
-            }),
-            this.prisma.subrub.findFirst({
-              where: { codigo: p.subrub },
-              select: { descri: true },
-            }),
-            this.prisma.marcas.findFirst({
-              where: { codigo: p.marca },
-              select: { descripcion: true },
-            }),
-          ]);
-
-          if (!rubro || !subRubro || !marca) {
-            console.error('Datos de producto incompletos');
-            return null;
-          }
-
-          return new Product(
-            p,
-            rubro.descri,
-            subRubro.descri,
-            marca.descripcion,
-          );
-        }),
-      );
-
       return {
         metadata: {
           total_pages: Math.ceil(count / take),
@@ -166,7 +150,7 @@ export class ProductsService {
           search_term: search,
           next_page: Math.ceil(count / take) - page <= 0 ? null : page + 1,
         },
-        rows: cleanProducts.filter((product) => product !== null),
+        rows,
       };
     } catch (e) {
       throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -228,45 +212,49 @@ export class ProductsService {
     }
   }
 
-  async getOneProduct(id: number): Promise<Product> {
+  async getOneProduct(
+    id: number,
+  ): Promise<{ codigo: number; description: string; variants: Product[] }> {
     try {
-      const product = await this.prisma.stock.findFirst({
-        where: { id: id, incluido: true },
-        select: this.productsSelectOpt,
+      const marca = await this.prisma.marcas.findFirst({
+        where: { codigo: id },
       });
 
-      if (!product) {
+      const rows = await this.prisma.stock.findMany({
+        where: {
+          marca: marca.codigo,
+          incluido: true,
+          NOT: {
+            precio1: 0,
+          },
+        },
+        select: this.productsSelectOpt,
+      });
+      if (!marca) {
         throw new HttpException('producto no encontrado', HttpStatus.NOT_FOUND);
       }
 
-      const [rubro, subRubro, marca] = await this.prisma.$transaction([
-        this.prisma.rubros.findFirst({
-          where: { codigo: product.rubro },
-          select: { descri: true },
-        }),
-        this.prisma.subrub.findFirst({
-          where: { codigo: product.subrub },
-          select: { descri: true },
-        }),
-        this.prisma.marcas.findFirst({
-          where: { codigo: product.marca },
-          select: { descripcion: true },
-        }),
-      ]);
+      const variants = await Promise.all(
+        rows.map(async (variant) => {
+          const [rubro, subRubro] = await this.prisma.$transaction([
+            this.prisma.rubros.findFirst({
+              where: { codigo: variant.rubro },
+              select: { descri: true },
+            }),
+            this.prisma.subrub.findFirst({
+              where: { codigo: variant.subrub },
+              select: { descri: true },
+            }),
+          ]);
 
-      if (!rubro || !subRubro || !marca) {
-        throw new HttpException(
-          'Datos de producto incompletos',
-          HttpStatus.NOT_FOUND,
-        );
-      }
-
-      return new Product(
-        product,
-        rubro.descri,
-        subRubro.descri,
-        marca.descripcion,
+          return new Product(variant, rubro.descri, subRubro.descri);
+        }),
       );
+      return {
+        codigo: id,
+        description: marca.descripcion,
+        variants,
+      };
     } catch (e) {
       throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }

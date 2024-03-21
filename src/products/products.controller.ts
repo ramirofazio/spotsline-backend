@@ -28,7 +28,9 @@ export class ProductsController {
 
   @Public()
   @Get('detail/:id')
-  async getOneProduct(@Param('id') id: number): Promise<Product> {
+  async getOneProduct(
+    @Param('id') id: number,
+  ): Promise<{ codigo: number; description: string; variants: Product[] }> {
     return await this.productsService.getOneProduct(id);
   }
 
