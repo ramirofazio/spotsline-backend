@@ -42,7 +42,8 @@ export class awsService {
         }),
       );
 
-      if (!res.$metadata.httpStatusCode) {
+      if (!res) {
+        //TODO PROBAR ESTO WARNING
         throw new HttpException(
           'error al cargar la imagen',
           HttpStatus.INTERNAL_SERVER_ERROR,
