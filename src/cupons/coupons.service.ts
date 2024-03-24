@@ -10,17 +10,17 @@ export class CouponsService {
     return await this.prisma.coupons.findMany();
   }
 
-  async validateCoupon(couponName: string): Promise<string> {
+  async validateCoupon(couponName: string): Promise<Coupon> {
     const coupon = await this.prisma.coupons.findFirst({
       where: { name: couponName },
     });
     if (!coupon) {
-      throw new HttpException('invalid coupon', HttpStatus.BAD_REQUEST);
+      throw new HttpException('coupon invalido', HttpStatus.BAD_REQUEST);
     } else if(!coupon.enabled) {
-      throw new HttpException('unabled coupon', HttpStatus.CONFLICT);
+      throw new HttpException('cupon no habilitado', HttpStatus.UNAUTHORIZED);
     }
 
-    return 'valid coupon';
+    return coupon;
   }
 
   async createCoupon({ discountPercentaje, name }: CreateCoupon): Promise<Coupon> {

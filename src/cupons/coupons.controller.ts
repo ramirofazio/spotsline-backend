@@ -16,7 +16,7 @@ export class CouponsController {
 
   @Public()
   @Get("/validate/:couponName")
-  async validateCoupon(@Param("couponName") couponName: string):Promise<string> {
+  async validateCoupon(@Param("couponName") couponName: string):Promise<Coupon> {
     return await this.CouponsService.validateCoupon(couponName)
   }
 
