@@ -7,8 +7,6 @@ import { Public } from 'src/auth/publicDecorator';
 export class CouponsController {
   constructor(private readonly CouponsService: CouponsService) {}
 
-  //TODO delete public
-  @Public()
   @Get("")
   async getCoupons():Promise<Coupon[]> {
     return await this.CouponsService.getCoupons()
