@@ -8,7 +8,7 @@ import {
   MobbexPayOrderBody,
   PaymentOrderDTO,
 } from './mobbex.dto';
-import { Public } from 'src/auth/publicDecorator';
+
 
 @Controller('mobbex')
 export class MobbexController {
@@ -17,7 +17,7 @@ export class MobbexController {
     private readonly mobbexService: MobbexService,
     private readonly userService: UsersService,
   ) {}
-  @Public()
+  
   @Post('/checkout')
   async generateCheckout(
     @Body() body: CheckoutRequestDTO,
