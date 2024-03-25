@@ -1,10 +1,14 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateCoupon, Coupon, ChangeState } from './coupons.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 export class CouponsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    
+  ) {}
 
   async getCoupons(): Promise<Coupon[]> {
     return await this.prisma.coupons.findMany();
@@ -16,14 +20,17 @@ export class CouponsService {
     });
     if (!coupon) {
       throw new HttpException('coupon invalido', HttpStatus.BAD_REQUEST);
-    } else if(!coupon.enabled) {
+    } else if (!coupon.enabled) {
       throw new HttpException('cupon no habilitado', HttpStatus.UNAUTHORIZED);
     }
 
     return coupon;
   }
 
-  async createCoupon({ discountPercentaje, name }: CreateCoupon): Promise<Coupon> {
+  async createCoupon({
+    discountPercentaje,
+    name,
+  }: CreateCoupon): Promise<Coupon> {
     try {
       const coupon = await this.prisma.coupons.create({
         data: {
