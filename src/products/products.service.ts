@@ -7,6 +7,7 @@ import {
   ProductProps,
   ProductVariant,
   RawVariantProduct,
+  UpdateFeatured,
 } from './products.dto';
 import { MobbexItem, RequestItemDTO } from 'src/mobbex/mobbex.dto';
 
@@ -174,7 +175,70 @@ export class ProductsService {
     }
   }
 
-  async getOneProduct(id: number): Promise<ProductProps> {
+  /* async getFeaturedProdutcs(take: number) {
+    const products: RawProduct[] = await this.prisma.stock.findMany({
+      take: take,
+      where: {
+        incluido: true,
+        featured: true,
+        pathfoto: { not: '' }, // ? Cuando esten cargadas als imagenes de s3 cambiar a "pathfoto2"
+      },
+      select: { ...this.productsSelectOpt, featured: true },
+    });
+
+    if (!products.length) {
+      throw new HttpException('productos no encontrados', HttpStatus.NOT_FOUND);
+    }
+
+    const cleanProducts: Product[] = await Promise.all(
+      products.map(async (p) => {
+        const [rubro, subRubro, marca] = await this.prisma.$transaction([
+          this.prisma.rubros.findFirst({
+            where: { codigo: p.rubro },
+            select: { descri: true },
+          }),
+          this.prisma.subrub.findFirst({
+            where: { codigo: p.subrub },
+            select: { descri: true },
+          }),
+          this.prisma.marcas.findFirst({
+            where: { codigo: p.marca },
+            select: { descripcion: true },
+          }),
+        ]);
+
+        if (!rubro || !subRubro || !marca) {
+          console.error('Datos de producto incompletos');
+          return null;
+        }
+
+        return new Product(p, rubro.descri, subRubro.descri, marca.descripcion);
+      }),
+    );
+    return cleanProducts;
+  }
+
+  async editFeatured(body: UpdateFeatured): Promise<string> {
+    const { productCode, featured } = body;
+    const updated = await this.prisma.stock.update({
+      where: { codpro: productCode},
+      data: {
+        featured,
+      },
+    });
+
+    if (!updated) {
+      throw new HttpException(
+        `producto con codpro=${productCode}, no encontrado`,
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    HttpStatus.ACCEPTED
+    return `Se actualizo el producto ${productCode} con featured=${featured}`
+  } */
+
+  async getOneProduct(id: number): Promise<Product> {
     try {
       const marca = await this.prisma.marcas.findFirst({
         where: { codigo: id },

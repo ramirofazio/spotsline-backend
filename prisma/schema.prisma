@@ -231,6 +231,7 @@ model stock {
   ubicacionid   Int      @default(0, map: "DF_stock_ubicacionid")
   chkptopedido  Boolean  @default(false, map: "DF_stock_chkptopedido")
   pathfoto2     String   @default("", map: "DF_stock_pathfoto2") @db.VarChar(Max)
+  featured      Boolean? @default(false, map: "DF__stock__featured__29E85D19")
 
   @@index([descri], map: "IX_stock_1", clustered: true)
 }
@@ -3583,4 +3584,11 @@ model web_orders {
   date     String?  @db.VarChar(Max)
   subtotal Decimal? @db.Decimal(18, 0)
   type     String?  @db.VarChar(50)
+}
+
+model coupons {
+  id                 Int      @id(map: "PK__coupons__3213E83F15D7A415") @default(autoincrement())
+  name               String?  @db.NVarChar(255)
+  discountPercentaje Int?
+  enabled            Boolean? @default(false, map: "DF__coupons__enabled__781BF75B")
 }
