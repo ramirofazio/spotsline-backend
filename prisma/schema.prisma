@@ -3584,6 +3584,7 @@ model web_orders {
   date     String?  @db.VarChar(Max)
   subtotal Decimal? @db.Decimal(18, 0)
   type     String?  @db.VarChar(50)
+  couponId Int?
 }
 
 model coupons {

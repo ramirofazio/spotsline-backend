@@ -6,6 +6,7 @@ import {
   IsEmail,
   IsNotEmpty,
   IsNumber,
+  IsOptional,
   IsString,
   ValidateNested,
 } from 'class-validator';
@@ -103,8 +104,13 @@ export class UpdateCurrentAccountDTO {
 }
 export class OrderBodyDTO {
   @IsNumber()
+  @IsOptional()
+  couponId?: number;
+
+  @IsNumber()
   @IsNotEmpty()
   discount?: number;
+
 
   @IsNumber()
   @IsNotEmpty()

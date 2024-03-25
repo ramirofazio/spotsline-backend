@@ -307,7 +307,8 @@ export class UsersService {
     transactionId,
     type,
     userId,
-    discount,
+    couponId,
+    discount
   }: OrderBodyDTO) {
     const { email, id, fantasyName, priceList } =
       await this.findUserById(userId);
@@ -324,6 +325,7 @@ export class UsersService {
         data: {
           date: new Date().toISOString(),
           discount: discount,
+          couponId,
           email: email,
           mobbexId: transactionId,
           name: fantasyName,
