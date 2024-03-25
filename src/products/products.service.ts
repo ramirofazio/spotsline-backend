@@ -1,6 +1,13 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { Product, RawProducts, Pagination, RawProduct } from './products.dto';
+import {
+  Product,
+  Pagination,
+  RawProduct,
+  ProductProps,
+  ProductVariant,
+  RawVariantProduct,
+} from './products.dto';
 import { MobbexItem, RequestItemDTO } from 'src/mobbex/mobbex.dto';
 
 @Injectable()
@@ -22,16 +29,18 @@ export class ProductsService {
     rubro: true,
     subrub: true,
     marca: true,
+    pathfoto2: true,
   };
 
   async getOrderProductsData(items: RequestItemDTO[], userPriceList: number) {
     try {
       const cleanItemsAmount = await Promise.all(
         items.map(async ({ qty, id }) => {
-          const item: RawProduct = await this.prisma.stock.findFirstOrThrow({
-            where: { id: id },
-            select: this.productsSelectOpt,
-          });
+          const item: RawVariantProduct =
+            await this.prisma.stock.findFirstOrThrow({
+              where: { id: id },
+              select: this.productsSelectOpt,
+            });
           if (item) {
             //? Accede dinamicamente a los precios de los productos dependiendo de la lista que tenga enlazada el Cliente
             const priceProperty = `precio${userPriceList}`;
@@ -59,10 +68,11 @@ export class ProductsService {
     try {
       const cleanItems = Promise.all(
         items.map(async ({ qty, id }) => {
-          const item: RawProduct = await this.prisma.stock.findFirstOrThrow({
-            where: { id: id },
-            select: this.productsSelectOpt,
-          });
+          const item: RawVariantProduct =
+            await this.prisma.stock.findFirstOrThrow({
+              where: { id: id },
+              select: this.productsSelectOpt,
+            });
           if (item) {
             //? Accede dinamicamente a los precios de los productos dependiendo de la lista que tenga enlazada el Cliente
             const priceProperty = `precio${userPriceList}`;
@@ -106,7 +116,7 @@ export class ProductsService {
         },
       };
 
-      const products: RawProducts[] = await this.prisma.marcas.findMany({
+      const products: RawProduct[] = await this.prisma.marcas.findMany({
         take,
         skip,
         where,
@@ -116,20 +126,27 @@ export class ProductsService {
         },
       });
 
-      const rows: RawProducts[] = await Promise.all(
+      const rows: ProductProps[] = await Promise.all(
         products.map(async (marca) => {
           const product = await this.prisma.stock.findFirst({
             where: {
               marca: marca.codigo,
+              NOT: {
+                precio1: 0,
+              },
             },
             select: {
               pathfoto2: true,
+              precio1: true,
             },
           });
 
+          if (!product?.precio1) return null;
+
           return {
-            ...marca,
-            urlPhoto: product?.pathfoto2,
+            id: marca.codigo,
+            description: marca.descripcion,
+            pathImage: product?.pathfoto2,
           };
         }),
       );
@@ -150,71 +167,14 @@ export class ProductsService {
           search_term: search,
           next_page: Math.ceil(count / take) - page <= 0 ? null : page + 1,
         },
-        rows,
+        rows: rows.filter((row) => row !== null),
       };
     } catch (e) {
       throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
-  async getPaginatedProducts(take: number, skip: number): Promise<Product[]> {
-    try {
-      const products: RawProduct[] = await this.prisma.stock.findMany({
-        take: take,
-        skip: skip,
-        where: { incluido: true },
-        select: this.productsSelectOpt,
-      });
-
-      if (!products.length) {
-        // Cambiado de !products a !products.length para verificar array vacío
-        throw new HttpException(
-          'productos no encontrados',
-          HttpStatus.NOT_FOUND,
-        );
-      }
-
-      // Utiliza Promise.all para esperar a que todas las promesas se resuelvan
-      const cleanProducts: Product[] = await Promise.all(
-        products.map(async (p) => {
-          const [rubro, subRubro, marca] = await this.prisma.$transaction([
-            this.prisma.rubros.findFirst({
-              where: { codigo: p.rubro },
-              select: { descri: true },
-            }),
-            this.prisma.subrub.findFirst({
-              where: { codigo: p.subrub },
-              select: { descri: true },
-            }),
-            this.prisma.marcas.findFirst({
-              where: { codigo: p.marca },
-              select: { descripcion: true },
-            }),
-          ]);
-
-          if (!rubro || !subRubro || !marca) {
-            console.error('Datos de producto incompletos');
-            return null;
-          }
-
-          return new Product(
-            p,
-            rubro.descri,
-            subRubro.descri,
-            marca.descripcion,
-          );
-        }),
-      );
-
-      return cleanProducts.filter((product) => product !== null); //? Devuelvo los que tengan el contenido necesario, los demas los salteo
-    } catch (e) {
-      throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-  }
-
-  async getOneProduct(
-    id: number,
-  ): Promise<{ codigo: number; description: string; variants: Product[] }> {
+  async getOneProduct(id: number): Promise<ProductProps> {
     try {
       const marca = await this.prisma.marcas.findFirst({
         where: { codigo: id },
@@ -247,14 +207,21 @@ export class ProductsService {
             }),
           ]);
 
-          return new Product(variant, rubro.descri, subRubro.descri);
+          return new ProductVariant(
+            { ...variant },
+            rubro?.descri,
+            subRubro?.descri,
+          );
         }),
       );
-      return {
-        codigo: id,
+      return new Product({
+        id: marca.codigo,
         description: marca.descripcion,
-        variants,
-      };
+        variants: variants.filter(
+          (variant) =>
+            variant.subRub && variant.category === variants[0].category,
+        ),
+      });
     } catch (e) {
       throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
