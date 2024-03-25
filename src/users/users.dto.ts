@@ -103,7 +103,6 @@ export class UpdateCurrentAccountDTO {
   //? Estos datos son mockup, no se bien si hay que modificar esto, pero es para armar la estructura
 }
 export class OrderBodyDTO {
-  @IsNumber()
   @IsOptional()
   couponId?: number;
 

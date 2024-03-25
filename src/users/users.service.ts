@@ -325,7 +325,7 @@ export class UsersService {
         data: {
           date: new Date().toISOString(),
           discount: discount,
-          couponId,
+          couponId: couponId ? couponId : 0,
           email: email,
           mobbexId: transactionId,
           name: fantasyName,
