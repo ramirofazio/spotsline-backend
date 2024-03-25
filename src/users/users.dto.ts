@@ -13,6 +13,7 @@ import {
 import { Client } from 'src/clients/clients.dto';
 import { MobbexItem, RequestItemDTO } from 'src/mobbex/mobbex.dto';
 import { Seller } from 'src/seller/sellers.dto';
+import { Coupon } from 'src/cupons/coupons.dto';
 export class User {
   id: number;
   email: string;
@@ -160,6 +161,7 @@ export interface UserOrders {
   id: string;
   date: string;
   discount: number;
+  couponId: number;
   mobbexId: string;
   total: number;
   subtotal: Decimal;
@@ -168,6 +170,7 @@ export interface UserOrders {
 
 export interface CleanOrders extends UserOrders {
   products: MobbexItem[];
+  coupon?: Coupon 
 }
 
 export class UpdateUserDataDTO {
