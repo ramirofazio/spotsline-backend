@@ -20,7 +20,7 @@ export class CouponsController {
 
   
   @Post("/create")
-  async createCoupon(@Body() body: CreateCoupon):Promise<Coupon> {
+  async createCoupon(@Body() body: CreateCoupon):Promise<string> {
     return await this.CouponsService.createCoupon(body)
   }
 
@@ -32,7 +32,7 @@ export class CouponsController {
 
   
   @Delete("/delete/:couponId")
-  async deleteCoupon(@Param("couponId") couponId: number) {
+  async deleteCoupon(@Param("couponId") couponId: number) :Promise<string>  {
     return await this.CouponsService.deleteCoupon(couponId)
   }
 }
