@@ -5,34 +5,42 @@ import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 export class CouponsService {
-  constructor(
-    private readonly prisma: PrismaService,
-    
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   async getCoupons(): Promise<Coupon[]> {
-    return await this.prisma.coupons.findMany();
+    try {
+      const coupons = await this.prisma.coupons.findMany();
+      HttpStatus.OK;
+      return coupons;
+    } catch (e) {
+      throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
   async validateCoupon(couponName: string): Promise<Coupon> {
-    const coupon = await this.prisma.coupons.findFirst({
-      where: { name: couponName },
-    });
-    if (!coupon) {
-      throw new HttpException('coupon invalido', HttpStatus.BAD_REQUEST);
-    } else if (!coupon.enabled) {
-      throw new HttpException('cupon no habilitado', HttpStatus.UNAUTHORIZED);
-    }
+    try {
+      const coupon = await this.prisma.coupons.findFirst({
+        where: { name: couponName },
+      });
 
-    return coupon;
+      if (!coupon) {
+        throw new HttpException('coupon invalido', HttpStatus.BAD_REQUEST);
+      } else if (!coupon.enabled) {
+        throw new HttpException('cupon no habilitado', HttpStatus.UNAUTHORIZED);
+      }
+
+      return coupon;
+    } catch (e) {
+      throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
   async createCoupon({
     discountPercentaje,
     name,
-  }: CreateCoupon): Promise<Coupon> {
+  }: CreateCoupon): Promise<string> {
     try {
-      const coupon = await this.prisma.coupons.create({
+      await this.prisma.coupons.create({
         data: {
           name,
           discountPercentaje,
@@ -40,7 +48,7 @@ export class CouponsService {
       });
 
       HttpStatus.CREATED;
-      return coupon;
+      return 'created';
     } catch (err) {
       throw new HttpException(err.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
@@ -66,18 +74,18 @@ export class CouponsService {
       throw new HttpException(err.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
-  async deleteCoupon(couponId: number): Promise<Coupon> {
+  async deleteCoupon(couponId: number): Promise<string> {
     try {
       await this.prisma.coupons.findFirstOrThrow({ where: { id: couponId } });
 
-      const deletedCoupon = await this.prisma.coupons.delete({
+      await this.prisma.coupons.delete({
         where: {
           id: couponId,
         },
       });
 
       HttpStatus.ACCEPTED;
-      return deletedCoupon;
+      return 'deleted';
     } catch (err) {
       console.log(err);
       throw new HttpException(err.message, HttpStatus.INTERNAL_SERVER_ERROR);
