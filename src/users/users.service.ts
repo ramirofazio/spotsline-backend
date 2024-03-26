@@ -68,7 +68,20 @@ export class UsersService {
 
       const userOrders = await this.getUserOrders(userData.id);
 
-      return userOrders.find((order) => order.id === order_id);
+      const order = userOrders.find((order) => order.id === order_id);
+
+      if (order.couponId) {
+        const coupon = await this.prisma.coupons.findFirst({
+          where: {
+            id: order.couponId,
+          },
+        });
+        return {
+          ...order,
+          coupon
+        }
+      }
+      return order;
     } catch (e) {
       throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
@@ -98,6 +111,7 @@ export class UsersService {
         select: {
           id: true,
           date: true,
+          couponId: true,
           discount: true,
           mobbexId: true,
           total: true,
@@ -307,6 +321,7 @@ export class UsersService {
     transactionId,
     type,
     userId,
+    couponId,
     discount,
   }: OrderBodyDTO) {
     const { email, id, fantasyName, priceList } =
@@ -324,6 +339,7 @@ export class UsersService {
         data: {
           date: new Date().toISOString(),
           discount: discount,
+          couponId: couponId ? couponId : 0,
           email: email,
           mobbexId: transactionId,
           name: fantasyName,

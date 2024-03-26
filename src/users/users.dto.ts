@@ -6,12 +6,14 @@ import {
   IsEmail,
   IsNotEmpty,
   IsNumber,
+  IsOptional,
   IsString,
   ValidateNested,
 } from 'class-validator';
 import { Client } from 'src/clients/clients.dto';
 import { MobbexItem, RequestItemDTO } from 'src/mobbex/mobbex.dto';
 import { Seller } from 'src/seller/sellers.dto';
+import { Coupon } from 'src/cupons/coupons.dto';
 export class User {
   id: number;
   email: string;
@@ -102,9 +104,13 @@ export class UpdateCurrentAccountDTO {
   //? Estos datos son mockup, no se bien si hay que modificar esto, pero es para armar la estructura
 }
 export class OrderBodyDTO {
+  @IsOptional()
+  couponId?: number;
+
   @IsNumber()
   @IsNotEmpty()
   discount?: number;
+
 
   @IsNumber()
   @IsNotEmpty()
@@ -155,6 +161,7 @@ export interface UserOrders {
   id: string;
   date: string;
   discount: number;
+  couponId: number;
   mobbexId: string;
   total: number;
   subtotal: Decimal;
@@ -163,6 +170,7 @@ export interface UserOrders {
 
 export interface CleanOrders extends UserOrders {
   products: MobbexItem[];
+  coupon?: Coupon 
 }
 
 export class UpdateUserDataDTO {

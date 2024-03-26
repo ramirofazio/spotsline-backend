@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { awsController } from './aws.controller';
-import { awsService } from './aws.service';
+import { AwsController } from './aws.controller';
+import { AwsService } from './aws.service';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 import { PrismaModule } from 'src/prisma/prisma.module';
@@ -16,9 +16,9 @@ import { PrismaService } from 'src/prisma/prisma.service';
       },
     ]),
   ],
-  controllers: [awsController],
+  controllers: [AwsController],
   providers: [
-    awsService,
+    AwsService,
     PrismaService,
 
     {
@@ -26,6 +26,6 @@ import { PrismaService } from 'src/prisma/prisma.service';
       useClass: ThrottlerGuard,
     },
   ],
-  exports: [awsModule],
+  exports: [AwsModule],
 })
-export class awsModule {}
+export class AwsModule {}
