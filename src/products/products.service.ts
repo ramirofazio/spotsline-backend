@@ -31,6 +31,7 @@ export class ProductsService {
     subrub: true,
     marca: true,
     pathfoto2: true,
+    incluido: true,
   };
 
   async getOrderProductsData(items: RequestItemDTO[], userPriceList: number) {
@@ -330,7 +331,6 @@ export class ProductsService {
           const rows = await this.prisma.stock.findMany({
             where: {
               marca: marca.codigo,
-              incluido: true,
               NOT: {
                 precio1: 0,
               },

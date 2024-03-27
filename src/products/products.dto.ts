@@ -52,6 +52,7 @@ export class ProductVariant implements ProductVariantProps {
   precio3: Decimal;
   precio4: Decimal;
   precio5: Decimal;
+  incluido: boolean;
   precio6: Decimal;
   constructor(variant: RawVariantProduct, rubro: string, subrubro: string) {
     this.id = variant.id;
@@ -68,6 +69,7 @@ export class ProductVariant implements ProductVariantProps {
     this.precio4 = variant.precio4;
     this.precio5 = variant.precio5;
     this.precio6 = variant.precio6;
+    this.incluido = variant.incluido;
   }
 }
 export interface RawVariantProduct {
@@ -87,6 +89,7 @@ export interface RawVariantProduct {
   subrub?: Decimal;
   marca?: Decimal;
   pathfoto2: string;
+  incluido: boolean;
 }
 
 export interface RawProduct {
