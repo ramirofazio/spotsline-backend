@@ -54,7 +54,7 @@ export class CouponsService {
     }
   }
 
-  async changeState({ id, enabled }: ChangeState): Promise<Coupon> {
+  async changeState({ id, enabled }: ChangeState): Promise<string> {
     try {
       await this.prisma.coupons.findFirstOrThrow({ where: { id } });
 
@@ -68,7 +68,7 @@ export class CouponsService {
       });
 
       HttpStatus.ACCEPTED;
-      return updatedCupon;
+      return `Cupon "${updatedCupon}" actualizo  enabled=${enabled} `;
     } catch (err) {
       console.log(err);
       throw new HttpException(err.message, HttpStatus.INTERNAL_SERVER_ERROR);

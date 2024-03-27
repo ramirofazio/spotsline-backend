@@ -26,7 +26,7 @@ export class CouponsController {
 
   
   @Put("/change_state")
-  async changeState(@Body() body: ChangeState): Promise<Coupon> {
+  async changeState(@Body() body: ChangeState): Promise<string> {
     return await this.CouponsService.changeState(body)
   }
 
