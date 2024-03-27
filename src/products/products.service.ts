@@ -254,7 +254,8 @@ export class ProductsService {
         },
         select: this.productsSelectOpt,
       });
-      if (!marca) {
+
+      if (!marca || !rows) {
         throw new HttpException('producto no encontrado', HttpStatus.NOT_FOUND);
       }
 
@@ -278,6 +279,14 @@ export class ProductsService {
           );
         }),
       );
+
+      if (variants.length === 0) {
+        throw new HttpException(
+          'el producto no cumple todas las condiciones',
+          HttpStatus.EXPECTATION_FAILED,
+        );
+      }
+
       return new Product({
         id: marca.codigo,
         description: marca.descripcion,
@@ -296,6 +305,80 @@ export class ProductsService {
       });
 
       return categories.map((c) => c.descri.trim());
+    } catch (e) {
+      throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  async getDashboardProducts(page: number): Promise<Product[] | any> {
+    try {
+      const take = 50;
+      page = formatPage(page);
+      const skip = take * page - take;
+
+      const marcas = await this.prisma.marcas.findMany({ take, skip });
+
+      if (!marcas || marcas.length === 0) {
+        throw new HttpException(
+          'No se encontraron productos',
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      const products = await Promise.all(
+        marcas.map(async (marca) => {
+          const rows = await this.prisma.stock.findMany({
+            where: {
+              marca: marca.codigo,
+              incluido: true,
+              NOT: {
+                precio1: 0,
+              },
+            },
+            select: this.productsSelectOpt,
+          });
+
+          if (!rows || rows.length === 0) {
+            return null;
+          }
+
+          const variants = await Promise.all(
+            rows.map(async (variant) => {
+              const [rubro, subRubro] = await this.prisma.$transaction([
+                this.prisma.rubros.findFirst({
+                  where: { codigo: variant.rubro },
+                  select: { descri: true },
+                }),
+                this.prisma.subrub.findFirst({
+                  where: { codigo: variant.subrub },
+                  select: { descri: true },
+                }),
+              ]);
+
+              return new ProductVariant(
+                { ...variant },
+                rubro?.descri,
+                subRubro?.descri,
+              );
+            }),
+          );
+
+          if (variants.length === 0) {
+            throw new HttpException(
+              `El producto con ID ${marca.codigo} no cumple todas las condiciones`,
+              HttpStatus.EXPECTATION_FAILED,
+            );
+          }
+
+          return new Product({
+            id: marca.codigo,
+            description: marca.descripcion,
+            variants: variants,
+          });
+        }),
+      );
+
+      return products.filter((p) => p !== null);
     } catch (e) {
       throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }

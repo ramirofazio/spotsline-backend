@@ -1,38 +1,44 @@
-import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpStatus,
+  Param,
+  Patch,
+  Post,
+} from '@nestjs/common';
 import { CouponsService } from './coupons.service';
-import { CreateCoupon, ChangeState, Coupon } from './coupons.dto';
-import { Public } from 'src/auth/publicDecorator';
+import { CreateCoupon, Coupon } from './coupons.dto';
 
 @Controller('coupon')
 export class CouponsController {
   constructor(private readonly CouponsService: CouponsService) {}
 
-  @Get("")
-  async getCoupons():Promise<Coupon[]> {
-    return await this.CouponsService.getCoupons()
+  @Get('')
+  async getCoupons(): Promise<Coupon[]> {
+    return await this.CouponsService.getCoupons();
   }
 
-  
-  @Get("/validate/:couponName")
-  async validateCoupon(@Param("couponName") couponName: string):Promise<Coupon> {
-    return await this.CouponsService.validateCoupon(couponName)
+  @Get('/validate/:couponName')
+  async validateCoupon(
+    @Param('couponName') couponName: string,
+  ): Promise<Coupon> {
+    return await this.CouponsService.validateCoupon(couponName);
   }
 
-  
-  @Post("/create")
-  async createCoupon(@Body() body: CreateCoupon):Promise<Coupon> {
-    return await this.CouponsService.createCoupon(body)
+  @Post('/create')
+  async createCoupon(@Body() body: CreateCoupon): Promise<HttpStatus> {
+    return await this.CouponsService.createCoupon(body);
   }
 
-  
-  @Put("/change_state")
-  async changeState(@Body() body: ChangeState): Promise<Coupon> {
-    return await this.CouponsService.changeState(body)
+  @Patch('/change_state')
+  async changeState(@Body() { id }: { id: number }): Promise<HttpStatus> {
+    return await this.CouponsService.changeState(id);
   }
 
-  
-  @Delete("/delete/:couponId")
-  async deleteCoupon(@Param("couponId") couponId: number) {
-    return await this.CouponsService.deleteCoupon(couponId)
+  @Delete('/delete/:couponId')
+  async deleteCoupon(@Param('couponId') couponId: number): Promise<HttpStatus> {
+    return await this.CouponsService.deleteCoupon(couponId);
   }
 }
