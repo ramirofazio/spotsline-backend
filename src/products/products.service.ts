@@ -336,6 +336,7 @@ export class ProductsService {
               },
             },
             select: this.productsSelectOpt,
+            orderBy: { incluido: 'desc' },
           });
 
           if (!rows || rows.length === 0) {
