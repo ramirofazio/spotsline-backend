@@ -70,7 +70,8 @@ export class ProductVariant implements ProductVariantProps {
     this.precio6 = variant.precio6;
   }
 }
-export interface RawVariantProduct { // tabla stock
+export interface RawVariantProduct {
+  // tabla stock
   id: number;
   oferta: boolean;
   codpro: string;
@@ -88,10 +89,11 @@ export interface RawVariantProduct { // tabla stock
   pathfoto2: string;
 }
 
-export interface RawProduct { // tabla marcas
+export interface RawProduct {
+  // tabla marcas
   codigo: Decimal;
   descripcion: string;
-/*   rubro: number;
+  /*   rubro: number;
   subrub: Decimal;
   marca: Decimal;
   pathfoto: string; */
@@ -184,3 +186,9 @@ export interface UpdateFeatured {
   featured: boolean;
 }
 
+export interface FeaturedProduct {
+  id: number;
+  codigo: Decimal | number | string;
+  featured: boolean;
+  pathfoto: string;
+}

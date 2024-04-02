@@ -181,12 +181,10 @@ export class ProductsService {
         featured: true,
       },
     });
-    // tabla marcas agregar featuerd boolean, traerse la primer vaiante de la marca con su pathfoto2
     if (!marcas.length) {
       throw new HttpException('productos no encontrados', HttpStatus.NOT_FOUND);
     }
-    console.log(marcas);
-    // * Add prodcutImage from stock
+    
     const featureProducts = await Promise.all(
       marcas.map(async (m) => {
         try {
@@ -195,7 +193,7 @@ export class ProductsService {
               marca: m.codigo,
             },
           });
-          console.log('Codigo:', m.codigo);
+          
           if (!firstProduct)
             throw new HttpException(
               'No ha y stock asociado a la marca',
@@ -218,7 +216,7 @@ export class ProductsService {
     return featureProducts;
   }
 
-  async editFeatured(body: UpdateFeatured): Promise<any> {
+  async editFeatured(body: UpdateFeatured): Promise<string> {
     const { id, featured } = body;
 
     try {

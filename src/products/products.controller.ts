@@ -5,6 +5,7 @@ import {
   Product,
   ProductProps,
   UpdateFeatured,
+  FeaturedProduct
 } from './products.dto';
 import { Public } from 'src/auth/publicDecorator';
 
@@ -24,11 +25,10 @@ export class ProductsController {
 
   @Public()
   @Get('featured')
-  async getFeaturedProducts(@Query('take') take: number): Promise<any> {
+  async getFeaturedProducts(@Query('take') take: number): Promise<FeaturedProduct[]> {
     return await this.productsService.getFeaturedProdutcs(take);
   }
 
-  @Public()
   @Put('edit_featured')
   async editFeatured(@Body() body: UpdateFeatured): Promise<string> {
     return await this.productsService.editFeatured(body);
