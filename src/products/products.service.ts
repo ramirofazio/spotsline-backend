@@ -1,6 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { Prisma } from '@prisma/client';
 import {
   Product,
   Pagination,
@@ -186,19 +185,37 @@ export class ProductsService {
     if (!marcas.length) {
       throw new HttpException('productos no encontrados', HttpStatus.NOT_FOUND);
     }
+    console.log(marcas);
+    // * Add prodcutImage from stock
+    const featureProducts = await Promise.all(
+      marcas.map(async (m) => {
+        try {
+          const firstProduct = await this.prisma.stock.findFirst({
+            where: {
+              marca: m.codigo,
+            },
+          });
+          console.log('Codigo:', m.codigo);
+          if (!firstProduct)
+            throw new HttpException(
+              'No ha y stock asociado a la marca',
+              HttpStatus.NOT_FOUND,
+            );
 
-    marcas.map(async (m) => {
-      const res = await this.prisma.stock.findFirst({
-        where: {
-          marca: m.codigo,
-          pathfoto2: {
-            not: null,
-          },
-        },
-      });
-      console.log(res);
-    });
-    return marcas;
+          const raw = {
+            ...m,
+            pathfoto: firstProduct.pathfoto2,
+          };
+
+          
+          return raw;
+        } catch (err) {
+          console.log('La marca no tiene un producto asosciado', err);
+        }
+      }),
+    );
+    
+    return featureProducts;
   }
 
   async editFeatured(body: UpdateFeatured): Promise<any> {

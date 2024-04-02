@@ -22,13 +22,11 @@ export class ProductsController {
     return await this.productsService.getAllProducts({ page, take, search });
   }
 
-    /* @Public()
+  @Public()
   @Get('featured')
-  async getFeaturedProducts(
-    @Query('take') take: number,
-  ): Promise<Product[]> {
+  async getFeaturedProducts(@Query('take') take: number): Promise<any> {
     return await this.productsService.getFeaturedProdutcs(take);
-  } */
+  }
 
   @Public()
   @Put('edit_featured')
