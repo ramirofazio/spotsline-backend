@@ -1,7 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { CreateCoupon, Coupon, ChangeState } from './coupons.dto';
+import { CreateCoupon, Coupon } from './coupons.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 export class CouponsService {
@@ -38,43 +37,53 @@ export class CouponsService {
   async createCoupon({
     discountPercentaje,
     name,
-  }: CreateCoupon): Promise<string> {
+  }: CreateCoupon): Promise<HttpStatus> {
     try {
-      await this.prisma.coupons.create({
-        data: {
-          name,
-          discountPercentaje,
-        },
+      const exist = await this.prisma.coupons.findFirst({
+        where: { name: name },
       });
 
-      HttpStatus.CREATED;
-      return 'created';
+      if (!exist) {
+        await this.prisma.coupons.create({
+          data: {
+            name,
+            discountPercentaje,
+            enabled: true,
+          },
+        });
+
+        return HttpStatus.CREATED;
+      }
+      throw new HttpException('el cupon ya existe', HttpStatus.BAD_REQUEST);
     } catch (err) {
       throw new HttpException(err.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
-  async changeState({ id, enabled }: ChangeState): Promise<string> {
+  async changeState(id: number): Promise<HttpStatus> {
     try {
-      await this.prisma.coupons.findFirstOrThrow({ where: { id } });
+      const thisCoupon = await this.prisma.coupons.findUnique({
+        where: { id },
+      });
+
+      const newEnable = !thisCoupon.enabled;
 
       const updatedCupon = await this.prisma.coupons.update({
         where: {
           id,
         },
         data: {
-          enabled,
+          enabled: newEnable,
         },
       });
 
-      HttpStatus.ACCEPTED;
-      return `Cupon "${updatedCupon}" actualizo  enabled=${enabled} `;
+      return HttpStatus.ACCEPTED;
     } catch (err) {
       console.log(err);
       throw new HttpException(err.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
-  async deleteCoupon(couponId: number): Promise<string> {
+  async deleteCoupon(couponId: number): Promise<HttpStatus> {
     try {
       await this.prisma.coupons.findFirstOrThrow({ where: { id: couponId } });
 
@@ -84,8 +93,7 @@ export class CouponsService {
         },
       });
 
-      HttpStatus.ACCEPTED;
-      return 'deleted';
+      return HttpStatus.OK;
     } catch (err) {
       console.log(err);
       throw new HttpException(err.message, HttpStatus.INTERNAL_SERVER_ERROR);

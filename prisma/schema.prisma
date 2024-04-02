@@ -3595,3 +3595,4 @@ model zonas {
   codigo Decimal @id(map: "PK_zonas") @default(0, map: "DF_zonas_codigo") @db.Decimal(5, 0)
   descri String  @default("", map: "DF_zonas_descri") @db.Char(30)
 }
+
