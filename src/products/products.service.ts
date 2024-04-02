@@ -1,5 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { Prisma } from '@prisma/client';
 import {
   Product,
   Pagination,
@@ -176,66 +177,55 @@ export class ProductsService {
   }
 
   async getFeaturedProdutcs(take: number) {
-    const products: RawVariantProduct[] = await this.prisma.stock.findMany({
-      take: take,
+    const marcas: any[] = await this.prisma.marcas.findMany({
       where: {
-        incluido: true,
-        //featured: true,
-        pathfoto: { not: '' }, // ? Cuando esten cargadas als imagenes de s3 cambiar a "pathfoto2"
+        featured: true,
       },
-      select: { ...this.productsSelectOpt /* featured: true */ },
     });
-
-    if (!products.length) {
+    // tabla marcas agregar featuerd boolean, traerse la primer vaiante de la marca con su pathfoto2
+    if (!marcas.length) {
       throw new HttpException('productos no encontrados', HttpStatus.NOT_FOUND);
     }
 
-    const cleanProducts: Product[] = await Promise.all(
-      products.map(async (p) => {
-        const [rubro, subRubro, marca] = await this.prisma.$transaction([
-          this.prisma.rubros.findFirst({
-            where: { codigo: p.rubro },
-            select: { descri: true },
-          }),
-          this.prisma.subrub.findFirst({
-            where: { codigo: p.subrub },
-            select: { descri: true },
-          }),
-          this.prisma.marcas.findFirst({
-            where: { codigo: p.marca },
-            select: { descripcion: true },
-          }),
-        ]);
-
-        if (!rubro || !subRubro || !marca) {
-          console.error('Datos de producto incompletos');
-          return null;
-        }
-
-        return new Product({ id: p.marca, description: 'ss', variants: [] });
-      }),
-    );
-    return cleanProducts;
+    marcas.map(async (m) => {
+      const res = await this.prisma.stock.findFirst({
+        where: {
+          marca: m.codigo,
+          pathfoto2: {
+            not: null,
+          },
+        },
+      });
+      console.log(res);
+    });
+    return marcas;
   }
 
-  async editFeatured(body: UpdateFeatured): Promise<string> {
-    const { productCode, featured } = body;
-    const updated = await this.prisma.stock.update({
-      where: { codpro: productCode },
-      data: {
-        // featured,
-      },
-    });
+  async editFeatured(body: UpdateFeatured): Promise<any> {
+    const { id, featured } = body;
 
-    if (!updated) {
-      throw new HttpException(
-        `producto con codpro=${productCode}, no encontrado`,
-        HttpStatus.NOT_FOUND,
-      );
+    try {
+      const updated = await this.prisma.marcas.update({
+        where: {
+          id,
+        },
+        data: {
+          featured,
+        },
+      });
+
+      if (!updated) {
+        throw new HttpException(
+          `producto con id=${id}, no encontrado`,
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      HttpStatus.ACCEPTED;
+      return `Se actualizo el producto ${id} con featured=${featured}`;
+    } catch (err) {
+      throw new HttpException(err.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
-
-    HttpStatus.ACCEPTED;
-    return `Se actualizo el producto ${productCode} con featured=${featured}`;
   }
 
   async getOneProduct(id: number): Promise<Product> {

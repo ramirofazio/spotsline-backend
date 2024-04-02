@@ -179,7 +179,8 @@ export interface RawOrderProduct {
 }
 
 export interface UpdateFeatured {
-  productCode: string;
+  id: number;
+  codigo: Decimal | number | string;
   featured: boolean;
 }
 

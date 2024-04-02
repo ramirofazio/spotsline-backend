@@ -7,235 +7,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model cliente {
-  nrocli       Int      @id(map: "PK_cliente_1") @default(0, map: "DF_cliente_nrocli")
-  razsoc       String   @default("", map: "DF_cliente_razsoc") @db.Char(50)
-  fantasia     String   @default("", map: "DF_cliente_fantasia") @db.Char(50)
-  direcc       String   @default("", map: "DF_cliente_direcc") @db.Char(50)
-  direcom      String   @default("", map: "DF_cliente_direcom") @db.Char(50)
-  locali       Int      @default(0, map: "DF_cliente_locali")
-  codpos       String   @default("", map: "DF_cliente_codpos") @db.Char(10)
-  telef1       String   @default("", map: "DF_cliente_telef1") @db.Char(50)
-  telef2       String   @default("", map: "DF_cliente_telef2") @db.Char(50)
-  fax          String   @default("", map: "DF_cliente_fax") @db.Char(50)
-  expreso      Decimal  @default(0, map: "DF_cliente_expreso") @db.Decimal(5, 0)
-  cuit         String   @default("", map: "DF_cliente_cuit") @db.Char(13)
-  respon       Int      @default(0, map: "DF_cliente_respon")
-  ingbru       String   @default("", map: "DF_cliente_ingbru") @db.Char(13)
-  zona         Decimal  @default(0, map: "DF_cliente_zona") @db.Decimal(5, 0)
-  totmen       Decimal  @default(0, map: "DF_cliente_totmen") @db.Decimal(18, 2)
-  feccom       DateTime @default(dbgenerated("0"), map: "DF_cliente_feccom") @db.DateTime
-  estcue1      Decimal  @default(0, map: "DF_cliente_estcue1") @db.Decimal(18, 2)
-  codven       Decimal  @default(0, map: "DF_cliente_codven") @db.Decimal(5, 0)
-  comicob      Decimal  @default(0, map: "DF_cliente_comicob") @db.Decimal(5, 2)
-  comis        Decimal  @default(0, map: "DF_cliente_comis") @db.Decimal(5, 2)
-  condicion    Decimal  @default(0, map: "DF_cliente_condicion") @db.Decimal(5, 0)
-  lista        Decimal  @default(0, map: "DF_cliente_lista") @db.Decimal(1, 0)
-  bonif        Decimal  @default(0, map: "DF_cliente_bonif") @db.Decimal(5, 2)
-  bonif1       Decimal  @default(0, map: "DF_cliente_bonif1") @db.Decimal(5, 2)
-  contacto     String   @default("", map: "DF_cliente_contacto") @db.Char(50)
-  credito      Decimal  @default(0, map: "DF_cliente_credito") @db.Decimal(18, 2)
-  email        String   @default("", map: "DF_cliente_email") @db.Char(50)
-  pweb         String   @default("", map: "DF_cliente_pweb") @db.Char(50)
-  cond_vta     Decimal  @default(0, map: "DF_cliente_cond_vta") @db.Decimal(1, 0)
-  observa      String   @default("", map: "DF_cliente_observa") @db.Text
-  pais         Decimal  @default(0, map: "DF_cliente_pais") @db.Decimal(4, 0)
-  inhabilitado Boolean  @default(false, map: "DF_cliente_inhabilitado")
-  fechalta     DateTime @default(dbgenerated("0"), map: "DF_cliente_fechalta") @db.DateTime
-  visualiza    Boolean  @default(false, map: "DF_cliente_visualiza")
-  activi       Int      @default(0, map: "DF_cliente_activi")
-  direntrega   Int      @default(0, map: "DF_cliente_direntrega")
-  codprove     String   @default("", map: "DF_cliente_codprove") @db.Char(10)
-  monfac       String   @default("0", map: "DF_cliente_monfac") @db.Char(5)
-  incobrable   Boolean  @default(false, map: "DF_cliente_incobrable")
-  clavepais    String   @default("", map: "DF_cliente_clavepais") @db.Char(25)
-  masche       Boolean  @default(false, map: "DF_cliente_masche")
-  abonado      Boolean  @default(false, map: "DF_cliente_abonado")
-  habmunic     String   @default("", map: "DF_cliente_habmunic") @db.Char(16)
-  sucuent      Int      @default(0, map: "DF_cliente_sucuent")
-  cai          String   @default("", map: "DF_cliente_cai") @db.Char(14)
-  vencecai     DateTime @default(dbgenerated("0"), map: "DF_cliente_vencecai") @db.DateTime
-  diavisi      String   @default("", map: "DF_cliente_diavisi") @db.Char(10)
-  diaentre     String   @default("", map: "DF_cliente_diaentre") @db.Char(10)
-  horario      String   @default("", map: "DF_cliente_horario") @db.VarChar(50)
-  celular      String   @default("", map: "DF_cliente_celular") @db.Char(50)
-  ctacon       Int      @default(dbgenerated(), map: "DF_cliente_ctacon")
-  moroso       Boolean  @default(false, map: "DF_cliente_moroso")
-  credias      Decimal  @default(0, map: "DF_cliente_credias") @db.Decimal(4, 0)
-  bloqxcre     Boolean  @default(false, map: "DF_cliente_bloqxcre")
-  bonif2       Decimal  @default(0, map: "DF_cliente_bonif2") @db.Decimal(5, 2)
-  bonif3       Decimal  @default(0, map: "DF_cliente_bonif3") @db.Decimal(5, 2)
-  bonif4       Decimal  @default(0, map: "DF_cliente_bonif4") @db.Decimal(5, 2)
-  merchan      Boolean  @default(false, map: "DF_cliente_merchan")
-  email1       String   @default("", map: "DF_cliente_email1") @db.Char(50)
-  tipodoc      Int      @default(dbgenerated(), map: "DF_cliente_tipodoc")
-  MontoPib     Decimal  @default(0, map: "DF_cliente_MontoPib") @db.Decimal(18, 2)
-  clave        String?  @default("", map: "DF_cliente_clave") @db.VarChar(100)
-  latitud      Decimal  @default(0, map: "DF_cliente_latitud") @db.Decimal(12, 8)
-  longitud     Decimal  @default(0, map: "DF_cliente_longitud") @db.Decimal(12, 8)
-  convenio     Boolean  @default(false, map: "DF_cliente_convenio")
-  entdom       Boolean  @default(false, map: "DF_cliente_entdom")
-  id           Int      @default(autoincrement())
-  hacerFCE     Boolean  @default(false, map: "DF_cliente_hacerFCE")
-  imei         Int      @default(0, map: "DF_cliente_imei")
-  clteasociado Int      @default(0, map: "DF_cliente_clteasociado")
-  modofce      String   @default("SCA", map: "DF_cliente_modofce") @db.Char(3)
-  leyboca      Boolean  @default(false, map: "DF_cliente_leyboca")
-  modidat      Boolean  @default(false, map: "DF_cliente_modidat")
-  cm05         Boolean  @default(false, map: "DF_cliente_cm05")
-  fechacm      DateTime @default(dbgenerated("0"), map: "DF_cliente_fechacm") @db.DateTime
-  celWSP       String   @default("", map: "DF_cliente_celWSP") @db.Char(13)
-  firstSignIn  Boolean? @default(false, map: "DF__cliente__firstSi__37776261")
-  firstSignIn2 Boolean? @default(true, map: "DF__cliente__firstSi__5D9D0B49")
-  firstSignIn3 Boolean? @default(true, map: "DF__cliente__firstSi__5E912F82")
-  web_role     Int?     @default(0, map: "DF__cliente__web_rol__70AFDFBD")
-
-  @@index([razsoc], map: "IX_cliente")
-}
-
-model empresa {
-  id               Int                      @id(map: "PK_empresa") @default(autoincrement())
-  empresa          String                   @default("1)", map: "DF_empresa_empresa") @db.VarChar(50)
-  titulares        String                   @default("1)", map: "DF_empresa_titulares") @db.VarChar(50)
-  direccion        String                   @default("1)", map: "DF_empresa_direccion") @db.VarChar(50)
-  localidad        Int                      @default(dbgenerated("1)"), map: "DF_empresa_localidad")
-  codpos           String                   @default("", map: "DF_empresa_codpos") @db.Char(10)
-  telefono         String                   @default("1)", map: "DF_empresa_telefono") @db.VarChar(50)
-  cuit             String                   @default("1)", map: "DF_empresa_cuit") @db.Char(13)
-  brutos           String                   @default("1)", map: "DF_empresa_brutos") @db.Char(20)
-  jubilacion       String                   @default("1)", map: "DF_empresa_jubilacion") @db.Char(20)
-  internos         String                   @default("1)", map: "DF_empresa_internos") @db.Char(20)
-  titulo1          String                   @default("1)", map: "DF_empresa_titulo1") @db.VarChar(50)
-  titulo2          String                   @default("1)", map: "DF_empresa_titulo2") @db.VarChar(50)
-  email            String                   @default("1)", map: "DF_empresa_email") @db.VarChar(50)
-  pweb             String                   @default("1)", map: "DF_empresa_pweb") @db.VarChar(50)
-  pathlogo         String                   @default("..\\IMAGENES\\BOTON-TRANSPARENTE.PNG", map: "DF_empresa_pathlogo") @db.VarChar(250)
-  primerlin        String                   @default("1)", map: "DF_empresa_primerlin") @db.VarChar(50)
-  segunlin         String                   @default("1)", map: "DF_empresa_segunlin") @db.VarChar(50)
-  tercerlin        String                   @default("1)", map: "DF_empresa_tercerlin") @db.VarChar(50)
-  nejerdef         Int                      @default(0, map: "DF_empresa_nejerdef")
-  nejercicio       Int                      @default(0, map: "DF_empresa_nejercicio")
-  condfiva         Int                      @default(0, map: "DF_empresa_condfiva") @db.SmallInt
-  finiact          DateTime                 @default(dbgenerated("0"), map: "DF_empresa_finiact") @db.DateTime
-  timestamp_column Unsupported("timestamp")
-  pathfondo        String                   @default("", map: "DF_empresa_pathfondo") @db.NVarChar(250)
-  percib           Boolean                  @default(false, map: "DF_empresa_percib")
-  montopib         Decimal                  @default(0, map: "DF_empresa_montopib") @db.Decimal(18, 2)
-  percepib         Decimal                  @default(0, map: "DF_empresa_percepib") @db.Decimal(5, 2)
-  retib            Boolean                  @default(false, map: "DF_empresa_retib")
-  montorib         Decimal                  @default(0, map: "DF_empresa_montorib") @db.Decimal(18, 2)
-  retnib           Decimal                  @default(0, map: "DF_empresa_retnib") @db.Decimal(5, 2)
-  empxdefecto      Boolean                  @default(false, map: "DF_empresa_empxdefecto")
-  cotUsuario       String                   @default("", map: "DF_empresa_cotUsuario") @db.VarChar(50)
-  cotPasswd        String                   @default("", map: "DF_empresa_cotPasswd") @db.VarChar(50)
-  pathcot          String                   @default("", map: "DF_empresa_pathcot") @db.VarChar(150)
-  juridi           Int                      @default(0, map: "DF_empresa_juridi") @db.SmallInt
-  esagntPercepcion Boolean                  @default(false, map: "DF_empresa_esagntPercepcion")
-  esagntRetencion  Boolean                  @default(false, map: "DF_empresa_esagntRetencion")
-  entraxdefault    Boolean                  @default(false, map: "DF_empresa_entraxdefault")
-  cbu              String                   @default("", map: "DF_empresa_cbu") @db.VarChar(22)
-  promoind         Boolean                  @default(false, map: "DF_empresa_promoind")
-  retivap          Boolean                  @default(false, map: "DF_empresa_retivap")
-  retganp          Boolean                  @default(false, map: "DF_empresa_retganp")
-  despagiva        Boolean                  @default(false, map: "DF_empresa_despagiva")
-  novaneto         Boolean                  @default(false, map: "DF_empresa_novaneto")
-}
-
-model stock {
-  id            Int      @default(autoincrement())
-  codpro        String   @id(clustered: false, map: "PK_stock") @unique(map: "IX_stock") @default("", map: "DF_stock_codpro") @db.Char(16)
-  cbarras       String   @default("0", map: "DF_stock_cbarras") @db.VarChar(13)
-  dun14         String   @default("0", map: "DF_stock_dump14") @db.VarChar(14)
-  codorigi      String   @default("0", map: "DF_stock_codorigi") @db.VarChar(18)
-  coriginal     String   @default("0", map: "DF_stock_coriginal") @db.VarChar(18)
-  codncm        String   @default("0", map: "DF_stock_codncm") @db.VarChar(16)
-  descri        String   @default("", map: "DF_stock_descri") @db.VarChar(50)
-  despacho      String   @default("", map: "DF_stock_despacho") @db.VarChar(20)
-  verifico      String   @default("0", map: "DF_stock_verifico") @db.VarChar(50)
-  color         String   @default("0", map: "DF_stock_color") @db.VarChar(13)
-  pathfoto      String   @default("0", map: "DF_stock_pathfoto") @db.VarChar(Max)
-  pathetiq      String   @default("0", map: "DF_stock_pathetiq") @db.VarChar(100)
-  usuestr       String   @default("", map: "DF_stock_usuestr") @db.VarChar(50)
-  descrilar     String   @default("", map: "DF_stock_descrilar") @db.VarChar(Max)
-  usoart        String   @default("", map: "DF_stock_usoart") @db.VarChar(Max)
-  observa       String   @default("", map: "DF_stock_observa") @db.VarChar(Max)
-  rubro         Int      @default(0, map: "DF_stock_rubro")
-  subrub        Decimal  @default(0, map: "DF_stock_subrub") @db.Decimal(5, 0)
-  marca         Decimal  @default(0, map: "DF_stock_marca") @db.Decimal(5, 0)
-  unimed        Decimal  @default(0, map: "DF_stock_unimed") @db.Decimal(5, 0)
-  proveed       Decimal  @default(0, map: "DF_stock_proveed") @db.Decimal(5, 0)
-  moneda        String   @default("0", map: "DF_stock_moneda") @db.Char(10)
-  envase        Decimal  @default(0, map: "DF_stock_envase") @db.Decimal(5, 0)
-  ivagrupo      Decimal  @default(0, map: "DF_stock_ivagrupo") @db.Decimal(5, 0)
-  ctacon        Int      @default(0, map: "DF_stock_ctacon")
-  fecha         DateTime @default(now(), map: "DF_stock_fecha") @db.DateTime
-  fecmodcos     DateTime @default(now(), map: "DF_stock_fecmodcos") @db.DateTime
-  alta          DateTime @default(now(), map: "DF_stock_alta") @db.DateTime
-  fechaact      DateTime @default(now(), map: "DF_stock_fechaact") @db.DateTime
-  fechveri      DateTime @default(now(), map: "DF_stock_fechveri") @db.DateTime
-  fecprom       DateTime @default(now(), map: "DF_stock_fecprom") @db.DateTime
-  fechestr      DateTime @default(now(), map: "DF_stock_fechestr") @db.DateTime
-  fechpped      DateTime @default(now(), map: "DF_stock_fechpped") @db.DateTime
-  cosfverif     DateTime @default(now(), map: "DF_stock_cosfverif") @db.DateTime
-  incluido      Boolean  @default(false, map: "DF_stock_incluido")
-  artret        Boolean  @default(false, map: "DF_stock_artret")
-  oferta        Boolean  @default(false, map: "DF_stock_oferta")
-  descomp       Boolean  @default(false, map: "DF_stock_descomp")
-  vtaxbul       Boolean  @default(false, map: "DF_stock_vtaxbul")
-  discont       Boolean  @default(false, map: "DF_stock_discont")
-  noborrarelart Boolean  @default(false, map: "DF_stock_noborrarelart")
-  msgstkptoped  Boolean  @default(false, map: "DF_stock_msgstkptoped")
-  costo         Decimal  @default(0, map: "DF_stock_costo") @db.Decimal(18, 4)
-  precio1       Decimal  @default(0, map: "DF_stock_precio1") @db.Decimal(18, 4)
-  precio2       Decimal  @default(0, map: "DF_stock_precio2") @db.Decimal(18, 4)
-  precio3       Decimal  @default(0, map: "DF_stock_precio3") @db.Decimal(18, 4)
-  precio4       Decimal  @default(0, map: "DF_stock_precio4") @db.Decimal(18, 4)
-  precio5       Decimal  @default(0, map: "DF_stock_precio5") @db.Decimal(18, 4)
-  precio6       Decimal  @default(0, map: "DF_stock_precio6") @db.Decimal(18, 4)
-  stomin        Decimal  @default(0, map: "DF_stock_stomin") @db.Decimal(18, 2)
-  ppedido       Decimal  @default(0, map: "DF_stock_ppedido") @db.Decimal(18, 2)
-  boniprod      Decimal  @default(0, map: "DF_stock_boniprod") @db.Decimal(5, 2)
-  comiprod      Decimal  @default(0, map: "DF_stock_comiprod") @db.Decimal(5, 2)
-  comipcob      Decimal  @default(0, map: "DF_stock_comipcob") @db.Decimal(5, 2)
-  cantenv       Decimal  @default(0, map: "DF_stock_cantenv") @db.Decimal(9, 2)
-  peso          Decimal  @default(0, map: "DF_stock_peso") @db.Decimal(18, 4)
-  promedio      Decimal  @default(0, map: "DF_stock_promedio") @db.Decimal(18, 2)
-  meses         Decimal  @default(0, map: "DF_stock_meses") @db.Decimal(4, 0)
-  canths        Decimal  @default(0, map: "DF_stock_canths") @db.Decimal(9, 2)
-  uxbulto       Decimal  @default(0, map: "DF_stock_uxbulto") @db.Decimal(18, 2)
-  prelis        Decimal  @default(0, map: "DF_stock_prelis") @db.Decimal(18, 4)
-  tipoart       Int      @default(0, map: "DF_stock_tipoart")
-  impint        Decimal  @default(0, map: "DF_stock_impint") @db.Decimal(18, 4)
-  impasoc       Decimal  @default(0, map: "DF_stock_impasoc") @db.Decimal(18, 2)
-  presug        Decimal  @default(0, map: "DF_stock_presug") @db.Decimal(18, 2)
-  cantmin       Decimal  @default(0, map: "DF_stock_cantmin") @db.Decimal(9, 2)
-  porceasoc     Decimal  @default(0, map: "DF_stock_porceasoc") @db.Decimal(6, 2)
-  internos      Decimal  @default(0, map: "DF_stock_internos") @db.Decimal(18, 4)
-  modifdescr    Boolean  @default(false, map: "DF_stock_modifdescr")
-  coddisp       String   @default("", map: "DF_stock_coddisp") @db.Char(16)
-  CodMedia      String   @default("1)", map: "DF_stock_CodMedia") @db.Char(16)
-  uxmedia       Decimal  @default(0, map: "DF_stock_uxmedia") @db.Decimal(18, 2)
-  codsku        String   @default("", map: "DF_stock_codsku") @db.Char(30)
-  uxdisp        Decimal  @default(0, map: "DF_stock_uxdisp") @db.Decimal(18, 2)
-  exigelote     Boolean  @default(false, map: "DF_stock_exigelote")
-  codcot        String   @default("", map: "DF_stock_codcot") @db.Char(6)
-  sinprec       Boolean  @default(false, map: "DF_stock_sinprec")
-  factucomp     Boolean  @default(false, map: "DF_stock_factucomp")
-  codcolor      Int      @default(0, map: "DF_stock_codcolor")
-  ds1           Decimal  @default(0, map: "DF_stock_ds1") @db.Decimal(6, 2)
-  ds2           Decimal  @default(0, map: "DF_stock_ds2") @db.Decimal(6, 2)
-  ds3           Decimal  @default(0, map: "DF_stock_ds3") @db.Decimal(6, 2)
-  ds4           Decimal  @default(0, map: "DF_stock_ds4") @db.Decimal(6, 2)
-  ds5           Decimal  @default(0, map: "DF_stock_ds5") @db.Decimal(6, 2)
-  execf         Boolean  @default(false, map: "DF_stock_execf")
-  ubicacionid   Int      @default(0, map: "DF_stock_ubicacionid")
-  chkptopedido  Boolean  @default(false, map: "DF_stock_chkptopedido")
-  pathfoto2     String   @default("", map: "DF_stock_pathfoto2") @db.VarChar(Max)
-  featured      Boolean? @default(false, map: "DF__stock__featured__29E85D19")
-
-  @@index([descri], map: "IX_stock_1", clustered: true)
-}
-
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model auxiliardetablas {
   id         Int     @default(autoincrement())
@@ -785,6 +556,92 @@ model clictad {
   @@ignore
 }
 
+model cliente {
+  nrocli       Int      @id(map: "PK_cliente_1") @default(0, map: "DF_cliente_nrocli")
+  razsoc       String   @default("", map: "DF_cliente_razsoc") @db.Char(50)
+  fantasia     String   @default("", map: "DF_cliente_fantasia") @db.Char(50)
+  direcc       String   @default("", map: "DF_cliente_direcc") @db.Char(50)
+  direcom      String   @default("", map: "DF_cliente_direcom") @db.Char(50)
+  locali       Int      @default(0, map: "DF_cliente_locali")
+  codpos       String   @default("", map: "DF_cliente_codpos") @db.Char(10)
+  telef1       String   @default("", map: "DF_cliente_telef1") @db.Char(50)
+  telef2       String   @default("", map: "DF_cliente_telef2") @db.Char(50)
+  fax          String   @default("", map: "DF_cliente_fax") @db.Char(50)
+  expreso      Decimal  @default(0, map: "DF_cliente_expreso") @db.Decimal(5, 0)
+  cuit         String   @default("", map: "DF_cliente_cuit") @db.Char(13)
+  respon       Int      @default(0, map: "DF_cliente_respon")
+  ingbru       String   @default("", map: "DF_cliente_ingbru") @db.Char(13)
+  zona         Decimal  @default(0, map: "DF_cliente_zona") @db.Decimal(5, 0)
+  totmen       Decimal  @default(0, map: "DF_cliente_totmen") @db.Decimal(18, 2)
+  feccom       DateTime @default(dbgenerated("0"), map: "DF_cliente_feccom") @db.DateTime
+  estcue1      Decimal  @default(0, map: "DF_cliente_estcue1") @db.Decimal(18, 2)
+  codven       Decimal  @default(0, map: "DF_cliente_codven") @db.Decimal(5, 0)
+  comicob      Decimal  @default(0, map: "DF_cliente_comicob") @db.Decimal(5, 2)
+  comis        Decimal  @default(0, map: "DF_cliente_comis") @db.Decimal(5, 2)
+  condicion    Decimal  @default(0, map: "DF_cliente_condicion") @db.Decimal(5, 0)
+  lista        Decimal  @default(0, map: "DF_cliente_lista") @db.Decimal(1, 0)
+  bonif        Decimal  @default(0, map: "DF_cliente_bonif") @db.Decimal(5, 2)
+  bonif1       Decimal  @default(0, map: "DF_cliente_bonif1") @db.Decimal(5, 2)
+  contacto     String   @default("", map: "DF_cliente_contacto") @db.Char(50)
+  credito      Decimal  @default(0, map: "DF_cliente_credito") @db.Decimal(18, 2)
+  email        String   @default("", map: "DF_cliente_email") @db.Char(50)
+  pweb         String   @default("", map: "DF_cliente_pweb") @db.Char(50)
+  cond_vta     Decimal  @default(0, map: "DF_cliente_cond_vta") @db.Decimal(1, 0)
+  observa      String   @default("", map: "DF_cliente_observa") @db.Text
+  pais         Decimal  @default(0, map: "DF_cliente_pais") @db.Decimal(4, 0)
+  inhabilitado Boolean  @default(false, map: "DF_cliente_inhabilitado")
+  fechalta     DateTime @default(dbgenerated("0"), map: "DF_cliente_fechalta") @db.DateTime
+  visualiza    Boolean  @default(false, map: "DF_cliente_visualiza")
+  activi       Int      @default(0, map: "DF_cliente_activi")
+  direntrega   Int      @default(0, map: "DF_cliente_direntrega")
+  codprove     String   @default("", map: "DF_cliente_codprove") @db.Char(10)
+  monfac       String   @default("0", map: "DF_cliente_monfac") @db.Char(5)
+  incobrable   Boolean  @default(false, map: "DF_cliente_incobrable")
+  clavepais    String   @default("", map: "DF_cliente_clavepais") @db.Char(25)
+  masche       Boolean  @default(false, map: "DF_cliente_masche")
+  abonado      Boolean  @default(false, map: "DF_cliente_abonado")
+  habmunic     String   @default("", map: "DF_cliente_habmunic") @db.Char(16)
+  sucuent      Int      @default(0, map: "DF_cliente_sucuent")
+  cai          String   @default("", map: "DF_cliente_cai") @db.Char(14)
+  vencecai     DateTime @default(dbgenerated("0"), map: "DF_cliente_vencecai") @db.DateTime
+  diavisi      String   @default("", map: "DF_cliente_diavisi") @db.Char(10)
+  diaentre     String   @default("", map: "DF_cliente_diaentre") @db.Char(10)
+  horario      String   @default("", map: "DF_cliente_horario") @db.VarChar(50)
+  celular      String   @default("", map: "DF_cliente_celular") @db.Char(50)
+  ctacon       Int      @default(dbgenerated(), map: "DF_cliente_ctacon")
+  moroso       Boolean  @default(false, map: "DF_cliente_moroso")
+  credias      Decimal  @default(0, map: "DF_cliente_credias") @db.Decimal(4, 0)
+  bloqxcre     Boolean  @default(false, map: "DF_cliente_bloqxcre")
+  bonif2       Decimal  @default(0, map: "DF_cliente_bonif2") @db.Decimal(5, 2)
+  bonif3       Decimal  @default(0, map: "DF_cliente_bonif3") @db.Decimal(5, 2)
+  bonif4       Decimal  @default(0, map: "DF_cliente_bonif4") @db.Decimal(5, 2)
+  merchan      Boolean  @default(false, map: "DF_cliente_merchan")
+  email1       String   @default("", map: "DF_cliente_email1") @db.Char(50)
+  tipodoc      Int      @default(dbgenerated(), map: "DF_cliente_tipodoc")
+  MontoPib     Decimal  @default(0, map: "DF_cliente_MontoPib") @db.Decimal(18, 2)
+  clave        String?  @default("", map: "DF_cliente_clave") @db.VarChar(100)
+  latitud      Decimal  @default(0, map: "DF_cliente_latitud") @db.Decimal(12, 8)
+  longitud     Decimal  @default(0, map: "DF_cliente_longitud") @db.Decimal(12, 8)
+  convenio     Boolean  @default(false, map: "DF_cliente_convenio")
+  entdom       Boolean  @default(false, map: "DF_cliente_entdom")
+  id           Int      @default(autoincrement())
+  hacerFCE     Boolean  @default(false, map: "DF_cliente_hacerFCE")
+  imei         Int      @default(0, map: "DF_cliente_imei")
+  clteasociado Int      @default(0, map: "DF_cliente_clteasociado")
+  modofce      String   @default("SCA", map: "DF_cliente_modofce") @db.Char(3)
+  leyboca      Boolean  @default(false, map: "DF_cliente_leyboca")
+  modidat      Boolean  @default(false, map: "DF_cliente_modidat")
+  cm05         Boolean  @default(false, map: "DF_cliente_cm05")
+  fechacm      DateTime @default(dbgenerated("0"), map: "DF_cliente_fechacm") @db.DateTime
+  celWSP       String   @default("", map: "DF_cliente_celWSP") @db.Char(13)
+  firstSignIn  Boolean? @default(false, map: "DF__cliente__firstSi__37776261")
+  firstSignIn2 Boolean? @default(true, map: "DF__cliente__firstSi__5D9D0B49")
+  firstSignIn3 Boolean? @default(true, map: "DF__cliente__firstSi__5E912F82")
+  web_role     Int?     @default(0, map: "DF__cliente__web_rol__70AFDFBD")
+
+  @@index([razsoc], map: "IX_cliente")
+}
+
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model CodigoPos {
   codpos   String @default("", map: "DF_CodigoPos_codpos") @db.Char(10)
@@ -1031,6 +888,13 @@ model conjuprod {
   @@ignore
 }
 
+model coupons {
+  id                 Int      @id(map: "PK__coupons__3213E83F15D7A415") @default(autoincrement())
+  name               String?  @db.NVarChar(255)
+  discountPercentaje Int?
+  enabled            Boolean? @default(false, map: "DF__coupons__enabled__781BF75B")
+}
+
 model cuebanc {
   id        Int     @unique(map: "IX_cuebanc") @default(autoincrement())
   empresaid Int     @default(0, map: "DF_cuebanc_empresaid")
@@ -1230,6 +1094,28 @@ model detmovim {
 }
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model dirremi {
+  id             Int     @default(autoincrement())
+  nrocli         Int     @default(0, map: "DF_dirremi_nrocli")
+  direcc         String  @default("", map: "DF_dirremi_direcc") @db.Char(50)
+  localiid       Int     @default(0, map: "DF_dirremi_localiid")
+  codpos         String  @default("", map: "DF_dirremi_codpos") @db.Char(10)
+  provin         Decimal @default(0, map: "DF_dirremi_provin") @db.Decimal(4, 0)
+  registro       Decimal @default(0, map: "DF_dirremi_registro") @db.Decimal(10, 0)
+  expreso        Decimal @default(0, map: "DF_dirremi_expreso") @db.Decimal(5, 0)
+  locali         String  @default("", map: "DF_dirremi_locali") @db.VarChar(50)
+  departamento   String  @default("", map: "DF_dirremi_departamento") @db.VarChar(50)
+  provincia      String  @default("", map: "DF_dirremi_provincia") @db.VarChar(50)
+  pais           String  @default("", map: "DF_dirremi_pais") @db.VarChar(50)
+  horario        String  @default("", map: "DF_dirremi_horario") @db.Char(50)
+  provinciaid    Int     @default(0, map: "DF_dirremi_provinciaid")
+  paisid         Int     @default(0, map: "DF_dirremi_paisid")
+  departamentoid Int     @default(0, map: "DF_dirremi_departamentoid")
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model documen {
   nroint    Int
   fecha     DateTime @default(dbgenerated("0"), map: "DF_documen_fecha") @db.DateTime
@@ -1280,6 +1166,54 @@ model ejercicios {
   indi0      Decimal  @default(0, map: "DF_ejercicios_indi0") @db.Decimal(8, 3)
 
   @@ignore
+}
+
+model empresa {
+  id               Int                      @id(map: "PK_empresa") @default(autoincrement())
+  empresa          String                   @default("1)", map: "DF_empresa_empresa") @db.VarChar(50)
+  titulares        String                   @default("1)", map: "DF_empresa_titulares") @db.VarChar(50)
+  direccion        String                   @default("1)", map: "DF_empresa_direccion") @db.VarChar(50)
+  localidad        Int                      @default(dbgenerated("1)"), map: "DF_empresa_localidad")
+  codpos           String                   @default("", map: "DF_empresa_codpos") @db.Char(10)
+  telefono         String                   @default("1)", map: "DF_empresa_telefono") @db.VarChar(50)
+  cuit             String                   @default("1)", map: "DF_empresa_cuit") @db.Char(13)
+  brutos           String                   @default("1)", map: "DF_empresa_brutos") @db.Char(20)
+  jubilacion       String                   @default("1)", map: "DF_empresa_jubilacion") @db.Char(20)
+  internos         String                   @default("1)", map: "DF_empresa_internos") @db.Char(20)
+  titulo1          String                   @default("1)", map: "DF_empresa_titulo1") @db.VarChar(50)
+  titulo2          String                   @default("1)", map: "DF_empresa_titulo2") @db.VarChar(50)
+  email            String                   @default("1)", map: "DF_empresa_email") @db.VarChar(50)
+  pweb             String                   @default("1)", map: "DF_empresa_pweb") @db.VarChar(50)
+  pathlogo         String                   @default("..\\IMAGENES\\BOTON-TRANSPARENTE.PNG", map: "DF_empresa_pathlogo") @db.VarChar(250)
+  primerlin        String                   @default("1)", map: "DF_empresa_primerlin") @db.VarChar(50)
+  segunlin         String                   @default("1)", map: "DF_empresa_segunlin") @db.VarChar(50)
+  tercerlin        String                   @default("1)", map: "DF_empresa_tercerlin") @db.VarChar(50)
+  nejerdef         Int                      @default(0, map: "DF_empresa_nejerdef")
+  nejercicio       Int                      @default(0, map: "DF_empresa_nejercicio")
+  condfiva         Int                      @default(0, map: "DF_empresa_condfiva") @db.SmallInt
+  finiact          DateTime                 @default(dbgenerated("0"), map: "DF_empresa_finiact") @db.DateTime
+  timestamp_column Unsupported("timestamp")
+  pathfondo        String                   @default("", map: "DF_empresa_pathfondo") @db.NVarChar(250)
+  percib           Boolean                  @default(false, map: "DF_empresa_percib")
+  montopib         Decimal                  @default(0, map: "DF_empresa_montopib") @db.Decimal(18, 2)
+  percepib         Decimal                  @default(0, map: "DF_empresa_percepib") @db.Decimal(5, 2)
+  retib            Boolean                  @default(false, map: "DF_empresa_retib")
+  montorib         Decimal                  @default(0, map: "DF_empresa_montorib") @db.Decimal(18, 2)
+  retnib           Decimal                  @default(0, map: "DF_empresa_retnib") @db.Decimal(5, 2)
+  empxdefecto      Boolean                  @default(false, map: "DF_empresa_empxdefecto")
+  cotUsuario       String                   @default("", map: "DF_empresa_cotUsuario") @db.VarChar(50)
+  cotPasswd        String                   @default("", map: "DF_empresa_cotPasswd") @db.VarChar(50)
+  pathcot          String                   @default("", map: "DF_empresa_pathcot") @db.VarChar(150)
+  juridi           Int                      @default(0, map: "DF_empresa_juridi") @db.SmallInt
+  esagntPercepcion Boolean                  @default(false, map: "DF_empresa_esagntPercepcion")
+  esagntRetencion  Boolean                  @default(false, map: "DF_empresa_esagntRetencion")
+  entraxdefault    Boolean                  @default(false, map: "DF_empresa_entraxdefault")
+  cbu              String                   @default("", map: "DF_empresa_cbu") @db.VarChar(22)
+  promoind         Boolean                  @default(false, map: "DF_empresa_promoind")
+  retivap          Boolean                  @default(false, map: "DF_empresa_retivap")
+  retganp          Boolean                  @default(false, map: "DF_empresa_retganp")
+  despagiva        Boolean                  @default(false, map: "DF_empresa_despagiva")
+  novaneto         Boolean                  @default(false, map: "DF_empresa_novaneto")
 }
 
 model envases {
@@ -1730,19 +1664,21 @@ model localidades {
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model marca {
-  marca      String  @default("1)", map: "DF_marca_marca") @db.Char(15)
-  reuiere_dm Boolean @default(false, map: "DF_marca_reuiere_dm")
-  if_clase   String  @default("1)", map: "DF_marca_if_clase") @db.Char(20)
-  modelo     String  @default("1)", map: "DF_marca_modelo") @db.Char(15)
-  id         Int     @default(autoincrement())
+  marca      String   @default("1)", map: "DF_marca_marca") @db.Char(15)
+  reuiere_dm Boolean  @default(false, map: "DF_marca_reuiere_dm")
+  if_clase   String   @default("1)", map: "DF_marca_if_clase") @db.Char(20)
+  modelo     String   @default("1)", map: "DF_marca_modelo") @db.Char(15)
+  id         Int      @default(autoincrement())
+  featured   Boolean? @default(false, map: "DF__marca__featured__0946835D")
 
   @@ignore
 }
 
 model marcas {
-  id          Int     @id(map: "PK_marcas") @default(autoincrement())
-  codigo      Decimal @default(0, map: "DF_marcas_codigo") @db.Decimal(5, 0)
-  descripcion String  @default("", map: "DF_marcas_descripcion") @db.Char(30)
+  id          Int      @id(map: "PK_marcas") @default(autoincrement())
+  codigo      Decimal  @default(0, map: "DF_marcas_codigo") @db.Decimal(5, 0)
+  descripcion String   @default("", map: "DF_marcas_descripcion") @db.Char(30)
+  featured    Boolean? @default(false, map: "DF__marcas__featured__0A3AA796")
 }
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
@@ -2137,6 +2073,13 @@ model operacion {
   id    Int @default(autoincrement())
 
   @@ignore
+}
+
+model order_products {
+  id        String  @id(map: "PK__order_pr__3213E83F3A1CCFE5") @default(dbgenerated("newid()"), map: "DF__order_produc__id__0B63D5F9") @db.UniqueIdentifier
+  orderId   String? @db.VarChar(Max)
+  qty       Int?
+  productId Int?
 }
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
@@ -3252,6 +3195,101 @@ model siniibb {
   @@ignore
 }
 
+model stock {
+  id            Int      @default(autoincrement())
+  codpro        String   @id(clustered: false, map: "PK_stock") @unique(map: "IX_stock") @default("", map: "DF_stock_codpro") @db.Char(16)
+  cbarras       String   @default("0", map: "DF_stock_cbarras") @db.VarChar(13)
+  dun14         String   @default("0", map: "DF_stock_dump14") @db.VarChar(14)
+  codorigi      String   @default("0", map: "DF_stock_codorigi") @db.VarChar(18)
+  coriginal     String   @default("0", map: "DF_stock_coriginal") @db.VarChar(18)
+  codncm        String   @default("0", map: "DF_stock_codncm") @db.VarChar(16)
+  descri        String   @default("", map: "DF_stock_descri") @db.VarChar(50)
+  despacho      String   @default("", map: "DF_stock_despacho") @db.VarChar(20)
+  verifico      String   @default("0", map: "DF_stock_verifico") @db.VarChar(50)
+  color         String   @default("0", map: "DF_stock_color") @db.VarChar(13)
+  pathfoto      String   @default("0", map: "DF_stock_pathfoto") @db.VarChar(Max)
+  pathetiq      String   @default("0", map: "DF_stock_pathetiq") @db.VarChar(100)
+  usuestr       String   @default("", map: "DF_stock_usuestr") @db.VarChar(50)
+  descrilar     String   @default("", map: "DF_stock_descrilar") @db.VarChar(Max)
+  usoart        String   @default("", map: "DF_stock_usoart") @db.VarChar(Max)
+  observa       String   @default("", map: "DF_stock_observa") @db.VarChar(Max)
+  rubro         Int      @default(0, map: "DF_stock_rubro")
+  subrub        Decimal  @default(0, map: "DF_stock_subrub") @db.Decimal(5, 0)
+  marca         Decimal  @default(0, map: "DF_stock_marca") @db.Decimal(5, 0)
+  unimed        Decimal  @default(0, map: "DF_stock_unimed") @db.Decimal(5, 0)
+  proveed       Decimal  @default(0, map: "DF_stock_proveed") @db.Decimal(5, 0)
+  moneda        String   @default("0", map: "DF_stock_moneda") @db.Char(10)
+  envase        Decimal  @default(0, map: "DF_stock_envase") @db.Decimal(5, 0)
+  ivagrupo      Decimal  @default(0, map: "DF_stock_ivagrupo") @db.Decimal(5, 0)
+  ctacon        Int      @default(0, map: "DF_stock_ctacon")
+  fecha         DateTime @default(now(), map: "DF_stock_fecha") @db.DateTime
+  fecmodcos     DateTime @default(now(), map: "DF_stock_fecmodcos") @db.DateTime
+  alta          DateTime @default(now(), map: "DF_stock_alta") @db.DateTime
+  fechaact      DateTime @default(now(), map: "DF_stock_fechaact") @db.DateTime
+  fechveri      DateTime @default(now(), map: "DF_stock_fechveri") @db.DateTime
+  fecprom       DateTime @default(now(), map: "DF_stock_fecprom") @db.DateTime
+  fechestr      DateTime @default(now(), map: "DF_stock_fechestr") @db.DateTime
+  fechpped      DateTime @default(now(), map: "DF_stock_fechpped") @db.DateTime
+  cosfverif     DateTime @default(now(), map: "DF_stock_cosfverif") @db.DateTime
+  incluido      Boolean  @default(false, map: "DF_stock_incluido")
+  artret        Boolean  @default(false, map: "DF_stock_artret")
+  oferta        Boolean  @default(false, map: "DF_stock_oferta")
+  descomp       Boolean  @default(false, map: "DF_stock_descomp")
+  vtaxbul       Boolean  @default(false, map: "DF_stock_vtaxbul")
+  discont       Boolean  @default(false, map: "DF_stock_discont")
+  noborrarelart Boolean  @default(false, map: "DF_stock_noborrarelart")
+  msgstkptoped  Boolean  @default(false, map: "DF_stock_msgstkptoped")
+  costo         Decimal  @default(0, map: "DF_stock_costo") @db.Decimal(18, 4)
+  precio1       Decimal  @default(0, map: "DF_stock_precio1") @db.Decimal(18, 4)
+  precio2       Decimal  @default(0, map: "DF_stock_precio2") @db.Decimal(18, 4)
+  precio3       Decimal  @default(0, map: "DF_stock_precio3") @db.Decimal(18, 4)
+  precio4       Decimal  @default(0, map: "DF_stock_precio4") @db.Decimal(18, 4)
+  precio5       Decimal  @default(0, map: "DF_stock_precio5") @db.Decimal(18, 4)
+  precio6       Decimal  @default(0, map: "DF_stock_precio6") @db.Decimal(18, 4)
+  stomin        Decimal  @default(0, map: "DF_stock_stomin") @db.Decimal(18, 2)
+  ppedido       Decimal  @default(0, map: "DF_stock_ppedido") @db.Decimal(18, 2)
+  boniprod      Decimal  @default(0, map: "DF_stock_boniprod") @db.Decimal(5, 2)
+  comiprod      Decimal  @default(0, map: "DF_stock_comiprod") @db.Decimal(5, 2)
+  comipcob      Decimal  @default(0, map: "DF_stock_comipcob") @db.Decimal(5, 2)
+  cantenv       Decimal  @default(0, map: "DF_stock_cantenv") @db.Decimal(9, 2)
+  peso          Decimal  @default(0, map: "DF_stock_peso") @db.Decimal(18, 4)
+  promedio      Decimal  @default(0, map: "DF_stock_promedio") @db.Decimal(18, 2)
+  meses         Decimal  @default(0, map: "DF_stock_meses") @db.Decimal(4, 0)
+  canths        Decimal  @default(0, map: "DF_stock_canths") @db.Decimal(9, 2)
+  uxbulto       Decimal  @default(0, map: "DF_stock_uxbulto") @db.Decimal(18, 2)
+  prelis        Decimal  @default(0, map: "DF_stock_prelis") @db.Decimal(18, 4)
+  tipoart       Int      @default(0, map: "DF_stock_tipoart")
+  impint        Decimal  @default(0, map: "DF_stock_impint") @db.Decimal(18, 4)
+  impasoc       Decimal  @default(0, map: "DF_stock_impasoc") @db.Decimal(18, 2)
+  presug        Decimal  @default(0, map: "DF_stock_presug") @db.Decimal(18, 2)
+  cantmin       Decimal  @default(0, map: "DF_stock_cantmin") @db.Decimal(9, 2)
+  porceasoc     Decimal  @default(0, map: "DF_stock_porceasoc") @db.Decimal(6, 2)
+  internos      Decimal  @default(0, map: "DF_stock_internos") @db.Decimal(18, 4)
+  modifdescr    Boolean  @default(false, map: "DF_stock_modifdescr")
+  coddisp       String   @default("", map: "DF_stock_coddisp") @db.Char(16)
+  CodMedia      String   @default("1)", map: "DF_stock_CodMedia") @db.Char(16)
+  uxmedia       Decimal  @default(0, map: "DF_stock_uxmedia") @db.Decimal(18, 2)
+  codsku        String   @default("", map: "DF_stock_codsku") @db.Char(30)
+  uxdisp        Decimal  @default(0, map: "DF_stock_uxdisp") @db.Decimal(18, 2)
+  exigelote     Boolean  @default(false, map: "DF_stock_exigelote")
+  codcot        String   @default("", map: "DF_stock_codcot") @db.Char(6)
+  sinprec       Boolean  @default(false, map: "DF_stock_sinprec")
+  factucomp     Boolean  @default(false, map: "DF_stock_factucomp")
+  codcolor      Int      @default(0, map: "DF_stock_codcolor")
+  ds1           Decimal  @default(0, map: "DF_stock_ds1") @db.Decimal(6, 2)
+  ds2           Decimal  @default(0, map: "DF_stock_ds2") @db.Decimal(6, 2)
+  ds3           Decimal  @default(0, map: "DF_stock_ds3") @db.Decimal(6, 2)
+  ds4           Decimal  @default(0, map: "DF_stock_ds4") @db.Decimal(6, 2)
+  ds5           Decimal  @default(0, map: "DF_stock_ds5") @db.Decimal(6, 2)
+  execf         Boolean  @default(false, map: "DF_stock_execf")
+  ubicacionid   Int      @default(0, map: "DF_stock_ubicacionid")
+  chkptopedido  Boolean  @default(false, map: "DF_stock_chkptopedido")
+  pathfoto2     String   @default("", map: "DF_stock_pathfoto2") @db.VarChar(Max)
+  featured      Boolean? @default(false, map: "DF__stock__featured__29E85D19")
+
+  @@index([descri], map: "IX_stock_1", clustered: true)
+}
+
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model stockfoto {
   codpro String @default("", map: "DF_stockfoto_codpro") @db.Char(16)
@@ -3278,6 +3316,16 @@ model subrub {
   id     Int     @default(autoincrement())
   codigo Decimal @id(map: "PK_subrub") @default(0, map: "DF_subrub_codigo") @db.Decimal(5, 0)
   descri String  @default("", map: "DF_subrub_descri") @db.Char(30)
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model sucursal {
+  id       Int     @default(autoincrement())
+  nrocli   Int     @default(0, map: "DF_sucursal_nrocliente")
+  sucursal String  @default("1)", map: "DF_sucursal_sucursal") @db.VarChar(50)
+  auxiliar Boolean @default(false, map: "DF_sucursal_auxiliar")
+
+  @@ignore
 }
 
 model sysdiagrams {
@@ -3528,51 +3576,6 @@ model Visitasweb {
   @@ignore
 }
 
-model zonas {
-  id     Int     @default(autoincrement())
-  codigo Decimal @id(map: "PK_zonas") @default(0, map: "DF_zonas_codigo") @db.Decimal(5, 0)
-  descri String  @default("", map: "DF_zonas_descri") @db.Char(30)
-}
-
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
-model dirremi {
-  id             Int     @default(autoincrement())
-  nrocli         Int     @default(0, map: "DF_dirremi_nrocli")
-  direcc         String  @default("", map: "DF_dirremi_direcc") @db.Char(50)
-  localiid       Int     @default(0, map: "DF_dirremi_localiid")
-  codpos         String  @default("", map: "DF_dirremi_codpos") @db.Char(10)
-  provin         Decimal @default(0, map: "DF_dirremi_provin") @db.Decimal(4, 0)
-  registro       Decimal @default(0, map: "DF_dirremi_registro") @db.Decimal(10, 0)
-  expreso        Decimal @default(0, map: "DF_dirremi_expreso") @db.Decimal(5, 0)
-  locali         String  @default("", map: "DF_dirremi_locali") @db.VarChar(50)
-  departamento   String  @default("", map: "DF_dirremi_departamento") @db.VarChar(50)
-  provincia      String  @default("", map: "DF_dirremi_provincia") @db.VarChar(50)
-  pais           String  @default("", map: "DF_dirremi_pais") @db.VarChar(50)
-  horario        String  @default("", map: "DF_dirremi_horario") @db.Char(50)
-  provinciaid    Int     @default(0, map: "DF_dirremi_provinciaid")
-  paisid         Int     @default(0, map: "DF_dirremi_paisid")
-  departamentoid Int     @default(0, map: "DF_dirremi_departamentoid")
-
-  @@ignore
-}
-
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
-model sucursal {
-  id       Int     @default(autoincrement())
-  nrocli   Int     @default(0, map: "DF_sucursal_nrocliente")
-  sucursal String  @default("1)", map: "DF_sucursal_sucursal") @db.VarChar(50)
-  auxiliar Boolean @default(false, map: "DF_sucursal_auxiliar")
-
-  @@ignore
-}
-
-model order_products {
-  id        String  @id(map: "PK__order_pr__3213E83F3A1CCFE5") @default(dbgenerated("newid()"), map: "DF__order_produc__id__0B63D5F9") @db.UniqueIdentifier
-  orderId   String? @db.VarChar(Max)
-  qty       Int?
-  productId Int?
-}
-
 model web_orders {
   id       String   @id(map: "PK__web_orde__3213E83F18B72CB2") @default(dbgenerated("newid()"), map: "DF__web_orders__id__05AAFCA3") @db.UniqueIdentifier
   userId   Int?
@@ -3587,16 +3590,8 @@ model web_orders {
   couponId Int?
 }
 
-model coupons {
-  id                 Int      @id(map: "PK__coupons__3213E83F15D7A415") @default(autoincrement())
-  name               String?  @db.NVarChar(255)
-  discountPercentaje Int?
-  enabled            Boolean? @default(false, map: "DF__coupons__enabled__781BF75B")
-}
-
-model coupons {
-  id                 Int      @id(map: "PK__coupons__3213E83F15D7A415") @default(autoincrement())
-  name               String?  @db.NVarChar(255)
-  discountPercentaje Int?
-  enabled            Boolean? @default(false, map: "DF__coupons__enabled__781BF75B")
+model zonas {
+  id     Int     @default(autoincrement())
+  codigo Decimal @id(map: "PK_zonas") @default(0, map: "DF_zonas_codigo") @db.Decimal(5, 0)
+  descri String  @default("", map: "DF_zonas_descri") @db.Char(30)
 }
