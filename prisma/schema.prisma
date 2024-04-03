@@ -1730,19 +1730,21 @@ model localidades {
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model marca {
-  marca      String  @default("1)", map: "DF_marca_marca") @db.Char(15)
-  reuiere_dm Boolean @default(false, map: "DF_marca_reuiere_dm")
-  if_clase   String  @default("1)", map: "DF_marca_if_clase") @db.Char(20)
-  modelo     String  @default("1)", map: "DF_marca_modelo") @db.Char(15)
-  id         Int     @default(autoincrement())
+  marca      String   @default("1)", map: "DF_marca_marca") @db.Char(15)
+  reuiere_dm Boolean  @default(false, map: "DF_marca_reuiere_dm")
+  if_clase   String   @default("1)", map: "DF_marca_if_clase") @db.Char(20)
+  modelo     String   @default("1)", map: "DF_marca_modelo") @db.Char(15)
+  id         Int      @default(autoincrement())
+  featured   Boolean? @default(false, map: "DF__marca__featured__0946835D")
 
   @@ignore
 }
 
 model marcas {
-  id          Int     @id(map: "PK_marcas") @default(autoincrement())
-  codigo      Decimal @default(0, map: "DF_marcas_codigo") @db.Decimal(5, 0)
-  descripcion String  @default("", map: "DF_marcas_descripcion") @db.Char(30)
+  id          Int      @id(map: "PK_marcas") @default(autoincrement())
+  codigo      Decimal  @default(0, map: "DF_marcas_codigo") @db.Decimal(5, 0)
+  descripcion String   @default("", map: "DF_marcas_descripcion") @db.Char(30)
+  featured    Boolean? @default(false, map: "DF__marcas__featured__0A3AA796")
 }
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
@@ -3592,4 +3594,23 @@ model coupons {
   name               String?  @db.NVarChar(255)
   discountPercentaje Int?
   enabled            Boolean? @default(false, map: "DF__coupons__enabled__781BF75B")
+}
+
+model itemsOnCart {
+  id             Int     @id(map: "PK__itemsOnC__3213E83F865FAB2C")
+  name           String  @db.NVarChar(Max)
+  img            String  @db.NVarChar(Max)
+  productId      Int
+  price          Decimal @db.Decimal(10, 2)
+  quantity       Int
+  shoppingCartId Int
+}
+
+model shoppingCart {
+  id       Int     @id(map: "PK__shopping__3213E83F5F51915A") @default(autoincrement())
+  userId   Int?
+  discount Int?
+  total    Decimal @db.Decimal(10, 2)
+  subtotal Decimal @db.Decimal(10, 2)
+  couponId Int?
 }
