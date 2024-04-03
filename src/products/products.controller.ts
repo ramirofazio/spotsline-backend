@@ -1,4 +1,11 @@
-import { Controller, Query, Get, Param } from '@nestjs/common';
+import {
+  Controller,
+  Query,
+  Get,
+  Param,
+  Patch,
+  HttpStatus,
+} from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { Pagination, ProductProps } from './products.dto';
 import { Public } from 'src/auth/publicDecorator';
@@ -30,6 +37,13 @@ export class ProductsController {
   async editFeatured(@Body() body: UpdateFeatured): Promise<string> {
     return await this.productsService.editFeatured(body);
   } */
+
+  @Patch('toggleIncluido')
+  async toggleIncluido(
+    @Query('productCode') productCode: string,
+  ): Promise<HttpStatus> {
+    return await this.productsService.toggleIncluido(productCode);
+  }
 
   @Public()
   @Get('/dashboard-products')
