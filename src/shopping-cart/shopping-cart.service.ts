@@ -12,35 +12,46 @@ export class ShoppingCartService {
     subtotal,
     total,
     userId,
-    couponId,
+    coupon,
   }: ShoppingCart) {
-    const [cart, item] = await this.prisma.$transaction([
+    // let res = await this.prisma.shoppingCart.create({
+    //   data: {
+    //     userId,
+    //     discount,
+    //     subtotal,
+    //     total,
+    //     couponId: coupon && discount ? coupon.id : null,
+    //   },
+    // })
+    
+    const [cart] = await this.prisma.$transaction([
       this.prisma.shoppingCart.create({
         data: {
           userId,
-          total,
           discount,
           subtotal,
-          couponId,
+          total,
+          couponId: coupon && discount ? coupon.id : null,
         },
-      }),
+      })/* ,
       this.prisma.itemsOnCart.createMany({
         data: items
-      })
+      }) */
     ])
-
+    console.log(items)
+    console.log(cart)
     return HttpStatus.CREATED;
   }
 
-  async updateCart({ items, subtotal, total, couponId, id }: UpdateCart) {
-    const cart = await this.prisma.shoppingCart.update({
-      where: { id },
-      data: {
-        total,
-        subtotal,
-        couponId,
-      },
-    });
+  async updateCart({ items, subtotal, total, coupon, id }: UpdateCart) {
+    // const cart = await this.prisma.shoppingCart.update({
+    //   where: { id },
+    //   data: {
+    //     total,
+    //     subtotal,
+    //     coupon: coupon.id,
+    //   },
+    // });
 
     return HttpStatus.CREATED;
   }

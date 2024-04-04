@@ -10,11 +10,13 @@ import {
 } from '@nestjs/common';
 import { ShoppingCartService } from './shopping-cart.service';
 import { ShoppingCart, UpdateCart } from './shoppingCart.dto';
+import { Public } from 'src/auth/publicDecorator';
 
 @Controller('shopping-cart')
 export class ShoppingCartController {
   constructor(private shoppingCartService: ShoppingCartService) {}
 
+  @Public()
   @Post()
   async createCart(@Body() data: ShoppingCart): Promise<HttpStatus> {
     return await this.shoppingCartService.createCart(data);

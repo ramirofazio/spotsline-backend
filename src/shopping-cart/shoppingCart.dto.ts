@@ -1,5 +1,6 @@
 import { IsNotEmpty, IsNumber } from 'class-validator';
 import { Decimal } from '@prisma/client/runtime/library';
+import { Coupon } from 'src/cupons/coupons.dto';
 
 interface Item {
   id: number;
@@ -17,8 +18,6 @@ export class ShoppingCart {
   userId: number;
 
   items?: Item[];
-  @IsNumber()
-  discount?: number;
 
   @IsNotEmpty()
   total: number | Decimal;
@@ -26,7 +25,10 @@ export class ShoppingCart {
   @IsNotEmpty()
   subtotal: number | Decimal;
 
-  couponId?: number;
+  @IsNumber()
+  discount?: number;
+
+  coupon?: Coupon;
 }
 
 export class UpdateCart extends ShoppingCart {
