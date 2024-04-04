@@ -1,3 +1,4 @@
+
 import {
   Controller,
   Query,
@@ -7,7 +8,15 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
-import { Pagination, ProductProps } from './products.dto';
+import {
+  Pagination,
+  Product,
+  ProductProps,
+  UpdateFeatured,
+  FeaturedProduct,
+  
+} from './products.dto';
+
 import { Public } from 'src/auth/publicDecorator';
 
 @Controller('products')
@@ -24,19 +33,16 @@ export class ProductsController {
     return await this.productsService.getAllProducts({ page, take, search });
   }
 
-  /*   @Public()
+  @Public()
   @Get('featured')
-  async getFeaturedProducts(
-    @Query('take') take: number,
-  ): Promise<Product[]> {
+  async getFeaturedProducts(@Query('take') take: number): Promise<FeaturedProduct[]> {
     return await this.productsService.getFeaturedProdutcs(take);
   }
 
-  @Public()
   @Put('edit_featured')
   async editFeatured(@Body() body: UpdateFeatured): Promise<string> {
     return await this.productsService.editFeatured(body);
-  } */
+  }
 
   @Patch('toggleIncluido')
   async toggleIncluido(
