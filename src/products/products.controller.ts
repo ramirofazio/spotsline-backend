@@ -1,4 +1,12 @@
-import { Controller, Query, Get, Param, Put, Body } from '@nestjs/common';
+
+import {
+  Controller,
+  Query,
+  Get,
+  Param,
+  Patch,
+  HttpStatus,
+} from '@nestjs/common';
 import { ProductsService } from './products.service';
 import {
   Pagination,
@@ -34,6 +42,13 @@ export class ProductsController {
   @Put('edit_featured')
   async editFeatured(@Body() body: UpdateFeatured): Promise<string> {
     return await this.productsService.editFeatured(body);
+  }
+
+  @Patch('toggleIncluido')
+  async toggleIncluido(
+    @Query('productCode') productCode: string,
+  ): Promise<HttpStatus> {
+    return await this.productsService.toggleIncluido(productCode);
   }
 
   @Public()

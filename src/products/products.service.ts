@@ -389,6 +389,27 @@ export class ProductsService {
       throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
+
+  async toggleIncluido(productCode: string): Promise<HttpStatus> {
+    try {
+      const variant = await this.prisma.stock.findFirst({
+        where: { codpro: productCode },
+      });
+
+      if (!variant) {
+        throw new HttpException('Variante no encontrada', HttpStatus.NOT_FOUND);
+      }
+
+      await this.prisma.stock.update({
+        where: { codpro: productCode },
+        data: { incluido: !variant.incluido },
+      });
+
+      return HttpStatus.OK;
+    } catch (e) {
+      console;
+    }
+  }
 }
 
 const MAX_TAKE_PER_QUERY = 50;
