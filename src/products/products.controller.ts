@@ -1,4 +1,3 @@
-
 import {
   Controller,
   Query,
@@ -6,15 +5,14 @@ import {
   Param,
   Patch,
   HttpStatus,
+  Body,
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import {
   Pagination,
-  Product,
   ProductProps,
   UpdateFeatured,
   FeaturedProduct,
-  
 } from './products.dto';
 
 import { Public } from 'src/auth/publicDecorator';
@@ -35,11 +33,13 @@ export class ProductsController {
 
   @Public()
   @Get('featured')
-  async getFeaturedProducts(@Query('take') take: number): Promise<FeaturedProduct[]> {
+  async getFeaturedProducts(
+    @Query('take') take: number,
+  ): Promise<FeaturedProduct[]> {
     return await this.productsService.getFeaturedProdutcs(take);
   }
 
-  @Put('edit_featured')
+  @Patch('edit_featured')
   async editFeatured(@Body() body: UpdateFeatured): Promise<string> {
     return await this.productsService.editFeatured(body);
   }

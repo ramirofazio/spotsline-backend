@@ -1,4 +1,9 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  ConsoleLogger,
+  HttpException,
+  HttpStatus,
+  Injectable,
+} from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import {
   Product,
@@ -118,13 +123,14 @@ export class ProductsService {
         },
       };
 
-      const products: RawProduct[] = await this.prisma.marcas.findMany({
+      const products: RawProduct[] | any[] = await this.prisma.marcas.findMany({
         take,
         skip,
         where,
         select: {
           codigo: true,
           descripcion: true,
+          featured: true,
         },
       });
 
@@ -146,8 +152,9 @@ export class ProductsService {
           if (!product) return null;
 
           return {
-            id: marca.codigo,
+            codigo: marca.codigo,
             description: marca.descripcion,
+            featured: marca.featured,
             pathImage: product?.pathfoto2,
           };
         }),
@@ -185,7 +192,7 @@ export class ProductsService {
     if (!marcas.length) {
       throw new HttpException('productos no encontrados', HttpStatus.NOT_FOUND);
     }
-    
+
     const featureProducts = await Promise.all(
       marcas.map(async (m) => {
         try {
@@ -194,7 +201,7 @@ export class ProductsService {
               marca: m.codigo,
             },
           });
-          
+
           if (!firstProduct)
             throw new HttpException(
               'No ha y stock asociado a la marca',
@@ -206,14 +213,13 @@ export class ProductsService {
             pathfoto: firstProduct.pathfoto2,
           };
 
-          
           return raw;
         } catch (err) {
           console.log('La marca no tiene un producto asosciado', err);
         }
       }),
     );
-    
+
     return featureProducts;
   }
 
@@ -221,12 +227,33 @@ export class ProductsService {
     const { id, featured } = body;
 
     try {
+      if (featured === true) {
+        const featuredArray: { featured: boolean }[] =
+          await this.prisma.marcas.findMany({
+            select: { featured: true },
+          });
+
+        const validateFive = featuredArray.filter((el) => el.featured === true);
+        console.log(validateFive);
+
+        if (validateFive.length > 4) {
+          throw new HttpException(
+            'Ya existen 5 productos destacados',
+            HttpStatus.CONFLICT,
+          );
+        }
+      }
+
+      const marca = await this.prisma.marcas.findFirst({
+        where: { codigo: id },
+      });
+
       const updated = await this.prisma.marcas.update({
         where: {
-          id,
+          id: marca.id,
         },
         data: {
-          featured,
+          featured: featured,
         },
       });
 
@@ -236,6 +263,8 @@ export class ProductsService {
           HttpStatus.NOT_FOUND,
         );
       }
+
+      console.log('Actualizado', updated.featured);
 
       HttpStatus.ACCEPTED;
       return `Se actualizo el producto ${id} con featured=${featured}`;
@@ -294,8 +323,9 @@ export class ProductsService {
       }
 
       return new Product({
-        id: marca.codigo,
+        codigo: marca.codigo,
         description: marca.descripcion,
+        featured: marca.featured,
         variants: variants,
       });
     } catch (e) {
@@ -377,8 +407,9 @@ export class ProductsService {
           }
 
           return new Product({
-            id: marca.codigo,
+            codigo: marca.codigo,
             description: marca.descripcion,
+            featured: marca.featured,
             variants: variants,
           });
         }),
