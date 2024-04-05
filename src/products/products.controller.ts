@@ -13,6 +13,7 @@ import {
   ProductProps,
   UpdateFeatured,
   FeaturedProduct,
+  ProductVariantProps,
 } from './products.dto';
 
 import { Public } from 'src/auth/publicDecorator';
@@ -57,6 +58,14 @@ export class ProductsController {
     @Query('page') page: number,
   ): Promise<ProductProps[] | any> {
     return await this.productsService.getDashboardProducts(page);
+  }
+
+  @Public()
+  @Get('/dashboard-product-variants')
+  async getDashboardProductVariant(
+    @Query('productCode') productCode: number,
+  ): Promise<ProductVariantProps[]> {
+    return await this.productsService.getDashboardProductVariants(productCode);
   }
 
   @Public()

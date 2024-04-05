@@ -1,12 +1,13 @@
 import {
   Controller,
-  Delete,
   FileTypeValidator,
   HttpStatus,
   MaxFileSizeValidator,
   Param,
   ParseFilePipe,
+  Patch,
   Post,
+  Query,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
@@ -17,7 +18,7 @@ import { AwsService } from './aws.service';
 export class AwsController {
   constructor(private readonly awsService: AwsService) {}
 
-  @Post('/:product_id')
+  @Post('/:variant_id')
   @UseInterceptors(FileInterceptor('file'))
   async uploadproductImage(
     @UploadedFile(
@@ -29,15 +30,8 @@ export class AwsController {
       }),
     )
     file: Express.Multer.File,
-    @Param('product_id') product_id: number,
+    @Param('variant_id') variant_id: number,
   ): Promise<HttpStatus> {
-    return await this.awsService.uploadProductImage(file, product_id);
-  }
-
-  @Delete(':product_id')
-  async deleteProductImage(
-    @Param('product_id') product_id: number,
-  ): Promise<HttpStatus> {
-    return await this.awsService.deleteProductImage(product_id);
+    return await this.awsService.uploadProductImage(file, variant_id);
   }
 }

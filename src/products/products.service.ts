@@ -13,6 +13,7 @@ import {
   ProductVariant,
   RawVariantProduct,
   UpdateFeatured,
+  ProductVariantProps,
 } from './products.dto';
 import { MobbexItem, RequestItemDTO } from 'src/mobbex/mobbex.dto';
 
@@ -416,6 +417,59 @@ export class ProductsService {
       );
 
       return products.filter((p) => p !== null);
+    } catch (e) {
+      throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  async getDashboardProductVariants(
+    productCode: number,
+  ): Promise<ProductVariantProps[]> {
+    try {
+      const rows = await this.prisma.stock.findMany({
+        where: {
+          marca: productCode,
+          NOT: {
+            precio1: 0,
+          },
+        },
+        select: this.productsSelectOpt,
+        orderBy: { incluido: 'desc' },
+      });
+
+      if (!rows || rows.length === 0) {
+        return null;
+      }
+
+      const variants = await Promise.all(
+        rows.map(async (variant) => {
+          const [rubro, subRubro] = await this.prisma.$transaction([
+            this.prisma.rubros.findFirst({
+              where: { codigo: variant.rubro },
+              select: { descri: true },
+            }),
+            this.prisma.subrub.findFirst({
+              where: { codigo: variant.subrub },
+              select: { descri: true },
+            }),
+          ]);
+
+          return new ProductVariant(
+            { ...variant },
+            rubro?.descri,
+            subRubro?.descri,
+          );
+        }),
+      );
+
+      if (variants.length === 0) {
+        throw new HttpException(
+          `El producto con ID ${productCode} no cumple todas las condiciones`,
+          HttpStatus.EXPECTATION_FAILED,
+        );
+      }
+
+      return variants;
     } catch (e) {
       throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
