@@ -18,11 +18,12 @@ export class ShoppingCartController {
 
   @Public()
   @Post()
-  async createCart(@Body() data: ShoppingCart): Promise<HttpStatus> {
+  async createCart(@Body() data: any): Promise<HttpStatus> {
+    console.log('data', data);
     return await this.shoppingCartService.createCart(data);
   }
   @Put('edit/:userId')
-  async updateCart(@Body() data: UpdateCart ): Promise<HttpStatus> {
+  async updateCart(@Body() data: UpdateCart): Promise<HttpStatus> {
     return await this.shoppingCartService.updateCart(data);
   }
 

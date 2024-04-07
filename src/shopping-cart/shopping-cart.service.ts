@@ -6,14 +6,7 @@ import { ShoppingCart, UpdateCart } from './shoppingCart.dto';
 export class ShoppingCartService {
   constructor(private prisma: PrismaService) {}
 
-  async createCart({
-    items,
-    discount,
-    subtotal,
-    total,
-    userId,
-    coupon,
-  }: ShoppingCart) {
+  async createCart({ items, discount, subtotal, total, userId, coupon }: any) {
     // let res = await this.prisma.shoppingCart.create({
     //   data: {
     //     userId,
@@ -23,24 +16,31 @@ export class ShoppingCartService {
     //     couponId: coupon && discount ? coupon.id : null,
     //   },
     // })
-    
-    const [cart] = await this.prisma.$transaction([
-      this.prisma.shoppingCart.create({
-        data: {
-          userId,
-          discount,
-          subtotal,
-          total,
-          couponId: coupon && discount ? coupon.id : null,
-        },
-      })/* ,
-      this.prisma.itemsOnCart.createMany({
-        data: items
-      }) */
-    ])
-    console.log(items)
-    console.log(cart)
-    return HttpStatus.CREATED;
+
+    await this.prisma.$transaction(async (tx) => {
+      try {
+        const cart = await tx.shoppingCart.create({
+          data: {
+            userId,
+            discount,
+            subtotal,
+            total,
+            couponId: coupon && discount ? coupon.id : null,
+          },
+        });
+
+        const cartItems = await tx.itemsOnCart.createMany({
+          data: items.map((i) => {
+            return { ...i, shoppingCartId: cart.id };
+          }),
+        });
+        return HttpStatus.CREATED;
+      } catch (err) {
+        console.log(err)
+        return HttpStatus.CREATED;
+      }
+    });
+
   }
 
   async updateCart({ items, subtotal, total, coupon, id }: UpdateCart) {
