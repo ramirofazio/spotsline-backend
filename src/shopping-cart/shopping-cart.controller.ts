@@ -19,7 +19,7 @@ export class ShoppingCartController {
   @Public()
   @Post()
   async createCart(@Body() data: any): Promise<HttpStatus> {
-    console.log('data', data);
+    console.log(data)
     return await this.shoppingCartService.createCart(data);
   }
   @Put('edit/:userId')

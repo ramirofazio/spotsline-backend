@@ -1,22 +1,13 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable, HttpException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { ShoppingCart, UpdateCart } from './shoppingCart.dto';
+import { ShoppingCart, UpdateCart, Item } from './shoppingCart.dto';
 
 @Injectable()
 export class ShoppingCartService {
   constructor(private prisma: PrismaService) {}
 
   async createCart({ items, discount, subtotal, total, userId, coupon }: any) {
-    // let res = await this.prisma.shoppingCart.create({
-    //   data: {
-    //     userId,
-    //     discount,
-    //     subtotal,
-    //     total,
-    //     couponId: coupon && discount ? coupon.id : null,
-    //   },
-    // })
-
+    
     await this.prisma.$transaction(async (tx) => {
       try {
         const cart = await tx.shoppingCart.create({
@@ -28,19 +19,19 @@ export class ShoppingCartService {
             couponId: coupon && discount ? coupon.id : null,
           },
         });
-
+        console.log(items)
         const cartItems = await tx.itemsOnCart.createMany({
-          data: items.map((i) => {
+          data: items.map((i: Item) => {
             return { ...i, shoppingCartId: cart.id };
           }),
         });
-        return HttpStatus.CREATED;
+
       } catch (err) {
-        console.log(err)
-        return HttpStatus.CREATED;
+        console.log(err);
+        throw new HttpException(err.message, HttpStatus.INTERNAL_SERVER_ERROR);
       }
     });
-
+    return HttpStatus.CREATED;
   }
 
   async updateCart({ items, subtotal, total, coupon, id }: UpdateCart) {
