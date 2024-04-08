@@ -3,36 +3,31 @@ import { Decimal } from '@prisma/client/runtime/library';
 import { Coupon } from 'src/cupons/coupons.dto';
 
 export interface Item {
+  productId: number;
+  qty: number;
   name: string;
   img: string;
-  productId: number;
-  price: Decimal;
-  qty: number;
-}
-export interface PrevItems extends Item {
-  shoppingCartId: number;
+  price: Decimal; //Dejar decimal cuanod no se use mockup
 }
 
-export class ShoppingCart {
-  @IsNotEmpty()
-  @IsNumber()
+export interface ShoppingCart {
   userId: number;
 
-  items?: Item[];
+  discount: number;
 
-  @IsNotEmpty()
   total: number | Decimal;
 
-  @IsNotEmpty()
   subtotal: number | Decimal;
 
-  @IsNumber()
-  discount?: number;
+  items: Item[];
 
-  coupon?: Coupon;
+  coupon: Coupon | false;
 }
 
 export interface UpdateCart extends ShoppingCart {
   id: number;
 }
 
+export interface PrevItems extends Item {
+  shoppingCartId: number;
+}

@@ -1427,15 +1427,14 @@ model informe {
   @@ignore
 }
 
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model itemsOnCart {
-  id             Int     @id(map: "PK__itemsOnC__3213E83F44B0E96C") @default(autoincrement())
-  name           String  @db.NVarChar(Max)
-  img            String? @db.NVarChar(Max)
-  productId      Int
-  price          Decimal @db.Decimal(10, 2)
-  qty            Int
-  shoppingCartId Int
+  id             Int      @id(map: "PK__itemsOnC__3213E83F08564A8C") @default(autoincrement())
+  name           String?  @db.NVarChar(255)
+  img            String?  @db.NVarChar(255)
+  productId      Int?
+  price          Decimal? @db.Decimal(10, 2)
+  qty            Int?
+  shoppingCartId Int?
 }
 
 model iva {

@@ -6,9 +6,16 @@ import { ShoppingCart, UpdateCart, Item } from './shoppingCart.dto';
 export class ShoppingCartService {
   constructor(private prisma: PrismaService) {}
 
-  async createCart({ items, discount, subtotal, total, userId, coupon }: any) {
-    await this.prisma.$transaction(async (tx) => {
-      try {
+  async createCart({
+    items,
+    discount,
+    subtotal,
+    total,
+    userId,
+    coupon,
+  }: ShoppingCart) {
+    try {
+      await this.prisma.$transaction(async (tx) => {
         const cart = await tx.shoppingCart.create({
           data: {
             userId,
@@ -18,17 +25,17 @@ export class ShoppingCartService {
             couponId: coupon && discount ? coupon.id : null,
           },
         });
-        console.log(items);
-        const cartItems = await tx.itemsOnCart.createMany({
+
+        await tx.itemsOnCart.createMany({
           data: items.map((i: Item) => {
             return { ...i, shoppingCartId: cart.id };
           }),
         });
-      } catch (err) {
-        console.log(err);
-        throw new HttpException(err.message, HttpStatus.INTERNAL_SERVER_ERROR);
-      }
-    });
+      });
+    } catch (err) {
+      console.log(err);
+      throw new HttpException(err.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
     return HttpStatus.CREATED;
   }
 
@@ -92,7 +99,11 @@ export class ShoppingCartService {
           const itm = items[index];
           const newId = itm.productId;
           // 0 -- 0
-          for (let prevIndex = index; prevIndex < prevItems.length; prevIndex++) {
+          for (
+            let prevIndex = index;
+            prevIndex < prevItems.length;
+            prevIndex++
+          ) {
             const prevId = prevItems[prevIndex]?.productId;
 
             if (newId !== prevId) {
@@ -100,7 +111,7 @@ export class ShoppingCartService {
                 await this.prisma.itemsOnCart.create({
                   data: { ...itm, shoppingCartId: id },
                 });
-                continue
+                continue;
               } else if (newId > prevId) {
                 await this.prisma.itemsOnCart.deleteMany({
                   where: {
@@ -108,20 +119,18 @@ export class ShoppingCartService {
                     id: prevId,
                   },
                 });
-                return
+                return;
               }
-            }
-            else if (newId === prevId) {
+            } else if (newId === prevId) {
               await this.prisma.itemsOnCart.update({
                 where: {
                   id: itm.productId,
-                  shoppingCartId: id
+                  shoppingCartId: id,
                 },
-                data: itm
-              })
-              return
+                data: itm,
+              });
+              return;
             }
-            
           }
         }
 
