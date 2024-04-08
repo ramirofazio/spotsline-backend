@@ -3,7 +3,7 @@ import { Decimal } from '@prisma/client/runtime/library';
 import { Coupon } from 'src/cupons/coupons.dto';
 
 export interface Item { // cambiar item para usar el dto
-  
+
   name: string;
   img: string;
   productId: number;
@@ -31,6 +31,6 @@ export class ShoppingCart {
   coupon?: Coupon;
 }
 
-export class UpdateCart extends ShoppingCart {
+export interface UpdateCart extends ShoppingCart {
   id: number;
 }
