@@ -49,7 +49,7 @@ export class ShoppingCartService {
     //     couponId: coupon && discount ? coupon.id : null,
     //   },
     // });
-    console.log(id)
+    
     const prevItems = await this.prisma.itemsOnCart.findMany({
       where: { shoppingCartId: id},
       select: {
@@ -59,9 +59,8 @@ export class ShoppingCartService {
         price: true
       }
     });
+    
 
-    console.log("prev", prevItems)
-    console.log("items", items)
     
 
     return HttpStatus.CREATED;
