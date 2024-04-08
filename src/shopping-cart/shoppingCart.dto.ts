@@ -2,13 +2,14 @@ import { IsNotEmpty, IsNumber } from 'class-validator';
 import { Decimal } from '@prisma/client/runtime/library';
 import { Coupon } from 'src/cupons/coupons.dto';
 
-export interface Item { // cambiar item para usar el dto
-
+export interface Item {
   name: string;
   img: string;
   productId: number;
   price: Decimal;
   qty: number;
+}
+export interface PrevItems extends Item {
   shoppingCartId: number;
 }
 
@@ -34,3 +35,4 @@ export class ShoppingCart {
 export interface UpdateCart extends ShoppingCart {
   id: number;
 }
+
