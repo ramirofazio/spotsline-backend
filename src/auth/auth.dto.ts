@@ -7,6 +7,7 @@ import {
   Validate,
 } from 'class-validator';
 import { UserResponse } from 'src/users/users.dto';
+import { ShoppingCart } from 'src/shopping-cart/shoppingCart.dto';
 
 @ValidatorConstraint({ name: 'isEqual', async: false })
 class IsEqualConstraint implements ValidatorConstraintInterface {
@@ -55,6 +56,7 @@ export class PasswordResetRequestDTO {
 export class SignInResponseDTO {
   access_token: string;
   user: UserResponse;
+  shoppingCart?: ShoppingCart | object
 }
 
 export class JwtAutoSignInDTO {

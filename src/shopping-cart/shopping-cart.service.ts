@@ -6,6 +6,58 @@ import { ShoppingCart, UpdateCart, Item } from './shoppingCart.dto';
 export class ShoppingCartService {
   constructor(private prisma: PrismaService) {}
 
+  async getCart(userId: number) {
+    try {
+      const cart = await this.prisma.shoppingCart.findFirst({
+        where: {
+          userId,
+        },
+      });
+
+      if (!cart) {
+        return {};
+      } else {
+        const { couponId, discount, id, subtotal, total, userId } = cart;
+        const items = await this.prisma.itemsOnCart.findMany({
+          where: {
+            shoppingCartId: id,
+          },
+        });
+
+        if (couponId) {
+          const coupon = await this.prisma.coupons.findFirst({
+            where: {
+              id: cart.couponId,
+            },
+          });
+          return {
+            discount,
+            subtotal,
+            total,
+            userId,
+            currentCoupon: coupon,
+            items,
+          };
+        } else {
+          return {
+            discount,
+            subtotal,
+            total,
+            userId,
+            currentCoupon: false,
+            items,
+          };
+        }
+      }
+    } catch (err) {
+      console.log(err);
+      throw new HttpException(
+        'Get cart failed ',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
   async createCart({
     items,
     discount,
@@ -179,17 +231,17 @@ export class ShoppingCartService {
     try {
       await this.prisma.itemsOnCart.deleteMany({
         where: {
-          shoppingCartId: cartId
-        }
-      })
+          shoppingCartId: cartId,
+        },
+      });
 
       await this.prisma.shoppingCart.delete({
         where: {
-          id: cartId
-        }
-      })
+          id: cartId,
+        },
+      });
 
-      return HttpStatus.ACCEPTED
+      return HttpStatus.ACCEPTED;
     } catch (err) {
       console.log(err);
       throw new HttpException(err.message, HttpStatus.INTERNAL_SERVER_ERROR);
