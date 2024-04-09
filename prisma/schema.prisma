@@ -3188,13 +3188,16 @@ model sec_objetos {
   @@ignore
 }
 
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model shoppingCart {
-  id       Int     @id(map: "PK__shopping__3213E83F5F51915A") @default(autoincrement())
+  id       Int     @unique(map: "UQ_nombre") @default(autoincrement())
   userId   Int?
   discount Int?
   total    Decimal @db.Decimal(10, 2)
   subtotal Decimal @db.Decimal(10, 2)
   couponId Int?
+
+  @@ignore
 }
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.

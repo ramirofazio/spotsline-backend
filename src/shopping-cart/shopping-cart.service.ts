@@ -31,6 +31,7 @@ export class ShoppingCartService {
             },
           });
           return {
+            id,
             discount,
             subtotal,
             total,
@@ -40,6 +41,7 @@ export class ShoppingCartService {
           };
         } else {
           return {
+            id,
             discount,
             subtotal,
             total,
@@ -100,6 +102,7 @@ export class ShoppingCartService {
     discount,
   }: UpdateCart) {
     try {
+      console.log(id)
       await this.prisma.shoppingCart.update({
         where: { id },
         data: {
