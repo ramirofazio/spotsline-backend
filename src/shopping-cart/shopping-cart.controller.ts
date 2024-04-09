@@ -20,7 +20,9 @@ export class ShoppingCartController {
   @Post()
   async createCart(@Body() data: ShoppingCart): Promise<HttpStatus> {
     return await this.shoppingCartService.createCart(data);
-  } 
+  }
+
+  @Public()
   @Put('update')
   async updateCart(@Body() data: UpdateCart): Promise<HttpStatus> {
     return await this.shoppingCartService.updateCart(data);
