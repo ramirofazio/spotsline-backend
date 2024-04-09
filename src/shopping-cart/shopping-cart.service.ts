@@ -48,17 +48,17 @@ export class ShoppingCartService {
     discount,
   }: UpdateCart) {
     try {
-      // const updatedCart = await this.prisma.shoppingCart.update({
-      //   where: { id },
-      //   data: {
-      //     total,
-      //     subtotal,
-      //     discount,
-      //     couponId: coupon && discount ? coupon.id : null,
-      //   },
-      // });
+      await this.prisma.shoppingCart.update({
+        where: { id },
+        data: {
+          total,
+          subtotal,
+          discount,
+          couponId: coupon && discount ? coupon.id : null,
+        },
+      });
 
-      const prevItems = await this.prisma.itemsOnCart.findMany({
+      const prev = await this.prisma.itemsOnCart.findMany({
         where: { shoppingCartId: id },
         select: {
           id: true,
@@ -69,9 +69,8 @@ export class ShoppingCartService {
           img: true,
         },
       });
-      console.log('prev', prevItems);
 
-      if (!prevItems?.length) {
+      if (!prev?.length) {
         // * Si no hay items previos los crea
         if (items?.length) {
           await this.prisma.itemsOnCart.createMany({
@@ -83,79 +82,91 @@ export class ShoppingCartService {
         }
         return HttpStatus.NOT_MODIFIED;
       } else if (!items.length) {
-        console.log('no hay itmes');
         // * Si el cart esta vacio borra los items previos
+
         await this.prisma.itemsOnCart.deleteMany({
           where: { shoppingCartId: id },
         });
         return HttpStatus.OK;
       } else {
-        console.log('entro en el void');
-
-
-        async function updateItems(prisma) {
-          const sortItems = (arr: Item[]) =>
-            arr.sort((a, b) => {
-              return a.productId - b.productId;
-            });
-          sortItems(items);
-          sortItems(prevItems);
-
-          for (let index = 0; index < items.length; index++) {
-            const itm = items[index];
+        async function updateItems(prisma, newItems, prevItems) {
+          for (let index = 0; index < newItems.length; index++) {
+            const itm = newItems[index];
             const newId = itm.productId;
-            // 0 -- 0
-            console.log('for1 index :' + index);
+
             for (
               let prevIndex = index;
               prevIndex < prevItems.length;
               prevIndex++
             ) {
-              console.log('for2 index :' + prevIndex);
               const prevId = prevItems[prevIndex]?.productId;
 
               if (newId !== prevId) {
-                if (newId < prevId) { 
-                  console.log('AGREGA', newId);
+                // * Si entra hubo modificacion en la cantidad de items
+                if (newId < prevId) {
+                  // * Si el newId < significa que hay item nuevo
                   await prisma.itemsOnCart.create({
                     data: { ...itm, shoppingCartId: id },
                   });
-                  const saco = items.shift()
-                  index--
-                  console.log("saco: ", saco)
+                  newItems.shift();
+                  index--;
                   break;
                 } else if (newId > prevId) {
-                  console.log('SACA', prevId);
-                  
-                  const deleted = await prisma.itemsOnCart.delete({
+                  // * Si el newId > significa que ese item ya no se guarda
+                  await prisma.itemsOnCart.delete({
                     where: {
                       shoppingCartId: id,
                       id: prevItems[prevIndex].id,
                     },
                   });
-                  console.log("del", deleted)
-                  const saco = prevItems.shift()
-                  index--
-                  console.log("saco de prev: ", saco)
+                  prevItems.shift();
+                  index--;
                   break;
                 }
               } else if (newId === prevId) {
-                console.log('ACTUALUIZA MISMO ID');
-                const last = await prisma.itemsOnCart.update({
+                // * Si el item ya estaba en la db lo actualiza
+                await prisma.itemsOnCart.update({
                   where: {
                     id: prevItems[prevIndex].id,
                     shoppingCartId: id,
                   },
                   data: itm,
                 });
-                console.log(prevItems[prevIndex].productId);
-                console.log('ultimo', last);
+
+                prevItems.shift();
+                newItems.shift();
+                index--;
                 break;
               }
             }
           }
+          return { newItems, prevItems };
         }
-        updateItems(this.prisma) // pasar await de bucle a Promise.all
+        const sortItems = (arr: Item[]) =>
+          arr.sort((a, b) => {
+            return a.productId - b.productId;
+          });
+
+        const remainingItems = await updateItems(
+          this.prisma,
+          sortItems([...items]),
+          sortItems([...prev]),
+        );
+        if (remainingItems.newItems?.length) {
+          await this.prisma.itemsOnCart.createMany({
+            data: remainingItems.newItems.map((i) => {
+              return { ...i, shoppingCartId: id };
+            }),
+          });
+        } else if (remainingItems.prevItems?.length) {
+          const ids = remainingItems.prevItems.map((i) => i.id);
+          await this.prisma.itemsOnCart.deleteMany({
+            where: {
+              id: { in: ids },
+              shoppingCartId: id,
+            },
+          });
+        }
         return HttpStatus.CREATED;
       }
     } catch (err) {
