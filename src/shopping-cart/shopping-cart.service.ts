@@ -174,4 +174,25 @@ export class ShoppingCartService {
       throw new HttpException(err.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
+
+  async deleteCart(cartId: number) {
+    try {
+      await this.prisma.itemsOnCart.deleteMany({
+        where: {
+          shoppingCartId: cartId
+        }
+      })
+
+      await this.prisma.shoppingCart.delete({
+        where: {
+          id: cartId
+        }
+      })
+
+      return HttpStatus.ACCEPTED
+    } catch (err) {
+      console.log(err);
+      throw new HttpException(err.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
 }

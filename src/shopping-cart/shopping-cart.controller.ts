@@ -28,13 +28,10 @@ export class ShoppingCartController {
     return await this.shoppingCartService.updateCart(data);
   }
 
-  // @Get(':id')
-  // findbyId(@Param('id') userId: string): Promise<Response> {
-  //   return this.shoppingCartService.findById(userId);
-  // }
+  @Public()
+  @Delete('delete/:cartId')
+  async deleteCart(@Param('cartId') cartId: number): Promise<HttpStatus> {
+    return await this.shoppingCartService.deleteCart(cartId);
+  }
 
-  // @Delete(':id')
-  // cleanCart(@Param('id') userId: string): Promise<string> {
-  //   return this.shoppingCartService.cleanCart(userId);
-  // }
 }
