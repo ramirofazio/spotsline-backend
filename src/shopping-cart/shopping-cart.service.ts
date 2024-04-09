@@ -91,7 +91,9 @@ export class ShoppingCartService {
         return HttpStatus.OK;
       } else {
         console.log('entro en el void');
-        async function updateItems() {
+
+
+        async function updateItems(prisma) {
           const sortItems = (arr: Item[]) =>
             arr.sort((a, b) => {
               return a.productId - b.productId;
@@ -113,39 +115,47 @@ export class ShoppingCartService {
               const prevId = prevItems[prevIndex]?.productId;
 
               if (newId !== prevId) {
-                if (newId < prevId) {
+                if (newId < prevId) { 
                   console.log('AGREGA', newId);
-                  await this.prisma.itemsOnCart.create({
+                  await prisma.itemsOnCart.create({
                     data: { ...itm, shoppingCartId: id },
                   });
-                  continue;
+                  const saco = items.shift()
+                  index--
+                  console.log("saco: ", saco)
+                  break;
                 } else if (newId > prevId) {
                   console.log('SACA', prevId);
-                  await this.prisma.itemsOnCart.deleteMany({
+                  
+                  const deleted = await prisma.itemsOnCart.delete({
                     where: {
                       shoppingCartId: id,
-                      id: prevId,
+                      id: prevItems[prevIndex].id,
                     },
                   });
-                  return;
+                  console.log("del", deleted)
+                  const saco = prevItems.shift()
+                  index--
+                  console.log("saco de prev: ", saco)
+                  break;
                 }
               } else if (newId === prevId) {
                 console.log('ACTUALUIZA MISMO ID');
-                const last = await this.prisma.itemsOnCart.update({
+                const last = await prisma.itemsOnCart.update({
                   where: {
                     id: prevItems[prevIndex].id,
                     shoppingCartId: id,
                   },
                   data: itm,
                 });
-                console.log(prevItems[prevIndex].id);
+                console.log(prevItems[prevIndex].productId);
                 console.log('ultimo', last);
-                return;
+                break;
               }
             }
           }
         }
-        updateItems() // pasar await de bucle a Promise.all
+        updateItems(this.prisma) // pasar await de bucle a Promise.all
         return HttpStatus.CREATED;
       }
     } catch (err) {
