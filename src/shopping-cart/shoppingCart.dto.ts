@@ -1,4 +1,3 @@
-import { IsNotEmpty, IsNumber } from 'class-validator';
 import { Decimal } from '@prisma/client/runtime/library';
 import { Coupon } from 'src/cupons/coupons.dto';
 
