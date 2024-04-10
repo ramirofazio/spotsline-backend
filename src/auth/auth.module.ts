@@ -9,7 +9,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './auth.guard';
 import { MailsModule } from 'src/mails/mails.module';
 import { UsersModule } from 'src/users/users.module';
-
+import { ShoppingCartModule } from 'src/shopping-cart/shopping-cart.module'; 
 @Module({
   imports: [
     JwtModule.register({
@@ -20,6 +20,7 @@ import { UsersModule } from 'src/users/users.module';
     UsersModule,
     PrismaModule,
     MailsModule,
+    ShoppingCartModule,
   ],
   providers: [AuthService, { provide: APP_GUARD, useClass: AuthGuard }], //? Delara protegidas todas las rutas de este modulo por default
   controllers: [AuthController],

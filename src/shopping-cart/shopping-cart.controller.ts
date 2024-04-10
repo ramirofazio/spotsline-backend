@@ -1,23 +1,36 @@
-import { Controller, Put, Delete, Get, Body, Param } from '@nestjs/common';
+import {
+  Controller,
+  Put,
+  Delete,
+  Body,
+  Param,
+  Query,
+  Post,
+  HttpStatus,
+} from '@nestjs/common';
 import { ShoppingCartService } from './shopping-cart.service';
-import { ShoppingCartDTO } from './shoppingCart.dto';
+import { ShoppingCart, UpdateCart } from './shoppingCart.dto';
+
 
 @Controller('shopping-cart')
 export class ShoppingCartController {
   constructor(private shoppingCartService: ShoppingCartService) {}
 
-  //   @Put()
-  //   async updateCart(@Body() data: ShoppingCartDTO): Promise<ShoppingCartDTO> {
-  //     return await this.shoppingCartService.loadCart(data);
-  //   }
+  @Post()
+  async createCart(@Body() data: ShoppingCart): Promise<HttpStatus> {
+    return await this.shoppingCartService.createCart(data);
+  }
+ 
+  @Put('update')
+  async updateCart(@Body() data: UpdateCart): Promise<HttpStatus> {
+    return await this.shoppingCartService.updateCart(data);
+  }
 
-  //   @Get(':id')
-  //   findbyId(@Param('id') userId: string): Promise<Response> {
-  //     return this.shoppingCartService.findById(userId);
-  //   }
-
-  //   @Delete(':id')
-  //   cleanCart(@Param('id') userId: string): Promise<string> {
-  //     return this.shoppingCartService.cleanCart(userId);
-  //   }
+  @Delete('delete/:cartId')
+  async deleteCart(
+    @Param('cartId') cartId: number,
+    @Query('force') force?: boolean,
+  ): Promise<HttpStatus> {
+    return await this.shoppingCartService.deleteCart(cartId, force);
+  }
 }

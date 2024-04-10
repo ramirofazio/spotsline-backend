@@ -10,8 +10,10 @@ const bcrypt = require('bcrypt');
 import { JwtService } from '@nestjs/jwt';
 import { MailsService } from 'src/mails/mails.service';
 import { UsersService } from 'src/users/users.service';
+import { ShoppingCartService } from 'src/shopping-cart/shopping-cart.service';
 import { SellerUser, User, UserResponse } from 'src/users/users.dto';
 import { env } from 'process';
+
 
 @Injectable()
 export class AuthService {
@@ -19,6 +21,7 @@ export class AuthService {
     private users: UsersService,
     private jwt: JwtService,
     private mail: MailsService,
+    private shoppingCart: ShoppingCartService
   ) {}
 
   async jwtAutoSignIn({
@@ -30,10 +33,13 @@ export class AuthService {
 
       if (verify) {
         const user: User | SellerUser = await this.users.findUserByEmail(email);
+        
+        const shoppingCart = await this.shoppingCart.getCart(user.id)
 
         return {
           access_token: jwt,
           user: new UserResponse(user),
+          shoppingCart,
         };
       }
     } catch (e) {
@@ -54,13 +60,16 @@ export class AuthService {
           );
         }
       }
-
+      
       const payload = { sub: user.id, username: user.email };
       const responseUser = new UserResponse(user);
+
+      const shoppingCart = await this.shoppingCart.getCart(responseUser.id)
 
       return {
         access_token: await this.jwt.signAsync(payload),
         user: responseUser,
+        shoppingCart,
       };
     } catch (e) {
       throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR);
