@@ -102,7 +102,7 @@ export class ShoppingCartService {
     discount,
   }: UpdateCart) {
     try {
-      console.log(id, items)
+      console.log(id, items);
       await this.prisma.shoppingCart.update({
         where: { id },
         data: {
@@ -127,12 +127,14 @@ export class ShoppingCartService {
 
       if (!prev?.length) {
         // * Si no hay items previos los crea
+        
         if (items?.length) {
           await this.prisma.itemsOnCart.createMany({
             data: items.map((i: Item) => {
               return { ...i, shoppingCartId: id };
             }),
           });
+          
           return HttpStatus.OK;
         }
         return HttpStatus.NOT_MODIFIED;
@@ -144,6 +146,7 @@ export class ShoppingCartService {
         });
         return HttpStatus.OK;
       } else {
+        
         async function updateItems(prisma, newItems, prevItems) {
           for (let index = 0; index < newItems.length; index++) {
             const itm = newItems[index];
@@ -180,9 +183,9 @@ export class ShoppingCartService {
                 }
               } else if (newId === prevId) {
                 // * Si el item ya estaba en la db lo actualiza
-                
-                let item = {...itm}
-                delete item.id
+
+                let item = { ...itm };
+                delete item.id;
                 await prisma.itemsOnCart.update({
                   where: {
                     id: prevItems[prevIndex].id,
@@ -211,6 +214,7 @@ export class ShoppingCartService {
           sortItems([...prev]),
         );
         if (remainingItems.newItems?.length) {
+          
           await this.prisma.itemsOnCart.createMany({
             data: remainingItems.newItems.map((i) => {
               return { ...i, shoppingCartId: id };
@@ -233,7 +237,7 @@ export class ShoppingCartService {
     }
   }
 
-  async deleteCart(cartId: number) {
+  async deleteCart(cartId: number, force?: boolean) {
     try {
       await this.prisma.itemsOnCart.deleteMany({
         where: {
@@ -241,13 +245,27 @@ export class ShoppingCartService {
         },
       });
 
-      await this.prisma.shoppingCart.delete({
-        where: {
-          id: cartId,
-        },
-      });
-
-      return HttpStatus.ACCEPTED;
+      if (force) {
+        await this.prisma.shoppingCart.delete({
+          where: {
+            id: cartId,
+          },
+        });
+        return HttpStatus.ACCEPTED;
+      } else {
+        await this.prisma.shoppingCart.update({
+          where: {
+            id: cartId,
+          },
+          data: {
+            discount: 0,
+            total: 0,
+            subtotal: 0,
+            couponId: null,
+          },
+        });
+        return HttpStatus.OK
+      }
     } catch (err) {
       console.log(err);
       throw new HttpException(err.message, HttpStatus.INTERNAL_SERVER_ERROR);

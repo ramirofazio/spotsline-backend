@@ -2,9 +2,9 @@ import {
   Controller,
   Put,
   Delete,
-  Get,
   Body,
   Param,
+  Query,
   Post,
   HttpStatus,
 } from '@nestjs/common';
@@ -26,9 +26,9 @@ export class ShoppingCartController {
   async updateCart(@Body() data: UpdateCart): Promise<HttpStatus> {
     return await this.shoppingCartService.updateCart(data);
   }
-
+  @Public()
   @Delete('delete/:cartId')
-  async deleteCart(@Param('cartId') cartId: number): Promise<HttpStatus> {
-    return await this.shoppingCartService.deleteCart(cartId);
+  async deleteCart(@Param('cartId') cartId: number, @Query('force') force?: boolean,): Promise<HttpStatus> {
+    return await this.shoppingCartService.deleteCart(cartId, force);
   }
 }
