@@ -1,4 +1,5 @@
 import { Decimal } from '@prisma/client/runtime/library';
+import { IsEmail, IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
 export interface RawClient {
   nrocli: number;
@@ -119,4 +120,15 @@ export class ClientProfileResponse {
     this.firstSignIn = firstSignIn;
     this.web_role = web_role;
   }
+}
+
+export class AddEmailBodyDTO {
+  @IsNotEmpty()
+  @IsNumber()
+  clientId: number;
+
+  @IsEmail()
+  @IsString()
+  @IsNotEmpty()
+  newEmail: string;
 }

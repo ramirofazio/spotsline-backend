@@ -5,9 +5,10 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { Client, RawClient } from './clients.dto';
+import { AddEmailBodyDTO, Client, RawClient } from './clients.dto';
 import { PasswordResetRequestDTO } from 'src/auth/auth.dto';
 import * as bcrypt from 'bcrypt';
+import { formatPage } from 'src/utils/pagination';
 
 @Injectable()
 export class ClientsService {
@@ -94,17 +95,72 @@ export class ClientsService {
     email,
     newPassword,
   }: PasswordResetRequestDTO): Promise<Client> {
-    const client: Client = await this.findByEmail(email);
-    if (!client) {
-      return null;
+    try {
+      const client: Client = await this.findByEmail(email);
+      if (!client) {
+        return null;
+      }
+
+      const updated = await this.prisma.cliente.update({
+        where: { nrocli: client.id },
+        data: { clave: bcrypt.hashSync(newPassword, 10) },
+      });
+
+      HttpStatus.OK;
+      return new Client(updated);
+    } catch (e) {
+      throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
+  }
 
-    const updated = await this.prisma.cliente.update({
-      where: { nrocli: client.id },
-      data: { clave: bcrypt.hashSync(newPassword, 10) },
-    });
+  async getAllRawClients(page?: number): Promise<RawClient[]> {
+    const take = 100;
+    page = formatPage(page);
+    const skip = take * page - take;
 
-    HttpStatus.OK;
-    return new Client(updated);
+    try {
+      return await this.prisma.cliente.findMany({
+        select: this.selectOpt,
+        where: { NOT: { inhabilitado: false } },
+        take,
+        skip,
+        orderBy: { fantasia: 'asc' },
+      });
+    } catch (e) {
+      throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  async getDashboardClients(page: number): Promise<Client[]> {
+    try {
+      const RawClients: RawClient[] = await this.getAllRawClients(page);
+      return RawClients.map((rc) => new Client(rc));
+    } catch (e) {
+      throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  async addEmailToClient({
+    clientId,
+    newEmail,
+  }: AddEmailBodyDTO): Promise<HttpStatus> {
+    try {
+      const exist = await this.prisma.cliente.findFirst({
+        where: { email: newEmail },
+      });
+
+      if (exist) {
+        throw new HttpException('El Email ya esta en uso', HttpStatus.CONFLICT);
+      }
+
+      await this.prisma.cliente.update({
+        where: { nrocli: clientId },
+        data: { email: newEmail },
+      });
+
+      return HttpStatus.OK;
+    } catch (e) {
+      throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 }

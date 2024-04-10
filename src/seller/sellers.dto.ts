@@ -1,4 +1,5 @@
 import { Decimal } from '@prisma/client/runtime/library';
+import { IsEmail, IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
 export interface RawSeller {
   id: number;
@@ -23,19 +24,17 @@ export class Seller {
   firstSignIn: boolean;
   web_role: number;
 
-  constructor(rawSeller: RawSeller) {
-    const {
-      id,
-      codven,
-      email,
-      nombre,
-      clave,
-      comision,
-      comicob,
-      firstSignIn,
-      web_role,
-    } = rawSeller;
-
+  constructor({
+    id,
+    codven,
+    email,
+    nombre,
+    clave,
+    comision,
+    comicob,
+    firstSignIn,
+    web_role,
+  }: RawSeller) {
     this.id = id;
     this.sellerId = Number(codven);
     this.email = email.trim();
@@ -76,4 +75,15 @@ export class SellerProfileResponse {
     this.firstSignIn = firstSignIn;
     this.web_role = web_role;
   }
+}
+
+export class AddEmailBodyDTO {
+  @IsNotEmpty()
+  @IsNumber()
+  sellerId: number;
+
+  @IsEmail()
+  @IsString()
+  @IsNotEmpty()
+  newEmail: string;
 }
