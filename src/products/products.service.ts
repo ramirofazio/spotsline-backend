@@ -1,4 +1,9 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  ConsoleLogger,
+  HttpException,
+  HttpStatus,
+  Injectable,
+} from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import {
   Product,
@@ -8,8 +13,10 @@ import {
   ProductVariant,
   RawVariantProduct,
   UpdateFeatured,
+  ProductVariantProps,
 } from './products.dto';
 import { MobbexItem, RequestItemDTO } from 'src/mobbex/mobbex.dto';
+import { formatPage, formatTake } from 'src/utils/pagination';
 
 @Injectable()
 export class ProductsService {
@@ -118,13 +125,14 @@ export class ProductsService {
         },
       };
 
-      const products: RawProduct[] = await this.prisma.marcas.findMany({
+      const products: RawProduct[] | any[] = await this.prisma.marcas.findMany({
         take,
         skip,
         where,
         select: {
           codigo: true,
           descripcion: true,
+          featured: true,
         },
       });
 
@@ -146,8 +154,9 @@ export class ProductsService {
           if (!product) return null;
 
           return {
-            id: marca.codigo,
+            codigo: marca.codigo,
             description: marca.descripcion,
+            featured: marca.featured,
             pathImage: product?.pathfoto2,
           };
         }),
@@ -177,66 +186,93 @@ export class ProductsService {
   }
 
   async getFeaturedProdutcs(take: number) {
-    const products: RawVariantProduct[] = await this.prisma.stock.findMany({
-      take: take,
+    const marcas: any[] = await this.prisma.marcas.findMany({
       where: {
-        incluido: true,
-        //featured: true,
-        pathfoto: { not: '' }, // ? Cuando esten cargadas als imagenes de s3 cambiar a "pathfoto2"
+        featured: true,
       },
-      select: { ...this.productsSelectOpt /* featured: true */ },
     });
-
-    if (!products.length) {
+    if (!marcas.length) {
       throw new HttpException('productos no encontrados', HttpStatus.NOT_FOUND);
     }
 
-    const cleanProducts: Product[] = await Promise.all(
-      products.map(async (p) => {
-        const [rubro, subRubro, marca] = await this.prisma.$transaction([
-          this.prisma.rubros.findFirst({
-            where: { codigo: p.rubro },
-            select: { descri: true },
-          }),
-          this.prisma.subrub.findFirst({
-            where: { codigo: p.subrub },
-            select: { descri: true },
-          }),
-          this.prisma.marcas.findFirst({
-            where: { codigo: p.marca },
-            select: { descripcion: true },
-          }),
-        ]);
+    const featureProducts = await Promise.all(
+      marcas.map(async (m) => {
+        try {
+          const firstProduct = await this.prisma.stock.findFirst({
+            where: {
+              marca: m.codigo,
+            },
+          });
 
-        if (!rubro || !subRubro || !marca) {
-          console.error('Datos de producto incompletos');
-          return null;
+          if (!firstProduct)
+            throw new HttpException(
+              'No ha y stock asociado a la marca',
+              HttpStatus.NOT_FOUND,
+            );
+
+          const raw = {
+            ...m,
+            pathfoto: firstProduct.pathfoto2,
+          };
+
+          return raw;
+        } catch (err) {
+          console.log('La marca no tiene un producto asosciado', err);
         }
-
-        return new Product({ id: p.marca, description: 'ss', variants: [] });
       }),
     );
-    return cleanProducts;
+
+    return featureProducts;
   }
 
   async editFeatured(body: UpdateFeatured): Promise<string> {
-    const { productCode, featured } = body;
-    const updated = await this.prisma.stock.update({
-      where: { codpro: productCode },
-      data: {
-        // featured,
-      },
-    });
+    const { id, featured } = body;
 
-    if (!updated) {
-      throw new HttpException(
-        `producto con codpro=${productCode}, no encontrado`,
-        HttpStatus.NOT_FOUND,
-      );
+    try {
+      if (featured === true) {
+        const featuredArray: { featured: boolean }[] =
+          await this.prisma.marcas.findMany({
+            select: { featured: true },
+          });
+
+        const validateFive = featuredArray.filter((el) => el.featured === true);
+        console.log(validateFive);
+
+        if (validateFive.length > 4) {
+          throw new HttpException(
+            'Ya existen 5 productos destacados',
+            HttpStatus.CONFLICT,
+          );
+        }
+      }
+
+      const marca = await this.prisma.marcas.findFirst({
+        where: { codigo: id },
+      });
+
+      const updated = await this.prisma.marcas.update({
+        where: {
+          id: marca.id,
+        },
+        data: {
+          featured: featured,
+        },
+      });
+
+      if (!updated) {
+        throw new HttpException(
+          `producto con id=${id}, no encontrado`,
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      console.log('Actualizado', updated.featured);
+
+      HttpStatus.ACCEPTED;
+      return `Se actualizo el producto ${id} con featured=${featured}`;
+    } catch (err) {
+      throw new HttpException(err.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
-
-    HttpStatus.ACCEPTED;
-    return `Se actualizo el producto ${productCode} con featured=${featured}`;
   }
 
   async getOneProduct(id: number): Promise<Product> {
@@ -289,8 +325,9 @@ export class ProductsService {
       }
 
       return new Product({
-        id: marca.codigo,
+        codigo: marca.codigo,
         description: marca.descripcion,
+        featured: marca.featured,
         variants: variants,
       });
     } catch (e) {
@@ -372,8 +409,9 @@ export class ProductsService {
           }
 
           return new Product({
-            id: marca.codigo,
+            codigo: marca.codigo,
             description: marca.descripcion,
+            featured: marca.featured,
             variants: variants,
           });
         }),
@@ -384,17 +422,78 @@ export class ProductsService {
       throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
-}
 
-const MAX_TAKE_PER_QUERY = 50;
+  async getDashboardProductVariants(
+    productCode: number,
+  ): Promise<ProductVariantProps[]> {
+    try {
+      const rows = await this.prisma.stock.findMany({
+        where: {
+          marca: productCode,
+          NOT: {
+            precio1: 0,
+          },
+        },
+        select: this.productsSelectOpt,
+        orderBy: { incluido: 'desc' },
+      });
 
-const formatTake = (value: number): number => {
-  let x = Number(value);
-  if (x > MAX_TAKE_PER_QUERY || Number.isNaN(x)) {
-    x = MAX_TAKE_PER_QUERY;
+      if (!rows || rows.length === 0) {
+        return null;
+      }
+
+      const variants = await Promise.all(
+        rows.map(async (variant) => {
+          const [rubro, subRubro] = await this.prisma.$transaction([
+            this.prisma.rubros.findFirst({
+              where: { codigo: variant.rubro },
+              select: { descri: true },
+            }),
+            this.prisma.subrub.findFirst({
+              where: { codigo: variant.subrub },
+              select: { descri: true },
+            }),
+          ]);
+
+          return new ProductVariant(
+            { ...variant },
+            rubro?.descri,
+            subRubro?.descri,
+          );
+        }),
+      );
+
+      if (variants.length === 0) {
+        throw new HttpException(
+          `El producto con ID ${productCode} no cumple todas las condiciones`,
+          HttpStatus.EXPECTATION_FAILED,
+        );
+      }
+
+      return variants;
+    } catch (e) {
+      throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
-  return x;
-};
+  async toggleIncluido(productCode: string): Promise<HttpStatus> {
+    try {
+      const variant = await this.prisma.stock.findFirst({
+        where: { codpro: productCode },
+      });
 
-const formatPage = (value: number): number => Number(value) || 1;
+      if (!variant) {
+        throw new HttpException('Variante no encontrada', HttpStatus.NOT_FOUND);
+      }
+
+      await this.prisma.stock.update({
+        where: { codpro: productCode },
+        data: { incluido: !variant.incluido },
+      });
+
+      return HttpStatus.OK;
+    } catch (e) {
+      console;
+    }
+  }
+}

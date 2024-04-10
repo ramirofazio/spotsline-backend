@@ -4,7 +4,6 @@ import {
   DeleteObjectCommand,
   PutObjectCommand,
   S3Client,
-  GetObjectCommand,
 } from '@aws-sdk/client-s3';
 import { env } from 'process';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -25,13 +24,18 @@ export class AwsService {
 
   async uploadProductImage(
     { originalname, buffer }: Express.Multer.File,
-    product_id: number,
+    variant_id: number,
   ): Promise<HttpStatus> {
     try {
-      const exist = await this.checkImageExists(originalname);
+      const imageUrl = `${this.bucketUrl}${originalname}`;
 
-      if (exist) {
-        return HttpStatus.ACCEPTED;
+      const { codpro, pathfoto2 } = await this.prisma.stock.findFirst({
+        where: { id: variant_id },
+      });
+
+      if (pathfoto2) {
+        //? Elmino la foto vieja de AWS y sigo
+        await this.deleteProductImage(pathfoto2);
       }
 
       const res = await this.s3Client.send(
@@ -43,26 +47,17 @@ export class AwsService {
       );
 
       if (!res) {
-        //TODO PROBAR ESTO WARNING
         throw new HttpException(
           'error al cargar la imagen',
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
       }
 
-      const imageUrl = `${this.bucketUrl}${originalname}`;
-
-      //? Busco el producto y le enlazo la imagen guardada
-      const { codpro, pathfoto2 } = await this.prisma.stock.findFirst({
-        where: { id: product_id },
-      });
-
       if (codpro) {
         await this.prisma.stock.update({
           where: { codpro: codpro },
-          //? Guardo un string con todos los url de las imagenes. En FE usar !pathfoto2.split("-").map((img) => img === fotoProd)
           data: {
-            pathfoto2: pathfoto2 ? `${pathfoto2} - ${imageUrl}` : imageUrl,
+            pathfoto2: imageUrl,
           },
         });
       }
@@ -73,49 +68,19 @@ export class AwsService {
     }
   }
 
-  async deleteProductImage(product_id: number): Promise<HttpStatus> {
+  async deleteProductImage(url: string): Promise<HttpStatus> {
     try {
-      const product = await this.prisma.stock.findFirst({
-        where: { id: product_id },
-      });
-
-      if (!product) {
-        throw new HttpException('producto no encontrado', HttpStatus.NOT_FOUND);
-      }
-
-      if (product.pathfoto2) {
-        const key = product.pathfoto2.replace(this.bucketUrl, '');
-        await this.s3Client.send(
-          new DeleteObjectCommand({
-            Bucket: this.bucketName,
-            Key: key,
-          }),
-        );
-      }
-
-      await this.prisma.stock.update({
-        where: { codpro: product.codpro },
-        data: { pathfoto2: '' },
-      });
-
-      return HttpStatus.OK;
-    } catch (e) {
-      throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-  }
-
-  async checkImageExists(key: string): Promise<boolean> {
-    try {
-      //? Valido si la imagen existe en el bucket para no duplicarla
+      const key = url.replace(this.bucketUrl, '');
       await this.s3Client.send(
-        new GetObjectCommand({
+        new DeleteObjectCommand({
           Bucket: this.bucketName,
           Key: key,
         }),
       );
-      return true;
-    } catch (error) {
-      return false;
+
+      return HttpStatus.OK;
+    } catch (e) {
+      throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 }

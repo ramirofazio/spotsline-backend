@@ -18,21 +18,30 @@ export interface ProductVariantProps {
 }
 
 export interface ProductProps {
-  id: Decimal;
+  codigo: Decimal;
   pathImage?: string;
   description: string;
+  featured: boolean;
   variants?: ProductVariantProps[];
 }
 
 export class Product implements ProductProps {
-  id: Decimal;
+  codigo: Decimal;
   description: string;
   pathImage?: string;
+  featured: boolean;
   variants?: ProductVariantProps[];
 
-  constructor({ id, description, pathImage, variants }: ProductProps) {
-    this.id = id;
+  constructor({
+    codigo,
+    description,
+    featured,
+    pathImage,
+    variants,
+  }: ProductProps) {
+    this.codigo = codigo;
     this.description = description.trim();
+    this.featured = featured;
     this.pathImage = pathImage;
     this.variants = variants;
   }
@@ -184,6 +193,13 @@ export interface RawOrderProduct {
 }
 
 export interface UpdateFeatured {
-  productCode: string;
+  id: number;
   featured: boolean;
+}
+
+export interface FeaturedProduct {
+  id: number;
+  codigo: Decimal | number | string;
+  featured: boolean;
+  pathfoto: string;
 }

@@ -5,7 +5,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { RawSeller, Seller } from './sellers.dto';
+import { RawSeller, Seller, SellerProfileResponse, AddEmailBodyDTO } from './sellers.dto';
 import { PasswordResetRequestDTO } from 'src/auth/auth.dto';
 import * as bcrypt from 'bcrypt';
 
@@ -104,5 +104,50 @@ export class SellerService {
 
     HttpStatus.OK;
     return new Seller(updated);
+  }
+
+  async getAllRawSellers(): Promise<RawSeller[]> {
+    try {
+      return await this.prisma.vende.findMany({
+        select: this.selectOpt,
+        orderBy: { nombre: 'asc' },
+      });
+    } catch (e) {
+      throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  async getDashboardSellers(): Promise<SellerProfileResponse[]> {
+    try {
+      const RawSellers: RawSeller[] = await this.getAllRawSellers();
+      const sellers = RawSellers.map((rs) => new Seller(rs));
+      return sellers.map((s) => new SellerProfileResponse(s));
+    } catch (e) {
+      throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  async addEmailToSeller({
+    sellerId,
+    newEmail,
+  }: AddEmailBodyDTO): Promise<HttpStatus> {
+    try {
+      const exist = await this.prisma.vende.findFirst({
+        where: { email: newEmail },
+      });
+
+      if (exist) {
+        throw new HttpException('El Email ya esta en uso', HttpStatus.CONFLICT);
+      }
+
+      await this.prisma.vende.update({
+        where: { codven: sellerId },
+        data: { email: newEmail },
+      });
+
+      return HttpStatus.OK;
+    } catch (e) {
+      throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 }
