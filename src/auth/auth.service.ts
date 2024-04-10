@@ -29,6 +29,7 @@ export class AuthService {
     email,
   }: JwtAutoSignInDTO): Promise<SignInResponseDTO> {
     try {
+      console.log("entro autolog")
       const verify = await this.jwt.verifyAsync(jwt);
 
       if (verify) {

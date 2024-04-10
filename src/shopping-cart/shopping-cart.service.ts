@@ -102,7 +102,7 @@ export class ShoppingCartService {
     discount,
   }: UpdateCart) {
     try {
-      console.log(id)
+      console.log(id, items)
       await this.prisma.shoppingCart.update({
         where: { id },
         data: {
@@ -180,12 +180,15 @@ export class ShoppingCartService {
                 }
               } else if (newId === prevId) {
                 // * Si el item ya estaba en la db lo actualiza
+                
+                let item = {...itm}
+                delete item.id
                 await prisma.itemsOnCart.update({
                   where: {
                     id: prevItems[prevIndex].id,
                     shoppingCartId: id,
                   },
-                  data: itm,
+                  data: item,
                 });
 
                 prevItems.shift();

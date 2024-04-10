@@ -15,11 +15,12 @@ import { Public } from 'src/auth/publicDecorator';
 @Controller('shopping-cart')
 export class ShoppingCartController {
   constructor(private shoppingCartService: ShoppingCartService) {}
-
+  @Public()
   @Post()
   async createCart(@Body() data: ShoppingCart): Promise<HttpStatus> {
     return await this.shoppingCartService.createCart(data);
   }
+  
   @Public()
   @Put('update')
   async updateCart(@Body() data: UpdateCart): Promise<HttpStatus> {
