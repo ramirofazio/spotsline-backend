@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 import { ShoppingCartService } from './shopping-cart.service';
 import { ShoppingCart, UpdateCart } from './shoppingCart.dto';
-import { Public } from 'src/auth/publicDecorator';
+
 
 @Controller('shopping-cart')
 export class ShoppingCartController {
@@ -20,7 +20,7 @@ export class ShoppingCartController {
   async createCart(@Body() data: ShoppingCart): Promise<HttpStatus> {
     return await this.shoppingCartService.createCart(data);
   }
-
+ 
   @Put('update')
   async updateCart(@Body() data: UpdateCart): Promise<HttpStatus> {
     return await this.shoppingCartService.updateCart(data);
