@@ -30,6 +30,10 @@ export class ClientsService {
     clave: true,
     firstSignIn: true,
     web_role: true,
+    codven: true,
+    condicion: true,
+    expreso: true,
+    locali: true,
   };
 
   async findById(id: number): Promise<Client | null> {
