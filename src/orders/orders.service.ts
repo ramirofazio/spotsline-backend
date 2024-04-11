@@ -4,7 +4,7 @@ import { NewOrder } from './orders.dto';
 import { Decimal } from '@prisma/client/runtime/library';
 import { RawClient } from 'src/clients/clients.dto';
 import { RequestItemDTO } from 'src/mobbex/mobbex.dto';
-import { RawProduct, RawVariantProduct } from 'src/products/products.dto';
+import { RawVariantProduct } from 'src/products/products.dto';
 
 @Injectable()
 export class OrdersService {
@@ -59,14 +59,22 @@ export class OrdersService {
         },
       });
 
-      //? Creo el detalle de la orden en la tabla `pedidoDet`
+      if (!pedidoCab) {
+        throw new HttpException(
+          'no se pudo crear la cabecera del pedido',
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+
+      //? Recorro los items de la orden realizada
       items.map(async (item, index) => {
         //? Consigo datos necesarios para el detalle del pedido
         const variant: RawVariantProduct = await this.getItemData(item.id);
         const priceProperty = `precio${lista}`;
         const ivaPorc = await this.getIva(item.id);
 
-        const pedidoDet = await this.prisma.pedidoDet.create({
+        //? Creo el detalle de la orden en la tabla `pedidoDet`
+        await this.prisma.pedidoDet.create({
           data: {
             canasoc: 0,
             cabeceraid: pedidoCab.id,

@@ -34,6 +34,8 @@ export class ProductsService {
     marca: true,
     pathfoto2: true,
     incluido: true,
+    ivagrupo: true,
+    unimed: true,
   };
 
   async getOrderProductsData(items: RequestItemDTO[], userPriceList: number) {
