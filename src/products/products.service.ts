@@ -1,9 +1,4 @@
-import {
-  ConsoleLogger,
-  HttpException,
-  HttpStatus,
-  Injectable,
-} from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import {
   Product,
@@ -236,7 +231,6 @@ export class ProductsService {
           });
 
         const validateFive = featuredArray.filter((el) => el.featured === true);
-        console.log(validateFive);
 
         if (validateFive.length > 4) {
           throw new HttpException(
@@ -265,8 +259,6 @@ export class ProductsService {
           HttpStatus.NOT_FOUND,
         );
       }
-
-      console.log('Actualizado', updated.featured);
 
       HttpStatus.ACCEPTED;
       return `Se actualizo el producto ${id} con featured=${featured}`;

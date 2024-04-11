@@ -17,6 +17,10 @@ export interface RawClient {
   clave: string;
   firstSignIn: boolean;
   web_role: number;
+  codven: Decimal;
+  condicion: Decimal;
+  expreso: Decimal;
+  locali: number;
 }
 
 export class Client {

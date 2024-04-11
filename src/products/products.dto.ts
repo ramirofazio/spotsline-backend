@@ -99,6 +99,8 @@ export interface RawVariantProduct {
   marca?: Decimal;
   pathfoto2: string;
   incluido: boolean;
+  unimed: Decimal;
+  ivagrupo: Decimal;
 }
 
 export interface RawProduct {

@@ -24,6 +24,7 @@ import { ProductsService } from 'src/products/products.service';
 import { OrderProduct, RawOrderProduct } from 'src/products/products.dto';
 import { MobbexItem, RequestItemDTO } from 'src/mobbex/mobbex.dto';
 import { JwtService } from '@nestjs/jwt';
+import { OrdersService } from 'src/orders/orders.service';
 
 @Injectable()
 export class UsersService {
@@ -33,6 +34,7 @@ export class UsersService {
     private prisma: PrismaService,
     private products: ProductsService,
     private jwt: JwtService,
+    private ordersService: OrdersService,
   ) {}
 
   async updateUserData({
@@ -78,8 +80,8 @@ export class UsersService {
         });
         return {
           ...order,
-          coupon
-        }
+          coupon,
+        };
       }
       return order;
     } catch (e) {
@@ -324,57 +326,68 @@ export class UsersService {
     couponId,
     discount,
   }: OrderBodyDTO) {
-    const { email, id, fantasyName, priceList } =
-      await this.findUserById(userId);
+    try {
+      const { email, id, fantasyName, priceList } =
+        await this.findUserById(userId);
 
-    const subtotal = await this.products.getOrderProductsData(items, priceList);
+      const subtotal = await this.products.getOrderProductsData(
+        items,
+        priceList,
+      );
 
-    const totalDiscount = (discount / 100) * subtotal;
+      const totalDiscount = (discount / 100) * subtotal;
 
-    const total = subtotal - totalDiscount;
+      const total = subtotal - totalDiscount;
 
-    if (email && id) {
-      //?  Si existe el cliente en la DB
-      const newOrder = await this.prisma.web_orders.create({
-        data: {
-          date: new Date().toISOString(),
-          discount: discount,
-          couponId: couponId ? couponId : 0,
-          email: email,
-          mobbexId: transactionId,
-          name: fantasyName,
-          userId: userId,
-          subtotal: subtotal,
-          total: total,
-          type: type,
-        },
-      });
-
-      if (newOrder) {
-        items.map(async ({ qty, id }) => {
-          await this.prisma.order_products.create({
-            data: {
-              orderId: newOrder.id,
-              productId: id,
-              qty: qty,
-            },
-          });
+      if (email && id) {
+        //?  Si existe el cliente en la DB
+        const newOrder = await this.prisma.web_orders.create({
+          data: {
+            date: new Date().toISOString(),
+            discount: discount,
+            couponId: couponId ? couponId : 0,
+            email: email,
+            mobbexId: transactionId,
+            name: fantasyName,
+            userId: userId,
+            subtotal: subtotal,
+            total: total,
+            type: type,
+          },
         });
-      }
-    }
 
-    return HttpStatus.OK;
+        if (newOrder) {
+          items.map(async ({ qty, id }) => {
+            await this.prisma.order_products.create({
+              data: {
+                orderId: newOrder.id,
+                productId: id,
+                qty: qty,
+              },
+            });
+          });
+        }
+
+        //? Crea la orden para el sistema de gestion
+        await this.ordersService.createSystemOrder(newOrder, items);
+      }
+
+      return HttpStatus.OK;
+    } catch (e) {
+      throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
+
   async getUserProfileDataWithJwt(
     jwt: string,
   ): Promise<ClientProfileResponse | SellerProfileResponse> {
-    const verify = await this.jwt.verifyAsync(jwt);
-
-    if (!verify) {
-      throw new UnauthorizedException();
-    }
-
     try {
+      const verify = await this.jwt.verifyAsync(jwt);
+
+      if (!verify) {
+        throw new UnauthorizedException();
+      }
+
       const client: Client = await this.clients.findById(verify.sub);
 
       if (client) {
