@@ -102,7 +102,6 @@ export class ShoppingCartService {
     discount,
   }: UpdateCart) {
     try {
-      console.log(id, items);
       await this.prisma.shoppingCart.update({
         where: { id },
         data: {

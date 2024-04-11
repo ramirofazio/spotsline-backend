@@ -3608,7 +3608,7 @@ model zonas {
 
 model shoppingCart {
   id       Int     @unique(map: "UQ_id") @default(autoincrement())
-  userId   Int?
+  userId   Int
   discount Int?
   total    Decimal @db.Decimal(10, 2)
   subtotal Decimal @db.Decimal(10, 2)
