@@ -123,6 +123,9 @@ export class ProductsService {
         NOT: {
           codigo: 9999,
         },
+        descripcion: {
+          contains: search === 'null' ? '' : search,
+        },
       };
 
       const products: RawProduct[] | any[] = await this.prisma.marcas.findMany({
