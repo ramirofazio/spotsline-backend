@@ -26,6 +26,9 @@ export class OrdersService {
         locali,
         direcc,
       }: RawClient = await this.getClientData(newOrder.userId);
+      const { nombre } = await this.prisma.vende.findFirst({
+        where: { codven: codven },
+      });
 
       //? Creo la cabecera de la orden en la tabla `pedidoCab`
       const pedidoCab = await this.prisma.pedidoCab.create({
@@ -37,9 +40,7 @@ export class OrdersService {
           punto: 5,
           nroped: OrderNumber,
           fechaing: new Date().toISOString(),
-          parafecha: new Date(
-            Date.now() + 7 * 24 * 60 * 60 * 1000, //? Por defecto una semana
-          ).toISOString(), //TODO ESTO TIENE QUE CARGAR EL USUARIO PARA CUANDO LO QUIERE
+          parafecha: newOrder.deliveryDate,
           nrocli: nrocli,
           razsoc: razsoc,
           codven: codven,
@@ -49,7 +50,7 @@ export class OrdersService {
           via: 'WEB',
           sucursal: 'CENTRAL',
           nrotra: expreso,
-          usuario: fantasia || 'WEB', //TODO VER ESTO! Creo que va el seller aca
+          usuario: nombre || 'WEB',
           usuarioid: 0,
           lisfac: lista,
           TotalNet: newOrder.total,

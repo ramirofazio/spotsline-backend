@@ -12,4 +12,5 @@ export interface NewOrder {
   subtotal: Decimal;
   type: string;
   couponId: number;
+  deliveryDate: string;
 }

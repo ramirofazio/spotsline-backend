@@ -325,6 +325,7 @@ export class UsersService {
     userId,
     couponId,
     discount,
+    deliveryDate,
   }: OrderBodyDTO) {
     try {
       const { email, id, fantasyName, priceList } =
@@ -353,6 +354,7 @@ export class UsersService {
             subtotal: subtotal,
             total: total,
             type: type,
+            deliveryDate: deliveryDate,
           },
         });
 

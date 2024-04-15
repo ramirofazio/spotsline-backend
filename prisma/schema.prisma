@@ -3587,17 +3587,18 @@ model Visitasweb {
 }
 
 model web_orders {
-  id       String   @id(map: "PK__web_orde__3213E83F18B72CB2") @default(dbgenerated("newid()"), map: "DF__web_orders__id__05AAFCA3") @db.UniqueIdentifier
-  userId   Int?
-  email    String?  @db.VarChar(Max)
-  name     String?  @db.VarChar(Max)
-  total    Int?
-  discount Int?     @default(0, map: "DF__web_order__disco__0887694E")
-  mobbexId String?  @db.VarChar(Max)
-  date     String?  @db.VarChar(Max)
-  subtotal Decimal? @db.Decimal(18, 0)
-  type     String?  @db.VarChar(50)
-  couponId Int?
+  id           String   @id(map: "PK__web_orde__3213E83F18B72CB2") @default(dbgenerated("newid()"), map: "DF__web_orders__id__05AAFCA3") @db.UniqueIdentifier
+  userId       Int?
+  email        String?  @db.VarChar(Max)
+  name         String?  @db.VarChar(Max)
+  total        Int?
+  discount     Int?     @default(0, map: "DF__web_order__disco__0887694E")
+  mobbexId     String?  @db.VarChar(Max)
+  date         String?  @db.VarChar(Max)
+  subtotal     Decimal? @db.Decimal(18, 0)
+  type         String?  @db.VarChar(50)
+  couponId     Int?
+  deliveryDate String?  @db.VarChar(Max)
 }
 
 model zonas {

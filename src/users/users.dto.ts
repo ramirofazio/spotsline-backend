@@ -111,7 +111,6 @@ export class OrderBodyDTO {
   @IsNotEmpty()
   discount?: number;
 
-
   @IsNumber()
   @IsNotEmpty()
   userId: number;
@@ -130,6 +129,10 @@ export class OrderBodyDTO {
   @IsNotEmpty()
   @IsString()
   type: string;
+
+  @IsNotEmpty()
+  @IsString()
+  deliveryDate: string;
 }
 
 export class UserOrdersDTO {
@@ -170,7 +173,7 @@ export interface UserOrders {
 
 export interface CleanOrders extends UserOrders {
   products: MobbexItem[];
-  coupon?: Coupon 
+  coupon?: Coupon;
 }
 
 export class UpdateUserDataDTO {
