@@ -13,7 +13,7 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { AwsService } from './aws.service';
-import { Public } from 'src/auth/publicDecorator';
+
 
 @Controller('aws-s3-upload')
 export class AwsController {
@@ -36,7 +36,7 @@ export class AwsController {
     return await this.awsService.uploadProductImage(file, variant_id);
   }
 
-  @Public()
+
   @Post('avatar/:user_id')
   @UseInterceptors(FileInterceptor('file'))
   async updateAvatar(
