@@ -14,14 +14,13 @@ import { ShoppingCartService } from 'src/shopping-cart/shopping-cart.service';
 import { SellerUser, User, UserResponse } from 'src/users/users.dto';
 import { env } from 'process';
 
-
 @Injectable()
 export class AuthService {
   constructor(
     private users: UsersService,
     private jwt: JwtService,
     private mail: MailsService,
-    private shoppingCart: ShoppingCartService
+    private shoppingCart: ShoppingCartService,
   ) {}
 
   async jwtAutoSignIn({
@@ -33,8 +32,8 @@ export class AuthService {
 
       if (verify) {
         const user: User | SellerUser = await this.users.findUserByEmail(email);
-        
-        const shoppingCart = await this.shoppingCart.getCart(user.id)
+
+        const shoppingCart = await this.shoppingCart.getCart(user.id);
 
         return {
           access_token: jwt,
@@ -60,11 +59,11 @@ export class AuthService {
           );
         }
       }
-      
+
       const payload = { sub: user.id, username: user.email };
       const responseUser = new UserResponse(user);
 
-      const shoppingCart = await this.shoppingCart.getCart(responseUser.id)
+      const shoppingCart = await this.shoppingCart.getCart(responseUser.id);
 
       return {
         access_token: await this.jwt.signAsync(payload),

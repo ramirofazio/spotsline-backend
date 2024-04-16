@@ -45,8 +45,6 @@ export class UsersService {
   }: UpdateUserDataDTO): Promise<HttpStatus.OK> {
     //TODO VER QUE ONDA ESTO CON LOS SELLERS
 
-    console.log(username, typeof cuit, email);
-
     try {
       await this.prisma.cliente.update({
         where: { nrocli: id },

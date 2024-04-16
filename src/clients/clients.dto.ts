@@ -67,7 +67,7 @@ export class Client {
     this.celphone = telef1.trim();
     this.cuit = Number(cuit);
     this.priceList = Number(lista);
-    this.email = email.trim();
+    this.email = email.trim().split(';')[0];
     this.sellCondition = Number(cond_vta);
     this.active = inhabilitado;
     this.canSee = visualiza;
@@ -135,4 +135,16 @@ export class AddEmailBodyDTO {
   @IsString()
   @IsNotEmpty()
   newEmail: string;
+}
+
+export class ManagedClientResponse {
+  id: number;
+  email: string;
+  fantasyName: string;
+
+  constructor({ id, email, fantasyName }: Client) {
+    this.id = id;
+    this.email = email;
+    this.fantasyName = fantasyName;
+  }
 }

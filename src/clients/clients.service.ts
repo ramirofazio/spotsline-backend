@@ -5,14 +5,24 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { AddEmailBodyDTO, Client, RawClient } from './clients.dto';
+import {
+  AddEmailBodyDTO,
+  Client,
+  ManagedClientResponse,
+  RawClient,
+} from './clients.dto';
 import { PasswordResetRequestDTO } from 'src/auth/auth.dto';
 import * as bcrypt from 'bcrypt';
 import { formatPage } from 'src/utils/pagination';
+import { JwtService } from '@nestjs/jwt';
+import { Decimal } from '@prisma/client/runtime/library';
 
 @Injectable()
 export class ClientsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private jwt: JwtService,
+  ) {}
 
   selectOpt = {
     nrocli: true,
@@ -163,6 +173,31 @@ export class ClientsService {
       });
 
       return HttpStatus.OK;
+    } catch (e) {
+      throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+  async getManagedClients(token: string) {
+    const verify = await this.jwt.verifyAsync(token);
+
+    const vende = await this.prisma.vende.findFirst({
+      where: { codven: verify.sub },
+    });
+
+    const sellerClients: Client[] = await this.getSellerClients(vende.codven);
+
+    return sellerClients.map((mc) => new ManagedClientResponse(mc));
+  }
+
+  async getSellerClients(codven: Decimal) {
+    try {
+      const clients: RawClient[] = await this.prisma.cliente.findMany({
+        where: { codven: codven, NOT: { email: '', id: 0, fantasia: '' } },
+      });
+
+      console.log(clients);
+
+      return clients.map((c) => new Client(c));
     } catch (e) {
       throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }

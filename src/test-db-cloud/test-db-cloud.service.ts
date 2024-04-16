@@ -35,13 +35,19 @@ export class TestDbCloudService implements OnModuleInit {
           OR: [
             { email: 'admin@spotsline.com.ar' },
             { email: 'user@spotsline.com.ar' },
-            { email: 'seller@spotsline.com.ar' },
           ],
         },
         select: { id: true },
       });
 
-      if (existingTestUsers.length === 3) {
+      const existingTestSeller = await this.prisma.vende.findMany({
+        where: {
+          OR: [{ email: 'seller@spotsline.com.ar' }],
+        },
+        select: { id: true },
+      });
+
+      if (existingTestUsers.length === 2 && existingTestSeller.length === 1) {
         console.log('#### TEST USERS ALREADY EXIST ####');
         return;
       }
@@ -60,7 +66,7 @@ export class TestDbCloudService implements OnModuleInit {
             'user@spotsline.com.ar',
             env.ROOT_PASSWORD,
           ),
-          await this.createTestUser(
+          await this.createTestSeller(
             99992,
             'seller@spotsline.com.ar',
             env.ROOT_PASSWORD,
@@ -80,7 +86,7 @@ export class TestDbCloudService implements OnModuleInit {
     }
   }
 
-  private async createTestUser(
+  async createTestUser(
     nroCli: number,
     email: string,
     password: string,
@@ -93,6 +99,24 @@ export class TestDbCloudService implements OnModuleInit {
         clave: bcrypt.hashSync(password, 10),
         web_role: webRole,
         fantasia: email.split('@')[0],
+      },
+    });
+  }
+
+  async createTestSeller(
+    codVen: number,
+    email: string,
+    password: string,
+    webRole?: number,
+  ) {
+    return this.prisma.vende.create({
+      data: {
+        codven: codVen,
+        email,
+        clave: bcrypt.hashSync(password, 10),
+        web_role: webRole,
+        nombre: email.split('@')[0],
+        superv: 0,
       },
     });
   }
