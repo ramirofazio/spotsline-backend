@@ -1,7 +1,6 @@
 #!/bin/sh
-# Ejecuta las migraciones de Prisma
+# Ejecuta los scripts de Prisma
 npx prisma db pull
 npx prisma generate
-
-# Inicia tu aplicación
+# Inicia la aplicación
 npm run start:dev
