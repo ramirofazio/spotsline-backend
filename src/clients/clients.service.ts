@@ -44,6 +44,7 @@ export class ClientsService {
     condicion: true,
     expreso: true,
     locali: true,
+    avatar: true,
   };
 
   async findById(id: number): Promise<Client | null> {
