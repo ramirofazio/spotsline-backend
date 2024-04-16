@@ -638,6 +638,7 @@ model cliente {
   firstSignIn2 Boolean? @default(true, map: "DF__cliente__firstSi__5D9D0B49")
   firstSignIn3 Boolean? @default(true, map: "DF__cliente__firstSi__5E912F82")
   web_role     Int?     @default(0, map: "DF__cliente__web_rol__70AFDFBD")
+  avatar       String?  @db.NVarChar(Max)
 
   @@index([razsoc], map: "IX_cliente")
 }
