@@ -281,4 +281,125 @@ export class MailsService {
       throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
+
+  async sendRrhhContact({ emailData, file }) {
+    try {
+      console.log(emailData, file);
+      const emailSended = await resend.emails.send({
+        from: 'SPOTSLINE <spotsline@resend.dev>',
+        to: ['tomasperez.henry@gmail.com'],
+        subject: emailData.subject ? emailData.subject : '',
+        attachments: [
+          {
+            filename: file.originalname,
+            content: file.buffer,
+          },
+        ],
+        html: `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+      <html dir="ltr" lang="en">
+       <head>
+          <meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
+          <style>
+            @font-face {
+              font-family: "Inter";
+              font-style: normal;
+              font-weight: 400;
+              mso-font-alt: "sans-serif";
+              src: url(https://rsms.me/inter/font-files/Inter-Regular.woff2?v=3.19) format("woff2");
+            }
+
+            * {
+              font-family: "Inter", sans-serif;
+            }
+          </style>
+          <style>
+            blockquote,
+            h1,
+            h2,
+            h3,
+            img,
+            li,
+            ol,
+            p,
+            ul {
+              margin-top: 0;
+              margin-bottom: 0;
+            }
+          </style>
+        </head>
+        <body>
+          <div
+            style="display: none; overflow: hidden; line-height: 1px; opacity: 0; max-height: 0; max-width: 0"
+            id="__react-email-preview"
+          >
+            Solicitud de recursos humanos:
+            <div>
+               ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏
+            </div>
+          </div>
+          <table
+            align="center"
+            width="100%"
+            border="0"
+            cellpadding="0"
+            cellspacing="0"
+            role="presentation"
+            style="max-width: 600px; min-width: 300px; width: 100%; margin-left: auto; margin-right: auto; padding: 0.5rem"
+          >
+            <tbody>
+              <tr style="width: 100%">
+                <td>
+                  <h2
+                    style="
+                      text-align: center;
+                      color: rgb(17, 24, 39);
+                      margin-bottom: 12px;
+                      margin-top: 0px;
+                      font-size: 30px;
+                      line-height: 36px;
+                      font-weight: 700;
+                    "
+                  >
+                    <strong>${emailData.name} quiere unirse a spotsline</strong>
+                  </h2>
+
+                  <table
+                    align="center"
+                    width="100%"
+                    border="0"
+                    cellpadding="0"
+                    cellspacing="0"
+                    role="presentation"
+                    style="max-width: 100%; text-align: center; margin-bottom: 0px"
+                  >
+                    <thead>
+                    <tr>
+                      <th>Nombre</th>
+                      <th>Email</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                      <tr style="width: 100%">
+                        <td>${emailData.name}</td>
+                        <td>${emailData.email}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  
+                  </tr>
+                  </tbody>
+                  </table>
+                  <h1>Mensaje: </h1>
+                  <h2>${emailData.message}</h2>
+        </body>
+      </html>
+      `,
+      });
+      if (!emailSended.error) {
+        return HttpStatus.OK;
+      }
+    } catch (err) {
+      throw new HttpException(err.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
 }
