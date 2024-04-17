@@ -182,7 +182,7 @@ export class ClientsService {
     const verify = await this.jwt.verifyAsync(token);
 
     const vende = await this.prisma.vende.findFirst({
-      where: { codven: verify.sub },
+      where: { id: verify.sub },
     });
 
     const sellerClients: Client[] = await this.getSellerClients(vende.codven);
@@ -193,10 +193,8 @@ export class ClientsService {
   async getSellerClients(codven: Decimal) {
     try {
       const clients: RawClient[] = await this.prisma.cliente.findMany({
-        where: { codven: codven, NOT: { email: '', id: 0, fantasia: '' } },
+        where: { codven: codven, NOT: { id: 0 } },
       });
-
-      console.log(clients);
 
       return clients.map((c) => new Client(c));
     } catch (e) {
