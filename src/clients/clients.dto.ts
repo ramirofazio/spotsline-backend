@@ -21,6 +21,7 @@ export interface RawClient {
   condicion: Decimal;
   expreso: Decimal;
   locali: number;
+  avatar: string
 }
 
 export class Client {
@@ -39,6 +40,7 @@ export class Client {
   password: string;
   firstSignIn: boolean;
   web_role: number;
+  avatar?: string
 
   constructor(rawClient: RawClient) {
     const {
@@ -57,6 +59,7 @@ export class Client {
       clave,
       firstSignIn,
       web_role,
+      avatar
     } = rawClient;
 
     this.id = nrocli;
@@ -74,6 +77,7 @@ export class Client {
     this.password = clave.trim();
     this.firstSignIn = firstSignIn;
     this.web_role = web_role;
+    this.avatar = avatar
   }
 }
 
@@ -92,7 +96,7 @@ export class ClientProfileResponse {
   canSee: boolean;
   firstSignIn: boolean;
   web_role: number;
-
+  avatar?: string;
   constructor({
     id,
     socialReason,
@@ -108,6 +112,7 @@ export class ClientProfileResponse {
     canSee,
     firstSignIn,
     web_role,
+    avatar
   }: Client) {
     this.id = id;
     this.socialReason = socialReason;
@@ -123,6 +128,7 @@ export class ClientProfileResponse {
     this.canSee = canSee;
     this.firstSignIn = firstSignIn;
     this.web_role = web_role;
+    this.avatar= avatar
   }
 }
 
