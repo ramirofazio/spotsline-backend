@@ -137,13 +137,18 @@ export class ProductsService {
       });
 
       const rows: ProductProps[] = await Promise.all(
-        products.map(async (marca) => {
+        products.map(async (marca: any) => {
           const product = await this.prisma.stock.findFirst({
             where: {
               marca: marca.codigo,
               incluido: true,
               NOT: {
                 precio1: 0,
+                precio2: 0,
+                precio3: 0,
+                precio4: 0,
+                precio5: 0,
+                precio6: 0,
               },
             },
             select: {
@@ -336,7 +341,8 @@ export class ProductsService {
     try {
       const categories = await this.prisma.rubros.findMany({
         select: { descri: true },
-        where: { mostrarweb: true },
+        //TODO ARREGLAR ESTO PARA PRODUCCION
+        //where: { mostrarweb: true },
       });
 
       return categories.map((c) => c.descri.trim());

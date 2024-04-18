@@ -9,7 +9,6 @@ import {
   PaymentOrderDTO,
 } from './mobbex.dto';
 
-
 @Controller('mobbex')
 export class MobbexController {
   // eslint-disable-next-line no-unused-vars
@@ -17,7 +16,7 @@ export class MobbexController {
     private readonly mobbexService: MobbexService,
     private readonly userService: UsersService,
   ) {}
-  
+
   @Post('/checkout')
   async generateCheckout(
     @Body() body: CheckoutRequestDTO,

@@ -82,7 +82,7 @@ export class ShoppingCartService {
 
         await tx.itemsOnCart.createMany({
           data: items.map((i: Item) => {
-            return { ...i, shoppingCartId: cart.id };
+            return { ...new Item(i), shoppingCartId: cart.id };
           }),
         });
       });
@@ -126,14 +126,14 @@ export class ShoppingCartService {
 
       if (!prev?.length) {
         // * Si no hay items previos los crea
-        
+
         if (items?.length) {
           await this.prisma.itemsOnCart.createMany({
             data: items.map((i: Item) => {
               return { ...i, shoppingCartId: id };
             }),
           });
-          
+
           return HttpStatus.OK;
         }
         return HttpStatus.NOT_MODIFIED;
@@ -145,7 +145,6 @@ export class ShoppingCartService {
         });
         return HttpStatus.OK;
       } else {
-        
         async function updateItems(prisma, newItems, prevItems) {
           for (let index = 0; index < newItems.length; index++) {
             const itm = newItems[index];
@@ -213,7 +212,6 @@ export class ShoppingCartService {
           sortItems([...prev]),
         );
         if (remainingItems.newItems?.length) {
-          
           await this.prisma.itemsOnCart.createMany({
             data: remainingItems.newItems.map((i) => {
               return { ...i, shoppingCartId: id };
@@ -263,7 +261,7 @@ export class ShoppingCartService {
             couponId: null,
           },
         });
-        return HttpStatus.OK
+        return HttpStatus.OK;
       }
     } catch (err) {
       console.log(err);
