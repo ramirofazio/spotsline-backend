@@ -271,9 +271,6 @@ export class MailsService {
 </html>
 `,
       });
-
-      console.log(data);
-
       if (!data.error) {
         return HttpStatus.OK;
       }
@@ -284,7 +281,6 @@ export class MailsService {
 
   async sendRrhhContact({ emailData, file }) {
     try {
-      console.log(emailData, file);
       const emailSended = await resend.emails.send({
         from: 'SPOTSLINE <spotsline@resend.dev>',
         to: [`${env.RRHH_EMAIL}`],
