@@ -10,6 +10,27 @@ import { RawVariantProduct } from 'src/products/products.dto';
 export class OrdersService {
   constructor(private prisma: PrismaService) {}
 
+  async getOrders() {
+    try {
+      const orders = await this.prisma.web_orders.findMany({
+        select: {
+          id: true,
+          userId: true,
+          email: true,
+          name: true,
+          total: true,
+          subtotal: true,
+          discount: true,
+          date: true,
+        },
+      });
+      return orders;
+    } catch (err) {
+      console.log(err);
+      throw new HttpException(err.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
   async createSystemOrder(newOrder: NewOrder, items: RequestItemDTO[]) {
     try {
       //? Consigo datos necesarios para la cabecera del pedido

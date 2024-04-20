@@ -349,7 +349,7 @@ export class UsersService {
             mobbexId: transactionId,
             name: fantasyName,
             userId: userId,
-            subtotal: subtotal,
+            subtotal: subtotal, // TODO Cambiarlo a INT en DB
             total: total,
             type: type,
             deliveryDate: deliveryDate,
