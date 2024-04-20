@@ -6,7 +6,6 @@ import { OrdersService } from './orders.service';
 export class OrdersController {
   constructor(private ordersService: OrdersService) {}
 
-  @Public()
   @Get()
   async getOrders() {
     return await this.ordersService.getOrders();
