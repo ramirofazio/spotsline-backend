@@ -28,8 +28,14 @@ export class ProductsController {
     @Query('page') page: number,
     @Query('take') take: number,
     @Query('search') search: string,
+    @Query('order') order: string,
   ): Promise<Pagination> {
-    return await this.productsService.getAllProducts({ page, take, search });
+    return await this.productsService.getAllProducts({
+      page,
+      take,
+      search,
+      order,
+    });
   }
 
   @Public()

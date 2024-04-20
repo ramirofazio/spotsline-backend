@@ -205,3 +205,10 @@ export interface FeaturedProduct {
   featured: boolean;
   pathfoto: string;
 }
+
+export interface GetProducts {
+  page: number;
+  take: number;
+  search: string;
+  order: string;
+}

@@ -9,6 +9,7 @@ import {
   RawVariantProduct,
   UpdateFeatured,
   ProductVariantProps,
+  GetProducts,
 } from './products.dto';
 import { MobbexItem, RequestItemDTO } from 'src/mobbex/mobbex.dto';
 import { formatPage, formatTake } from 'src/utils/pagination';
@@ -106,11 +107,8 @@ export class ProductsService {
     page,
     take,
     search,
-  }: {
-    page: number;
-    take: number;
-    search: string;
-  }): Promise<Pagination> {
+    order,
+  }: GetProducts): Promise<Pagination> {
     try {
       take = formatTake(take);
       page = formatPage(page);
@@ -136,6 +134,15 @@ export class ProductsService {
         },
       });
 
+      let orderQuery = {};
+      if (order) {
+        orderQuery = {
+          orderBy: {
+            precio1: order,
+          },
+        };
+      }
+
       const rows: ProductProps[] = await Promise.all(
         products.map(async (marca: any) => {
           const product = await this.prisma.stock.findFirst({
@@ -152,7 +159,13 @@ export class ProductsService {
               },
             },
             select: {
+              id: true,
               pathfoto2: true,
+              precio1: true,
+            },
+            // ...orderQuery,
+            orderBy: {
+              precio1: 'asc',
             },
           });
 
@@ -163,9 +176,12 @@ export class ProductsService {
             description: marca.descripcion,
             featured: marca.featured,
             pathImage: product?.pathfoto2,
+            precio: product.precio1,
+            id: product.id,
           };
         }),
       );
+      console.log(rows);
       const count = await this.prisma.marcas.count({ where });
 
       if (!products.length) {
