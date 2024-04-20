@@ -24,7 +24,6 @@ export class OrdersService {
           date: true,
         },
       });
-      console.log(orders);
       return orders;
     } catch (err) {
       console.log(err);
