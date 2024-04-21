@@ -66,8 +66,18 @@ export class MobbexService {
           name: email.split('@')[0],
           identification: String(userId),
         },
-        //? sources=["MEDIO DE PAGO"]. A ver en profundidad a ver cual va mejor
-        sources: ['gocuotas', 'wibond'],
+        sources: [
+          'naranja',
+          'mastercard',
+          'mastercard.debit',
+          'maestro',
+          'visa.debit',
+          'visa',
+          'cabal',
+          'cabal.debit',
+          'visa.prepaid',
+          'mastercard.prepaid',
+        ],
       };
     } catch (e) {
       throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR);

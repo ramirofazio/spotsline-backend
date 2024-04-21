@@ -180,11 +180,11 @@ export interface Pagination {
 }
 
 export class OrderProduct {
-  id: number;
+  productId: number;
   qty: number;
 
   constructor({ productId, qty }) {
-    this.id = productId;
+    this.productId = productId;
     this.qty = qty;
   }
 }

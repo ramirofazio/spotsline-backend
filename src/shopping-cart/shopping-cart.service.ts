@@ -1,6 +1,6 @@
 import { HttpStatus, Injectable, HttpException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { ShoppingCart, UpdateCart, Item } from './shoppingCart.dto';
+import { ShoppingCart, Item } from './shoppingCart.dto';
 
 @Injectable()
 export class ShoppingCartService {
@@ -10,51 +10,45 @@ export class ShoppingCartService {
     try {
       const cart = await this.prisma.shoppingCart.findFirst({
         where: {
-          userId,
+          userId: userId,
         },
       });
 
       if (!cart) {
-        return {};
-      } else {
-        const { couponId, discount, id, subtotal, total, userId } = cart;
-        const items = await this.prisma.itemsOnCart.findMany({
+        return null;
+      }
+
+      const rawItems = await this.prisma.itemsOnCart.findMany({
+        where: {
+          shoppingCartId: cart.id,
+        },
+      });
+
+      if (cart.couponId) {
+        const coupon = await this.prisma.coupons.findFirst({
           where: {
-            shoppingCartId: id,
+            id: cart.couponId,
           },
         });
 
-        if (couponId) {
-          const coupon = await this.prisma.coupons.findFirst({
-            where: {
-              id: cart.couponId,
-            },
-          });
-          return {
-            id,
-            discount,
-            subtotal,
-            total,
-            userId,
-            currentCoupon: coupon,
-            items,
-          };
-        } else {
-          return {
-            id,
-            discount,
-            subtotal,
-            total,
-            userId,
-            currentCoupon: false,
-            items,
-          };
-        }
+        return new ShoppingCart({
+          ...cart,
+          userId,
+          coupon: coupon,
+          items: rawItems.map((item) => new Item(item)),
+        });
       }
+
+      return new ShoppingCart({
+        ...cart,
+        userId,
+        coupon: false,
+        items: rawItems.map((item) => new Item(item)),
+      });
     } catch (err) {
       console.log(err);
       throw new HttpException(
-        'Get cart failed ',
+        'Get cart failed',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
@@ -100,7 +94,7 @@ export class ShoppingCartService {
     coupon,
     id,
     discount,
-  }: UpdateCart) {
+  }: ShoppingCart) {
     try {
       await this.prisma.shoppingCart.update({
         where: { id },
@@ -112,7 +106,7 @@ export class ShoppingCartService {
         },
       });
 
-      const prev = await this.prisma.itemsOnCart.findMany({
+      const prevItems = await this.prisma.itemsOnCart.findMany({
         where: { shoppingCartId: id },
         select: {
           id: true,
@@ -124,108 +118,76 @@ export class ShoppingCartService {
         },
       });
 
-      if (!prev?.length) {
-        // * Si no hay items previos los crea
+      if (prevItems.length === 0 && items.length > 0) {
+        //? si hay items y no hay items previos los crea
+        items.map(async (i) => {
+          const cleanItem = new Item(i);
 
-        if (items?.length) {
-          await this.prisma.itemsOnCart.createMany({
-            data: items.map((i: Item) => {
-              return { ...i, shoppingCartId: id };
-            }),
+          return await this.prisma.itemsOnCart.create({
+            data: { ...cleanItem, shoppingCartId: id },
           });
+        });
 
-          return HttpStatus.OK;
-        }
-        return HttpStatus.NOT_MODIFIED;
-      } else if (!items.length) {
-        // * Si el cart esta vacio borra los items previos
-
+        return HttpStatus.OK;
+      } else if (items.length === 0) {
+        //? si no hay items borra los previos
         await this.prisma.itemsOnCart.deleteMany({
           where: { shoppingCartId: id },
         });
+
         return HttpStatus.OK;
       } else {
-        async function updateItems(prisma, newItems, prevItems) {
-          for (let index = 0; index < newItems.length; index++) {
-            const itm = newItems[index];
-            const newId = itm.productId;
+        async function updateItems(prisma: PrismaService, newItems, prevItems) {
+          // Array para almacenar los IDs de los elementos que deben eliminarse
+          const itemsToDelete = [];
 
-            for (
-              let prevIndex = index;
-              prevIndex < prevItems.length;
-              prevIndex++
-            ) {
-              const prevId = prevItems[prevIndex]?.productId;
+          for (const prevItem of prevItems) {
+            // Verificar si el elemento previo está presente en newItems
+            const existsInNewItems = newItems.some(
+              (newItem) => newItem.productId === prevItem.productId,
+            );
 
-              if (newId !== prevId) {
-                // * Si entra hubo modificacion en la cantidad de items
-                if (newId < prevId) {
-                  // * Si el newId < significa que hay item nuevo
-                  await prisma.itemsOnCart.create({
-                    data: { ...itm, shoppingCartId: id },
-                  });
-                  newItems.shift();
-                  index--;
-                  break;
-                } else if (newId > prevId) {
-                  // * Si el newId > significa que ese item ya no se guarda
-                  await prisma.itemsOnCart.delete({
-                    where: {
-                      shoppingCartId: id,
-                      id: prevItems[prevIndex].id,
-                    },
-                  });
-                  prevItems.shift();
-                  index--;
-                  break;
-                }
-              } else if (newId === prevId) {
-                // * Si el item ya estaba en la db lo actualiza
-
-                let item = { ...itm };
-                delete item.id;
+            if (!existsInNewItems) {
+              // El elemento previo no está en newItems, agregar su ID a itemsToDelete
+              itemsToDelete.push(prevItem.id);
+            } else {
+              // El elemento previo está en newItems, actualizar su qty si es necesario
+              const newItem = newItems.find(
+                (item) => item.productId === prevItem.productId,
+              );
+              if (newItem.qty !== prevItem.qty) {
                 await prisma.itemsOnCart.update({
-                  where: {
-                    id: prevItems[prevIndex].id,
-                    shoppingCartId: id,
-                  },
-                  data: item,
+                  where: { id: prevItem.id },
+                  data: { qty: newItem.qty },
                 });
-
-                prevItems.shift();
-                newItems.shift();
-                index--;
-                break;
               }
             }
           }
-          return { newItems, prevItems };
-        }
-        const sortItems = (arr: Item[]) =>
-          arr.sort((a, b) => {
-            return a.productId - b.productId;
-          });
 
-        const remainingItems = await updateItems(
-          this.prisma,
-          sortItems([...items]),
-          sortItems([...prev]),
-        );
-        if (remainingItems.newItems?.length) {
-          await this.prisma.itemsOnCart.createMany({
-            data: remainingItems.newItems.map((i) => {
-              return { ...i, shoppingCartId: id };
-            }),
-          });
-        } else if (remainingItems.prevItems?.length) {
-          const ids = remainingItems.prevItems.map((i) => i.id);
-          await this.prisma.itemsOnCart.deleteMany({
-            where: {
-              id: { in: ids },
-              shoppingCartId: id,
-            },
-          });
+          // Eliminar los elementos que deben ser borrados
+          if (itemsToDelete.length > 0) {
+            await prisma.itemsOnCart.deleteMany({
+              where: { id: { in: itemsToDelete } },
+            });
+          }
+
+          // Crear los elementos nuevos que no estaban en prevItems
+          const newItemsToAdd = newItems.filter(
+            (newItem) =>
+              !prevItems.some(
+                (prevItem) => prevItem.productId === newItem.productId,
+              ),
+          );
+          for (const newItem of newItemsToAdd) {
+            const cleanItem = new Item(newItem);
+            await prisma.itemsOnCart.create({
+              data: { ...cleanItem, shoppingCartId: id },
+            });
+          }
         }
+
+        await updateItems(this.prisma, items, prevItems);
+
         return HttpStatus.CREATED;
       }
     } catch (err) {

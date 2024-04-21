@@ -1,4 +1,4 @@
-import { Decimal } from '@prisma/client/runtime/library';
+import { IsArray, IsNotEmpty, IsNumber } from 'class-validator';
 import { Coupon } from 'src/cupons/coupons.dto';
 
 export class Item {
@@ -6,33 +6,53 @@ export class Item {
   qty: number;
   name: string;
   img: string;
-  price: Decimal; //Dejar decimal cuanod no se use mockup
+  price: number;
 
   constructor({ productId, qty, name, img, price }) {
     this.productId = productId;
     this.qty = qty;
     this.name = name;
     this.img = img;
-    this.price = price;
+    this.price = Number(price);
   }
 }
 
-export interface ShoppingCart {
+export class ShoppingCart {
+  @IsNotEmpty()
+  @IsNumber()
+  id: number;
+
+  @IsNotEmpty()
+  @IsNumber()
   userId: number;
 
+  @IsNotEmpty()
+  @IsNumber()
   discount: number;
 
-  total: number | Decimal;
+  @IsNotEmpty()
+  @IsNumber()
+  total: number;
 
-  subtotal: number | Decimal;
+  @IsNotEmpty()
+  @IsNumber()
+  subtotal: number;
 
-  items: Item[];
+  @IsNotEmpty()
+  @IsArray()
+  items: Item[] | [];
 
-  coupon: Coupon | false;
-}
+  coupon?: Coupon | false;
 
-export interface UpdateCart extends ShoppingCart {
-  id: number;
+  constructor({ id, userId, discount, total, subtotal, items, coupon }) {
+    this.id = id;
+    this.userId = userId;
+    this.discount = discount;
+    this.total = Number(total);
+    this.subtotal = Number(subtotal);
+    this.items = items.map((item) => new Item(item));
+    this.coupon = coupon;
+  }
 }
 
 export interface PrevItems extends Item {

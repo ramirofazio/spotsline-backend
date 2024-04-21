@@ -70,9 +70,11 @@ export class OrdersService {
       //? Recorro los items de la orden realizada
       items.map(async (item, index) => {
         //? Consigo datos necesarios para el detalle del pedido
-        const variant: RawVariantProduct = await this.getItemData(item.id);
+        const variant: RawVariantProduct = await this.getItemData(
+          item.productId,
+        );
         const priceProperty = `precio${lista}`;
-        const ivaPorc = await this.getIva(item.id);
+        const ivaPorc = await this.getIva(item.productId);
 
         //? Creo el detalle de la orden en la tabla `pedidoDet`
         await this.prisma.pedidoDet.create({

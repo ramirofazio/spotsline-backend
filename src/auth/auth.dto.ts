@@ -56,7 +56,7 @@ export class PasswordResetRequestDTO {
 export class SignInResponseDTO {
   access_token: string;
   user: UserResponse;
-  shoppingCart?: ShoppingCart | object
+  shoppingCart: ShoppingCart | null;
 }
 
 export class JwtAutoSignInDTO {

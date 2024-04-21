@@ -52,7 +52,6 @@ export class MobbexController {
 
       const payOrder: any = await mobbex.paymentOrder.create(payOrderBody);
       if ('data' in payOrder) {
-        //console.log('----->', payOrder);
         return payOrder.data.url;
       }
       if ('error' in payOrder) {

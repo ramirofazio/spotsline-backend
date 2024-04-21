@@ -13,6 +13,7 @@ import { UsersService } from 'src/users/users.service';
 import { ShoppingCartService } from 'src/shopping-cart/shopping-cart.service';
 import { SellerUser, User, UserResponse } from 'src/users/users.dto';
 import { env } from 'process';
+import { ShoppingCart } from 'src/shopping-cart/shoppingCart.dto';
 
 @Injectable()
 export class AuthService {
@@ -33,7 +34,8 @@ export class AuthService {
       if (verify) {
         const user: User | SellerUser = await this.users.findUserByEmail(email);
 
-        const shoppingCart = await this.shoppingCart.getCart(user.id);
+        const shoppingCart: ShoppingCart | null =
+          await this.shoppingCart.getCart(user.id);
 
         return {
           access_token: jwt,

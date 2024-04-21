@@ -357,11 +357,11 @@ export class UsersService {
         });
 
         if (newOrder) {
-          items.map(async ({ qty, id }) => {
+          items.map(async ({ qty, productId }) => {
             await this.prisma.order_products.create({
               data: {
                 orderId: newOrder.id,
-                productId: id,
+                productId: productId,
                 qty: qty,
               },
             });
