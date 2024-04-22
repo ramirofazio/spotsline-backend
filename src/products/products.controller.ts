@@ -39,6 +39,17 @@ export class ProductsController {
   }
 
   @Public()
+  @Get('filter')
+  async getFilterProducts(
+    @Query('search') search: string,
+    @Query('order') order: string,
+  ): Promise<Pagination> {
+    return await this.productsService.getFilteredProducts({
+      order,
+    });
+  }
+
+  @Public()
   @Get('featured')
   async getFeaturedProducts(
     @Query('take') take: number,

@@ -13,6 +13,8 @@ import {
 } from './products.dto';
 import { MobbexItem, RequestItemDTO } from 'src/mobbex/mobbex.dto';
 import { formatPage, formatTake } from 'src/utils/pagination';
+import { Decimal } from '@prisma/client/runtime/library';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class ProductsService {
@@ -107,9 +109,9 @@ export class ProductsService {
     page,
     take,
     search,
-    order,
   }: GetProducts): Promise<Pagination> {
     try {
+      console.log('entro');
       take = formatTake(take);
       page = formatPage(page);
       const skip = take * page - take;
@@ -134,15 +136,6 @@ export class ProductsService {
         },
       });
 
-      let orderQuery = {};
-      if (order) {
-        orderQuery = {
-          orderBy: {
-            precio1: order,
-          },
-        };
-      }
-
       const rows: ProductProps[] = await Promise.all(
         products.map(async (marca: any) => {
           const product = await this.prisma.stock.findFirst({
@@ -163,10 +156,6 @@ export class ProductsService {
               pathfoto2: true,
               precio1: true,
             },
-            // ...orderQuery,
-            orderBy: {
-              precio1: 'asc',
-            },
           });
 
           if (!product) return null;
@@ -181,7 +170,6 @@ export class ProductsService {
           };
         }),
       );
-      console.log(rows);
       const count = await this.prisma.marcas.count({ where });
 
       if (!products.length) {
@@ -200,6 +188,90 @@ export class ProductsService {
           next_page: Math.ceil(count / take) - page <= 0 ? null : page + 1,
         },
         rows: rows.filter((row) => row !== null),
+      };
+    } catch (e) {
+      throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  async getFilteredProducts({ order }): Promise<any> {
+    try {
+      const take = 28;
+      let orderQuery = {};
+      if (order) {
+        orderQuery = {
+          orderBy: {
+            marca: order,
+          },
+        };
+      }
+      let search = '';
+      const where = {
+        NOT: {
+          codigo: 9999,
+        },
+        descripcion: {
+          contains: search === 'null' ? '' : search,
+        },
+      };
+
+      const products = await this.prisma.marcas.findMany({
+        where,
+        select: {
+          codigo: true,
+        },
+      });
+      const marcas = products.map((p) => p.codigo);
+
+      const stock = await this.prisma.stock.findMany({
+        where: {
+          incluido: true,
+          precio1: {
+            not: 0,
+            gte: 0.01,
+          },
+          precio2: {
+            not: 0,
+            gte: 0.01,
+          },
+          precio3: {
+            not: 0,
+            gte: 0.01,
+          },
+          precio4: {
+            not: 0,
+            gte: 0.01,
+          },
+          precio5: {
+            not: 0,
+            gte: 0.01,
+          },
+          marca: {
+            not: 9999,
+            in: marcas,
+          },
+        },
+        select: {
+          id: true,
+          pathfoto2: true,
+          precio1: true,
+          marca: true,
+        },
+        ...orderQuery,
+      });
+      console.log(stock.length);
+      const count = stock.length;
+      const page = 1;
+      return {
+        metadata: {
+          total_pages: Math.ceil(stock.length / take),
+          total_items: stock.length,
+          items_per_page: take,
+          current_page: page,
+          // search_term: search,
+          next_page: Math.ceil(count / take) - page <= 0 ? null : page + 1,
+        },
+        rows: stock,
       };
     } catch (e) {
       throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR);
