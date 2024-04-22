@@ -75,7 +75,7 @@ export class ClientsService {
         select: this.selectOpt,
       });
 
-      if (rawClient.web_role === null) {
+      if (rawClient?.web_role === null) {
         await this.prisma.cliente.update({
           where: { nrocli: rawClient.nrocli },
           data: { web_role: Number(env.USER_ROLE) },
