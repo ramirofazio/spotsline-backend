@@ -201,7 +201,7 @@ export class ProductsService {
       if (order) {
         orderQuery = {
           orderBy: {
-            marca: order,
+            precio1: order,
           },
         };
       }
@@ -224,6 +224,7 @@ export class ProductsService {
       const marcas = products.map((p) => p.codigo);
 
       const stock = await this.prisma.stock.findMany({
+        // ? UNa marca por stock?
         where: {
           incluido: true,
           precio1: {
