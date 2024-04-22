@@ -38,7 +38,7 @@ export class CheckoutRequestDTO {
 export class RequestItemDTO {
   @IsNotEmpty()
   @IsNumber()
-  id: number;
+  productId: number;
 
   @IsNotEmpty()
   @IsNumber()

@@ -41,10 +41,10 @@ export class ProductsService {
   async getOrderProductsData(items: RequestItemDTO[], userPriceList: number) {
     try {
       const cleanItemsAmount = await Promise.all(
-        items.map(async ({ qty, id }) => {
+        items.map(async ({ qty, productId }) => {
           const item: RawVariantProduct =
             await this.prisma.stock.findFirstOrThrow({
-              where: { id: id },
+              where: { id: productId },
               select: this.productsSelectOpt,
             });
           if (item) {
@@ -73,12 +73,13 @@ export class ProductsService {
   ): Promise<MobbexItem[]> {
     try {
       const cleanItems = Promise.all(
-        items.map(async ({ qty, id }) => {
+        items.map(async ({ qty, productId }) => {
           const item: RawVariantProduct =
             await this.prisma.stock.findFirstOrThrow({
-              where: { id: id },
+              where: { id: productId },
               select: this.productsSelectOpt,
             });
+
           if (item) {
             //? Accede dinamicamente a los precios de los productos dependiendo de la lista que tenga enlazada el Cliente
             const priceProperty = `precio${userPriceList}`;

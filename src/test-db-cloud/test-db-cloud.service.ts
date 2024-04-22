@@ -76,7 +76,7 @@ export class TestDbCloudService implements OnModuleInit {
       });
 
       console.log('#### TEST USERS CREATED ####');
-      console.log(newTestUsers); // Log the newly created test users
+      console.log(newTestUsers);
     } catch (error) {
       console.error('Error during testDb:', error);
       throw new HttpException(

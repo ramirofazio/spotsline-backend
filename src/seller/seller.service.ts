@@ -92,7 +92,6 @@ export class SellerService {
     newPassword,
   }: PasswordResetRequestDTO): Promise<Seller> {
     const seller: Seller = await this.findByEmail(email);
-    console.log('entro a seller');
     if (!seller) {
       return null;
     }
