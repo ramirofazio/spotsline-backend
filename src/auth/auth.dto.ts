@@ -5,9 +5,11 @@ import {
   ValidatorConstraintInterface,
   ValidatorConstraint,
   Validate,
+  IsOptional,
 } from 'class-validator';
 import { UserResponse } from 'src/users/users.dto';
 import { ShoppingCart } from 'src/shopping-cart/shoppingCart.dto';
+import { ManagedClientResponse } from 'src/clients/clients.dto';
 
 @ValidatorConstraint({ name: 'isEqual', async: false })
 class IsEqualConstraint implements ValidatorConstraintInterface {
@@ -67,4 +69,7 @@ export class JwtAutoSignInDTO {
   @IsNotEmpty()
   @IsString()
   jwt: string;
+
+  @IsOptional()
+  managedClient: ManagedClientResponse | false;
 }

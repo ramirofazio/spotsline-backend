@@ -27,6 +27,7 @@ export class AuthService {
   async jwtAutoSignIn({
     jwt,
     email,
+    managedClient,
   }: JwtAutoSignInDTO): Promise<SignInResponseDTO> {
     try {
       const verify = await this.jwt.verifyAsync(jwt);
@@ -34,16 +35,31 @@ export class AuthService {
       if (verify) {
         const user: User | SellerUser = await this.users.findUserByEmail(email);
 
+        if (!managedClient) {
+          //? Si no existe cargo el user normal con su carrito
+          const shoppingCart: ShoppingCart | null =
+            await this.shoppingCart.getCart(user.id);
 
-        const shoppingCart: ShoppingCart | null =
-          await this.shoppingCart.getCart(user.id);
+          return {
+            access_token: jwt,
+            user: new UserResponse(user),
+            shoppingCart,
+          };
+        } else {
+          const { id }: User | SellerUser = await this.users.findUserByEmail(
+            managedClient.email,
+          );
 
+          //TODO VER ESTE NULL. El carrito se crea si o si cuando inician sesion si no existe, o cuando el vendedor los selecciona para gestionar
+          const shoppingCart: ShoppingCart | null =
+            await this.shoppingCart.getCart(id);
 
-        return {
-          access_token: jwt,
-          user: new UserResponse(user),
-          shoppingCart,
-        };
+          return {
+            access_token: jwt,
+            user: new UserResponse(user),
+            shoppingCart,
+          };
+        }
       }
     } catch (e) {
       throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR);
