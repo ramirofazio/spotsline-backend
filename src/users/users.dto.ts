@@ -62,12 +62,14 @@ export class UserResponse {
   email: string;
   firstSignIn: boolean;
   web_role: number;
+  priceList?: number;
 
-  constructor({ id, email, firstSignIn, web_role }) {
+  constructor({ id, email, firstSignIn, web_role, priceList = 0 }) {
     this.id = id;
     this.email = email;
     this.firstSignIn = firstSignIn;
     this.web_role = web_role;
+    this.priceList = priceList;
   }
 }
 
