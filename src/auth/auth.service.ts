@@ -34,8 +34,10 @@ export class AuthService {
       if (verify) {
         const user: User | SellerUser = await this.users.findUserByEmail(email);
 
+
         const shoppingCart: ShoppingCart | null =
           await this.shoppingCart.getCart(user.id);
+
 
         return {
           access_token: jwt,

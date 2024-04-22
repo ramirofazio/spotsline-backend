@@ -1,4 +1,12 @@
-import { Controller } from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
+import { OrdersService } from './orders.service';
 
 @Controller('orders')
-export class OrdersController {}
+export class OrdersController {
+  constructor(private ordersService: OrdersService) {}
+
+  @Get()
+  async getOrders() {
+    return await this.ordersService.getOrders();
+  }
+}
