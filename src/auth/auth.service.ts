@@ -33,6 +33,7 @@ export class AuthService {
       if (verify) {
         const user: User | SellerUser = await this.users.findUserByEmail(email);
 
+
         const shoppingCart = await this.shoppingCart.getCart(user.id);
 
         return {
