@@ -16,12 +16,16 @@ import * as bcrypt from 'bcrypt';
 import { formatPage } from 'src/utils/pagination';
 import { JwtService } from '@nestjs/jwt';
 import { Decimal } from '@prisma/client/runtime/library';
+import { ShoppingCartService } from 'src/shopping-cart/shopping-cart.service';
+import { ShoppingCart } from 'src/shopping-cart/shoppingCart.dto';
+import { env } from 'process';
 
 @Injectable()
 export class ClientsService {
   constructor(
     private prisma: PrismaService,
     private jwt: JwtService,
+    private shoppingCart: ShoppingCartService,
   ) {}
 
   selectOpt = {
@@ -50,7 +54,7 @@ export class ClientsService {
   async findById(id: number): Promise<Client | null> {
     try {
       const rawClient: RawClient = await this.prisma.cliente.findUnique({
-        where: { nrocli: id },
+        where: { nrocli: id, NOT: { email: '' } },
         select: this.selectOpt,
       });
 
@@ -67,9 +71,16 @@ export class ClientsService {
   async findByEmail(email: string): Promise<Client | null> {
     try {
       const rawClient: RawClient = await this.prisma.cliente.findFirst({
-        where: { email: email },
+        where: { email: email, NOT: { email: '' } },
         select: this.selectOpt,
       });
+
+      if (rawClient.web_role === null) {
+        await this.prisma.cliente.update({
+          where: { nrocli: rawClient.nrocli },
+          data: { web_role: Number(env.USER_ROLE) },
+        });
+      }
 
       if (!rawClient) {
         return null;
@@ -185,7 +196,9 @@ export class ClientsService {
       where: { id: verify.sub },
     });
 
-    const sellerClients: Client[] = await this.getSellerClients(vende.codven);
+    const sellerClients: ManagedClientResponse[] = await this.getSellerClients(
+      vende.codven,
+    );
 
     return sellerClients.map((mc) => new ManagedClientResponse(mc));
   }
@@ -196,7 +209,25 @@ export class ClientsService {
         where: { codven: codven, NOT: { id: 0 } },
       });
 
-      return clients.map((c) => new Client(c));
+      //? Agarra los clientes a gestionar y si no tiene shopping cart manda prop en false para que se dispare el pedido desde el front
+      const res = Promise.all(
+        clients.map(async (c) => {
+          const cleanClient = new Client(c);
+
+          const shoppingCart: ShoppingCart | null =
+            await this.shoppingCart.getCart(cleanClient.id);
+
+          return new ManagedClientResponse({
+            avatar: cleanClient.avatar,
+            email: cleanClient.email,
+            fantasyName: cleanClient.fantasyName,
+            id: cleanClient.id,
+            shoppingCart: Boolean(shoppingCart),
+          });
+        }),
+      );
+
+      return res;
     } catch (e) {
       throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
