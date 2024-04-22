@@ -23,6 +23,8 @@ export interface ProductProps {
   description: string;
   featured: boolean;
   variants?: ProductVariantProps[];
+  precio?: any;
+  category?: number;
 }
 
 export class Product implements ProductProps {
@@ -210,5 +212,6 @@ export interface GetProducts {
   page: number;
   take: number;
   search: string;
-  order: string;
+  order?: string;
+  category?: number;
 }

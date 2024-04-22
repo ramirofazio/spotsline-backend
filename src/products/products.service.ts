@@ -109,9 +109,10 @@ export class ProductsService {
     page,
     take,
     search,
-  }: GetProducts): Promise<Pagination> {
+    order,
+    category,
+  }: GetProducts): Promise<any> {
     try {
-      console.log('entro');
       take = formatTake(take);
       page = formatPage(page);
       const skip = take * page - take;
@@ -136,7 +137,15 @@ export class ProductsService {
         },
       });
 
-      const rows: ProductProps[] = await Promise.all(
+      console.log(products.map((p) => p.codigo));
+      if (!products.length) {
+        throw new HttpException(
+          'productos no encontrados',
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      let rows: ProductProps[] = await Promise.all(
         products.map(async (marca: any) => {
           const product = await this.prisma.stock.findFirst({
             where: {
@@ -155,6 +164,7 @@ export class ProductsService {
               id: true,
               pathfoto2: true,
               precio1: true,
+              rubro: true,
             },
           });
 
@@ -167,17 +177,26 @@ export class ProductsService {
             pathImage: product?.pathfoto2,
             precio: product.precio1,
             id: product.id,
+            category: product.rubro,
           };
         }),
       );
+      console.log(Boolean(category));
+      if (category) {
+        rows = rows.filter(
+          (product) => product !== null && product.category === category,
+        );
+      } else {
+        rows = rows.filter((product) => product !== null);
+      }
+
+      if (order === 'asc') {
+        rows.sort((a, b) => a.precio - b.precio);
+      } else if (order === 'desc') {
+        rows.sort((a, b) => b.precio - a.precio);
+      }
       const count = await this.prisma.marcas.count({ where });
 
-      if (!products.length) {
-        throw new HttpException(
-          'productos no encontrados',
-          HttpStatus.NOT_FOUND,
-        );
-      }
       return {
         metadata: {
           total_pages: Math.ceil(count / take),
@@ -187,7 +206,7 @@ export class ProductsService {
           search_term: search,
           next_page: Math.ceil(count / take) - page <= 0 ? null : page + 1,
         },
-        rows: rows.filter((row) => row !== null),
+        rows,
       };
     } catch (e) {
       throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR);
