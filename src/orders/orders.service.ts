@@ -115,14 +115,14 @@ export class OrdersService {
             total: variant[priceProperty] * item.qty,
             marca: variant.marca,
             rubro: variant.rubro,
-            nropro: 0, //TODO VER ESTO
+            nropro: 0,
             parafecha: pedidoCab.parafecha,
-            detalle: 'VER ESTO', //TODO VER ESTO
+            detalle: 'VER ESTO', //TODO VER ESTO. ACA VA DESCRO QIE HAC EEL CLIENTE
             moneda: 'PES',
             ivaporc1: ivaPorc,
             impiva1: ((variant[priceProperty] * Number(ivaPorc)) / 100).toFixed(
               2,
-            ), //TODO CHEQUEAR
+            ),
           },
         });
       });

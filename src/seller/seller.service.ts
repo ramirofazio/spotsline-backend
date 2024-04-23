@@ -5,7 +5,12 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { RawSeller, Seller, SellerProfileResponse, AddEmailBodyDTO } from './sellers.dto';
+import {
+  RawSeller,
+  Seller,
+  SellerProfileResponse,
+  AddEmailBodyDTO,
+} from './sellers.dto';
 import { PasswordResetRequestDTO } from 'src/auth/auth.dto';
 import * as bcrypt from 'bcrypt';
 
