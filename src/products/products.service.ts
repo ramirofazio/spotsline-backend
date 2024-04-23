@@ -190,8 +190,9 @@ export class ProductsService {
     }
   }
 
-  async getFeaturedProdutcs(take: number) {
+  async getFeaturedProdutcs(take: number = 5) {
     const marcas: any[] = await this.prisma.marcas.findMany({
+      take,
       where: {
         featured: true,
       },
@@ -206,28 +207,27 @@ export class ProductsService {
           const firstProduct = await this.prisma.stock.findFirst({
             where: {
               marca: m.codigo,
+              incluido: true,
+              pathfoto2: {
+                contains: 'spotsline-bucket',
+              },
             },
           });
 
-          if (!firstProduct)
-            throw new HttpException(
-              'No ha y stock asociado a la marca',
-              HttpStatus.NOT_FOUND,
-            );
-
-          const raw = {
-            ...m,
-            pathfoto: firstProduct.pathfoto2,
-          };
-
-          return raw;
+          if (firstProduct) {
+            return {
+              ...m,
+              pathfoto: firstProduct.pathfoto2,
+            };
+          }
+          return null;
         } catch (err) {
           console.log('La marca no tiene un producto asosciado', err);
         }
       }),
     );
 
-    return featureProducts;
+    return featureProducts.filter((product) => product !== null);
   }
 
   async editFeatured(body: UpdateFeatured): Promise<string> {
@@ -253,6 +253,26 @@ export class ProductsService {
       const marca = await this.prisma.marcas.findFirst({
         where: { codigo: id },
       });
+
+      const hasPhoto = await this.prisma.stock.findFirst({
+        where: {
+          incluido: true,
+          marca: marca.id,
+          pathfoto2: {
+            contains: 'spotsline-bucket',
+          },
+        },
+        select: {
+          codpro: true,
+          pathfoto2: true,
+        },
+      });
+      if (!hasPhoto) {
+        throw new HttpException(
+          'Agreugue una foto a alguna variante activa de este porducto',
+          HttpStatus.CONFLICT,
+        );
+      }
 
       const updated = await this.prisma.marcas.update({
         where: {
@@ -496,7 +516,7 @@ export class ProductsService {
 
       return HttpStatus.OK;
     } catch (e) {
-      console;
+      console.log(e);
     }
   }
 }
