@@ -90,8 +90,7 @@ export class ProductsService {
               description: item.descri.trim(),
               quantity: Number(qty),
               total: Number(totalItemsAmount),
-              //! ACTUALIZAR
-              image: 'imagen',
+              image: item.pathfoto2,
             };
           }
         }),

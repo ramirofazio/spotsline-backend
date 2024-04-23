@@ -1,4 +1,4 @@
-const MAX_TAKE_PER_QUERY = 50;
+const MAX_TAKE_PER_QUERY = 30;
 
 export const formatTake = (value: number): number => {
   let x = Number(value);
