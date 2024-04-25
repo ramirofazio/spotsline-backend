@@ -199,7 +199,8 @@ export class ProductsService {
         },
       });
 
-      const count = products.length;
+      // const count = products.length;
+      // const count = await this.prisma.marcas.count({ where });
 
       return {
         metadata: {
