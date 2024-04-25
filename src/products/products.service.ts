@@ -106,29 +106,85 @@ export class ProductsService {
     page,
     take,
     search,
+    order,
   }: {
     page: number;
     take: number;
     search: string;
-  }): Promise<Pagination> {
+    order: string;
+  }): Promise<Pagination | any> {
     try {
       take = formatTake(take);
       page = formatPage(page);
       const skip = take * page - take;
 
+      const filtros = { order: 'asc', category: 1 };
+
       const where = {
+        incluido: true,
         NOT: {
-          codigo: 9999,
-        },
-        descripcion: {
-          contains: search === 'null' ? '' : search,
+          precio1: 0,
+          precio2: 0,
+          precio3: 0,
+          precio4: 0,
+          precio5: 0,
+          precio6: 0,
         },
       };
+
+      if (filtros.category) {
+        where['rubro'] = filtros.category;
+      }
+      const stock = await this.prisma.stock.findMany({
+        where: where,
+        select: {
+          marca: true,
+          pathfoto2: true,
+          rubro: true,
+          precio1: true,
+        },
+        // ,
+        // orderBy: {
+        //   precio1: filtros.order === 'asc' ? 'asc' : 'desc',
+        // },
+      });
+
+      //TODO VER QUE ESTO LOS DESORDENA A LOS PRECIOS
+      let isAlready = {};
+      const uniqueStock = [];
+
+      stock.map((s) => {
+        if (!isAlready[Number(s.marca)]) {
+          isAlready[Number(s.marca)] = true;
+          return uniqueStock.push(s);
+        }
+        return;
+      });
+      console.log(uniqueStock);
+      let fake = [...uniqueStock];
+      fake.sort((s1, s2) => {
+        if (order == 'asc') {
+          return s1 - s2;
+        } else if (order === 'desc') {
+          return s1 + s2;
+        }
+      });
+      console.log('FAKE', fake);
+
+      const mappedMarcas = Object.keys(isAlready);
 
       const products: RawProduct[] | any[] = await this.prisma.marcas.findMany({
         take,
         skip,
-        where,
+        where: {
+          codigo: { in: mappedMarcas },
+          NOT: {
+            codigo: 9999,
+          },
+          descripcion: {
+            contains: search === 'null' ? '' : search,
+          },
+        },
         select: {
           codigo: true,
           descripcion: true,
@@ -136,55 +192,86 @@ export class ProductsService {
         },
       });
 
-      const rows: ProductProps[] = await Promise.all(
-        products.map(async (marca: any) => {
-          const product = await this.prisma.stock.findFirst({
-            where: {
-              marca: marca.codigo,
-              incluido: true,
-              NOT: {
-                precio1: 0,
-                precio2: 0,
-                precio3: 0,
-                precio4: 0,
-                precio5: 0,
-                precio6: 0,
-              },
-            },
-            select: {
-              pathfoto2: true,
-            },
-          });
+      console.log(products.length);
+      return products;
 
-          if (!product) return null;
+      //   const res = marcas.map((marca) => {
+      //     console.log(marca.codigo);
 
-          return {
-            codigo: marca.codigo,
-            description: marca.descripcion,
-            featured: marca.featured,
-            pathImage: product?.pathfoto2,
-          };
-        }),
-      );
-      const count = await this.prisma.marcas.count({ where });
+      //     const marcaItems = stock.filter(
+      //       (stockItem) => stockItem.marca === marca.codigo,
+      //     );
 
-      if (!products.length) {
-        throw new HttpException(
-          'productos no encontrados',
-          HttpStatus.NOT_FOUND,
-        );
-      }
-      return {
-        metadata: {
-          total_pages: Math.ceil(count / take),
-          total_items: count,
-          items_per_page: take,
-          current_page: page,
-          search_term: search,
-          next_page: Math.ceil(count / take) - page <= 0 ? null : page + 1,
-        },
-        rows: rows.filter((row) => row !== null),
-      };
+      //     console.log(marcaItems);
+
+      //     return {
+      //       ...marca,
+      //       items: marcaItems,
+      //     };
+      //   });
+
+      //   return res;
+
+      //   const products: RawProduct[] | any[] = await this.prisma.marcas.findMany({
+      //     take,
+      //     skip,
+      //     where,
+      //     select: {
+      //       codigo: true,
+      //       descripcion: true,
+      //       featured: true,
+      //     },
+      //   });
+
+      //   const rows: ProductProps[] = await Promise.all(
+      //     products.map(async (marca: any) => {
+      //       const product = await this.prisma.stock.findFirst({
+      //         where: {
+      //           marca: marca.codigo,
+      //           incluido: true,
+      //           NOT: {
+      //             precio1: 0,
+      //             precio2: 0,
+      //             precio3: 0,
+      //             precio4: 0,
+      //             precio5: 0,
+      //             precio6: 0,
+      //           },
+      //         },
+      //         select: {
+      //           pathfoto2: true,
+      //         },
+      //       });
+
+      //       if (!product) return null;
+
+      //       return {
+      //         codigo: marca.codigo,
+      //         description: marca.descripcion,
+      //         featured: marca.featured,
+      //         pathImage: product?.pathfoto2,
+      //       };
+      //     }),
+      //   );
+      //   const count = await this.prisma.marcas.count({ where });
+
+      //   if (!products.length) {
+      //     throw new HttpException(
+      //       'productos no encontrados',
+      //       HttpStatus.NOT_FOUND,
+      //     );
+      //   }
+      //   return {
+      //     metadata: {
+      //       total_pages: Math.ceil(count / take),
+      //       total_items: count,
+      //       items_per_page: take,
+      //       current_page: page,
+      //       search_term: search,
+      //       next_page: Math.ceil(count / take) - page <= 0 ? null : page + 1,
+      //     },
+      //     rows: rows.filter((row) => row !== null),
+      //   };
     } catch (e) {
       throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
