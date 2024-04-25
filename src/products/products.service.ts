@@ -199,7 +199,19 @@ export class ProductsService {
         },
       });
 
-      return products;
+      const count = products.length;
+
+      return {
+        metadata: {
+          total_pages: Math.ceil(count / take),
+          total_items: count,
+          items_per_page: take,
+          current_page: page,
+          search_term: search,
+          next_page: Math.ceil(count / take) - page <= 0 ? null : page + 1,
+        },
+        rows: products,
+      };
 
       //   const res = marcas.map((marca) => {
       //     console.log(marca.codigo);
