@@ -137,6 +137,7 @@ export class ProductsService {
       if (category) {
         where['rubro'] = category;
       }
+
       const stock = await this.prisma.stock.findMany({
         where: where,
         select: {
@@ -148,6 +149,7 @@ export class ProductsService {
       });
 
       //TODO VER QUE ESTO LOS DESORDENA A LOS PRECIOS
+      // * Se deja 1 stock por Marca
       let isAlready = {};
       const uniqueStock = [];
 
@@ -193,8 +195,6 @@ export class ProductsService {
           featured: true,
         },
       });
-
-      console.log(products.length);
 
       return products;
 
