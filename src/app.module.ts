@@ -15,6 +15,7 @@ import { MobbexModule } from './mobbex/mobbex.module';
 import { ConfigModule } from '@nestjs/config';
 import { AwsModule } from './aws/aws.module';
 import { CouponsModule } from './cupons/coupons.module';
+import { CurrentAccountModule } from './current-account/current-account.module';
 @Module({
   imports: [
     PrismaModule,
@@ -30,6 +31,7 @@ import { CouponsModule } from './cupons/coupons.module';
     AwsModule,
     CouponsModule,
     ConfigModule.forRoot({ isGlobal: true }),
+    CurrentAccountModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],
