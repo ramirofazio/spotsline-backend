@@ -147,7 +147,9 @@ export class ProductsService {
           precio1: true,
         },
       });
+      console.log(stock.length);
 
+      console.log();
       //TODO VER QUE ESTO LOS DESORDENA A LOS PRECIOS
       // * Se deja 1 stock por Marca
       let isAlready = {};
@@ -176,6 +178,7 @@ export class ProductsService {
       }
 
       const mappedMarcas = Object.keys(isAlready);
+      console.log(mappedMarcas.length);
 
       const products: RawProduct[] | any[] = await this.prisma.marcas.findMany({
         take,
