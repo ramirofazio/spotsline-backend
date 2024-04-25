@@ -29,12 +29,14 @@ export class ProductsController {
     @Query('take') take: number,
     @Query('search') search: string,
     @Query('order') order: string,
+    @Query('category') category: string,
   ): Promise<Pagination> {
     return await this.productsService.getAllProducts({
       page,
       take,
       search,
       order,
+      category,
     });
   }
 

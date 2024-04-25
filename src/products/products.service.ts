@@ -107,18 +107,20 @@ export class ProductsService {
     take,
     search,
     order,
+    category,
   }: {
     page: number;
     take: number;
     search: string;
     order: string;
+    category: string;
   }): Promise<Pagination | any> {
     try {
       take = formatTake(take);
       page = formatPage(page);
       const skip = take * page - take;
 
-      const filtros = { order: 'asc', category: 1 };
+      // const filtros = { order: 'asc', category: 1 };
 
       const where = {
         incluido: true,
@@ -132,8 +134,8 @@ export class ProductsService {
         },
       };
 
-      if (filtros.category) {
-        where['rubro'] = filtros.category;
+      if (category) {
+        where['rubro'] = category;
       }
       const stock = await this.prisma.stock.findMany({
         where: where,
@@ -143,10 +145,6 @@ export class ProductsService {
           rubro: true,
           precio1: true,
         },
-        // ,
-        // orderBy: {
-        //   precio1: filtros.order === 'asc' ? 'asc' : 'desc',
-        // },
       });
 
       //TODO VER QUE ESTO LOS DESORDENA A LOS PRECIOS
@@ -160,16 +158,20 @@ export class ProductsService {
         }
         return;
       });
-      console.log(uniqueStock);
-      let fake = [...uniqueStock];
-      fake.sort((s1, s2) => {
-        if (order == 'asc') {
-          return s1 - s2;
-        } else if (order === 'desc') {
-          return s1 + s2;
-        }
-      });
-      console.log('FAKE', fake);
+      // * Se hace el ordenamiento aca y no en prisma
+      if (order) {
+        uniqueStock.sort((stock1, stock2) => {
+          const price1 = parseFloat(stock1.precio1);
+          const price2 = parseFloat(stock2.precio1);
+          console.log(price1, price2);
+          if (order === 'asc') {
+            return price1 - price2;
+          } else if (order === 'desc') {
+            return price2 - price1;
+          }
+          return 0;
+        });
+      }
 
       const mappedMarcas = Object.keys(isAlready);
 
@@ -193,6 +195,7 @@ export class ProductsService {
       });
 
       console.log(products.length);
+
       return products;
 
       //   const res = marcas.map((marca) => {
