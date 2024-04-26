@@ -28,8 +28,16 @@ export class ProductsController {
     @Query('page') page: number,
     @Query('take') take: number,
     @Query('search') search: string,
+    @Query('order') order: string,
+    @Query('category') category: string,
   ): Promise<Pagination> {
-    return await this.productsService.getAllProducts({ page, take, search });
+    return await this.productsService.getAllProducts({
+      page,
+      take,
+      search,
+      order,
+      category,
+    });
   }
 
   @Public()
@@ -76,7 +84,7 @@ export class ProductsController {
 
   @Public()
   @Get('categories')
-  async getCategories(): Promise<String[]> {
+  async getCategories(): Promise<{ name: string; value: number }[]> {
     return await this.productsService.getCategories();
   }
 }
