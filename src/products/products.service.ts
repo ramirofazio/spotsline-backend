@@ -12,6 +12,7 @@ import {
 } from './products.dto';
 import { MobbexItem, RequestItemDTO } from 'src/mobbex/mobbex.dto';
 import { formatPage, formatTake } from 'src/utils/pagination';
+import { count } from 'console';
 
 @Injectable()
 export class ProductsService {
@@ -120,10 +121,12 @@ export class ProductsService {
       page = formatPage(page);
       const skip = take * page - take;
 
-      // const filtros = { order: 'asc', category: 1 };
-
       const where = {
         incluido: true,
+        precio1: {
+          gt: 0,
+          not: 0,
+        },
         NOT: {
           precio1: 0,
           precio2: 0,
@@ -147,10 +150,7 @@ export class ProductsService {
           precio1: true,
         },
       });
-      console.log(stock.length);
 
-      console.log();
-      //TODO VER QUE ESTO LOS DESORDENA A LOS PRECIOS
       // * Se deja 1 stock por Marca
       let isAlready = {};
       const uniqueStock = [];
@@ -178,7 +178,7 @@ export class ProductsService {
       }
 
       const mappedMarcas = Object.keys(isAlready);
-      console.log(mappedMarcas.length);
+      console.log(uniqueStock);
 
       const products: RawProduct[] | any[] = await this.prisma.marcas.findMany({
         take,
@@ -199,7 +199,7 @@ export class ProductsService {
         },
       });
 
-      // const count = products.length;
+      const count = uniqueStock.length;
       // const count = await this.prisma.marcas.count({ where });
 
       return {
