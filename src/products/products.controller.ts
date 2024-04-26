@@ -84,7 +84,7 @@ export class ProductsController {
 
   @Public()
   @Get('categories')
-  async getCategories(): Promise<String[]> {
+  async getCategories(): Promise<{ name: string; value: number }[]> {
     return await this.productsService.getCategories();
   }
 }

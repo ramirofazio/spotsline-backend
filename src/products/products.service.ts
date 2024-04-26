@@ -12,7 +12,6 @@ import {
 } from './products.dto';
 import { MobbexItem, RequestItemDTO } from 'src/mobbex/mobbex.dto';
 import { formatPage, formatTake } from 'src/utils/pagination';
-import { count } from 'console';
 
 @Injectable()
 export class ProductsService {
@@ -121,24 +120,46 @@ export class ProductsService {
       page = formatPage(page);
       const skip = take * page - take;
 
-      const where = {
+      const pricesRequired = {
         incluido: true,
         precio1: {
-          gt: 0,
           not: 0,
+          gte: 0.01,
         },
-        NOT: {
-          precio1: 0,
-          precio2: 0,
-          precio3: 0,
-          precio4: 0,
-          precio5: 0,
-          precio6: 0,
+        precio2: {
+          not: 0,
+          gte: 0.01,
         },
+        precio3: {
+          not: 0,
+          gte: 0.01,
+        },
+        precio4: {
+          not: 0,
+          gte: 0.01,
+        },
+        precio5: {
+          not: 0,
+          gte: 0.01,
+        },
+      };
+      const where = {
+        OR: [
+          {
+            ...pricesRequired,
+            pathfoto2: {
+              contains: 'spotsline-bucket',
+            },
+          },
+          {
+            ...pricesRequired,
+          },
+        ],
       };
 
       if (category) {
-        where['rubro'] = category;
+        where.OR[0]['rubro'] = parseInt(category);
+        where.OR[1]['rubro'] = parseInt(category);
       }
 
       const stock = await this.prisma.stock.findMany({
@@ -157,7 +178,10 @@ export class ProductsService {
 
       stock.map((s) => {
         if (!isAlready[Number(s.marca)]) {
-          isAlready[Number(s.marca)] = true;
+          isAlready[Number(s.marca)] = {
+            pathfoto: s.pathfoto2,
+            marca: s.marca,
+          };
           return uniqueStock.push(s);
         }
         return;
@@ -167,7 +191,7 @@ export class ProductsService {
         uniqueStock.sort((stock1, stock2) => {
           const price1 = parseFloat(stock1.precio1);
           const price2 = parseFloat(stock2.precio1);
-          console.log(price1, price2);
+
           if (order === 'asc') {
             return price1 - price2;
           } else if (order === 'desc') {
@@ -178,7 +202,6 @@ export class ProductsService {
       }
 
       const mappedMarcas = Object.keys(isAlready);
-      console.log(uniqueStock);
 
       const products: RawProduct[] | any[] = await this.prisma.marcas.findMany({
         take,
@@ -199,8 +222,19 @@ export class ProductsService {
         },
       });
 
+      const addPathfoto = products.map(
+        ({ codigo, descripcion, featured }: any) => {
+          const pathfoto = isAlready[Number(codigo)]?.pathfoto;
+          return {
+            codigo,
+            featured,
+            pathfoto: pathfoto || '',
+            description: descripcion.trim(),
+          };
+        },
+      );
+
       const count = uniqueStock.length;
-      // const count = await this.prisma.marcas.count({ where });
 
       return {
         metadata: {
@@ -211,87 +245,10 @@ export class ProductsService {
           search_term: search,
           next_page: Math.ceil(count / take) - page <= 0 ? null : page + 1,
         },
-        rows: products,
+        rows: addPathfoto,
       };
-
-      //   const res = marcas.map((marca) => {
-      //     console.log(marca.codigo);
-
-      //     const marcaItems = stock.filter(
-      //       (stockItem) => stockItem.marca === marca.codigo,
-      //     );
-
-      //     console.log(marcaItems);
-
-      //     return {
-      //       ...marca,
-      //       items: marcaItems,
-      //     };
-      //   });
-
-      //   return res;
-
-      //   const products: RawProduct[] | any[] = await this.prisma.marcas.findMany({
-      //     take,
-      //     skip,
-      //     where,
-      //     select: {
-      //       codigo: true,
-      //       descripcion: true,
-      //       featured: true,
-      //     },
-      //   });
-
-      //   const rows: ProductProps[] = await Promise.all(
-      //     products.map(async (marca: any) => {
-      //       const product = await this.prisma.stock.findFirst({
-      //         where: {
-      //           marca: marca.codigo,
-      //           incluido: true,
-      //           NOT: {
-      //             precio1: 0,
-      //             precio2: 0,
-      //             precio3: 0,
-      //             precio4: 0,
-      //             precio5: 0,
-      //             precio6: 0,
-      //           },
-      //         },
-      //         select: {
-      //           pathfoto2: true,
-      //         },
-      //       });
-
-      //       if (!product) return null;
-
-      //       return {
-      //         codigo: marca.codigo,
-      //         description: marca.descripcion,
-      //         featured: marca.featured,
-      //         pathImage: product?.pathfoto2,
-      //       };
-      //     }),
-      //   );
-      //   const count = await this.prisma.marcas.count({ where });
-
-      //   if (!products.length) {
-      //     throw new HttpException(
-      //       'productos no encontrados',
-      //       HttpStatus.NOT_FOUND,
-      //     );
-      //   }
-      //   return {
-      //     metadata: {
-      //       total_pages: Math.ceil(count / take),
-      //       total_items: count,
-      //       items_per_page: take,
-      //       current_page: page,
-      //       search_term: search,
-      //       next_page: Math.ceil(count / take) - page <= 0 ? null : page + 1,
-      //     },
-      //     rows: rows.filter((row) => row !== null),
-      //   };
     } catch (e) {
+      console.log(e);
       throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
@@ -463,16 +420,19 @@ export class ProductsService {
     }
   }
 
-  async getCategories(): Promise<string[]> {
+  async getCategories(): Promise<{ name: string; value: number }[]> {
     try {
       const categories = await this.prisma.rubros.findMany({
-        select: { descri: true },
+        select: { descri: true, codigo: true },
         //TODO ARREGLAR ESTO PARA PRODUCCION
-        //where: { mostrarweb: true },
+        where: { mostrarweb: true },
       });
 
-      return categories.map((c) => c.descri.trim());
+      return categories.map((c) => {
+        return { name: c.descri.trim(), value: c.codigo };
+      });
     } catch (e) {
+      console.log(e);
       throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
