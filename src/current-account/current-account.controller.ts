@@ -27,4 +27,23 @@ export class CurrentAccountController {
 
     return await this.currentAccountService.getOneClientCurrentAccount(token);
   }
+
+  @Get('managedClients')
+  async getManagedClientsCurrentAccount(
+    @Headers('authorization') authorizationHeader: string,
+  ): Promise<CCResponse[]> {
+    if (!authorizationHeader) {
+      throw new UnauthorizedException();
+    }
+
+    const [bearer, token] = authorizationHeader.split(' ');
+
+    if (bearer !== 'Bearer' || !token) {
+      throw new UnauthorizedException('Invalid authorization header format');
+    }
+
+    return await this.currentAccountService.getManagedClientsCurrentAccount(
+      token,
+    );
+  }
 }

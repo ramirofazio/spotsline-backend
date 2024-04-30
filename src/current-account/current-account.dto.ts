@@ -1,6 +1,8 @@
 import { clicta } from '@prisma/client';
 
 export class CCResponse {
+  clientNumber: number;
+  clientEmail: string;
   totalDue: number;
   totalBalance: number;
   data: CCData[];
@@ -9,7 +11,11 @@ export class CCResponse {
     rawCurrentAccounts: clicta[],
     totalBalance: number,
     totalDue: number,
+    nrocli: number,
+    email: string,
   ) {
+    this.clientNumber = Number(nrocli);
+    this.clientEmail = email.trim();
     this.totalBalance = Math.floor(totalBalance);
     this.totalDue = Math.floor(totalDue);
     this.data = rawCurrentAccounts.map((cA: clicta) => new CCData(cA));
