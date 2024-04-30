@@ -14,7 +14,7 @@ export class CurrentAccountController {
   @Get('one')
   async getOneClientCurrentAccount(
     @Headers('authorization') authorizationHeader: string,
-  ): Promise<CCResponse> {
+  ): Promise<CCResponse | []> {
     if (!authorizationHeader) {
       throw new UnauthorizedException();
     }

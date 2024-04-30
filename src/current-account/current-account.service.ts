@@ -50,7 +50,7 @@ export class CurrentAccountService {
     }
   };
 
-  async getOneClientCurrentAccount(token: string): Promise<CCResponse> {
+  async getOneClientCurrentAccount(token: string): Promise<CCResponse | []> {
     try {
       const verify = await this.jwt.verifyAsync(token);
 
@@ -68,6 +68,11 @@ export class CurrentAccountService {
         },
         orderBy: { fecha: 'desc' },
       });
+
+      if (Boolean(!rawCurrentAccounts.length)) {
+        //? Si no encontro nada
+        return [];
+      }
 
       let totalBalance = 0;
       let totalDue = 0;
