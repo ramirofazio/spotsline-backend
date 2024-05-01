@@ -12,35 +12,21 @@ export class CurrentAccountService {
     private jwt: JwtService,
   ) {}
 
+  MAX_TAKE = 10;
+
   getCCType = (cA: clicta, totalBalance: number, totalDue: number): void => {
     switch (cA.tipodoc) {
       case 'FC':
-        totalDue += Number(cA.debe);
-        break;
       case 'FCE':
-        totalDue += Number(cA.debe);
-        break;
       case 'ND':
-        totalDue += Number(cA.debe);
-        break;
       case 'NDE':
-        totalDue += Number(cA.debe);
-        break;
       case 'AJD':
-        totalDue += Number(cA.debe);
-        break;
       case 'CT':
         totalDue += Number(cA.debe);
         break;
       case 'RC':
-        totalBalance += Number(cA.saldo);
-        break;
       case 'NC':
-        totalBalance += Number(cA.saldo);
-        break;
       case 'NCE':
-        totalBalance += Number(cA.saldo);
-        break;
       case 'AJC':
         totalBalance += Number(cA.saldo);
         break;
@@ -51,6 +37,10 @@ export class CurrentAccountService {
   };
 
   async getOneClientCurrentAccount(token: string): Promise<CCResponse | []> {
+    // let last20 = false;
+
+    //TODO CHEQUEAR BIEN LOS VALORES Y QUE SE ESTEN SUMANDO BIEN LOS MONTOS. VER CON FACU y JOSE
+
     try {
       const verify = await this.jwt.verifyAsync(token);
 
@@ -58,19 +48,44 @@ export class CurrentAccountService {
         where: { nrocli: verify.sub },
       });
 
-      const rawCurrentAccounts: clicta[] = await this.prisma.clicta.findMany({
+      //   // Obtener la fecha actual y la del mes anterior
+      //   const currentDate = new Date();
+      //   const lastMonthDate = new Date(
+      //     currentDate.getFullYear(),
+      //     currentDate.getMonth() - 1,
+      //     1,
+      //   );
+      //   const lastMonthISODate = lastMonthDate.toISOString();
+
+      let rawCurrentAccounts: clicta[] | [];
+
+      rawCurrentAccounts = await this.prisma.clicta.findMany({
+        take: this.MAX_TAKE,
         where: {
           nrocli: nrocli,
           NOT: {
             //? NO traigo las que tengan estos 2 valores en 0 porque no modifican los totaes.
             AND: [{ saldo: 0 }, { debe: 0 }],
           },
+          //fecha: { gte: lastMonthISODate },
         },
         orderBy: { fecha: 'desc' },
       });
 
       if (Boolean(!rawCurrentAccounts.length)) {
-        //? Si no encontro nada
+        // //? Si no encontro nada en el ultimo mes
+        // last20 = true;
+        // rawCurrentAccounts = await this.prisma.clicta.findMany({
+        //   take: MAX_TAKE,
+        //   where: {
+        //     nrocli: nrocli,
+        //     NOT: {
+        //       //? NO traigo las que tengan estos 2 valores en 0 porque no modifican los totaes.
+        //       AND: [{ saldo: 0 }, { debe: 0 }],
+        //     },
+        //   },
+        //   orderBy: { fecha: 'desc' },
+        // });
         return [];
       }
 
@@ -90,6 +105,8 @@ export class CurrentAccountService {
         nrocli,
         email,
       );
+
+      // return { ...response, last20: last20 };
     } catch (e) {
       throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
@@ -119,6 +136,7 @@ export class CurrentAccountService {
         managedClients.map(async ({ nrocli, email }) => {
           const rawCurrentAccounts: clicta[] =
             await this.prisma.clicta.findMany({
+              take: this.MAX_TAKE,
               where: {
                 nrocli: nrocli,
                 NOT: {
