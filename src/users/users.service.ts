@@ -119,7 +119,19 @@ export class UsersService {
           type: true,
         },
       });
-
+      const _userOrders: any = await this.prisma.pedidoCab.findMany({
+        where: {
+          nrocli: id,
+        },
+        select: {
+          id: true,
+          fechaing: true,
+          nroped: true,
+          nrocli: true,
+          aprobado: true,
+        },
+      });
+      console.log(_userOrders);
       if (!userOrders) {
         throw new HttpException(
           'hubo un error al recuperar los datos de las ordenes',
@@ -367,7 +379,7 @@ export class UsersService {
             });
           });
         }
-
+        console.log('entorr', newOrder);
         //? Crea la orden para el sistema de gestion
         await this.ordersService.createSystemOrder(newOrder, items);
       }
