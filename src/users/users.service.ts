@@ -124,11 +124,11 @@ export class UsersService {
           nrocli: id,
         },
         select: {
-          id: true,
-          fechaing: true,
-          nroped: true,
-          nrocli: true,
-          aprobado: true,
+          id: true, // * mobexId
+          fechaing: true, // * date
+          nroped: true, // * mobexId
+          nrocli: true, // * mobexId
+          aprobado: true, // * mobexId
         },
       });
       console.log(_userOrders);
