@@ -36,16 +36,14 @@ export class CurrentAccountService {
     }
   };
 
-  async getOneClientCurrentAccount(token: string): Promise<CCResponse | []> {
+  async getOneClientCurrentAccount(id: number): Promise<CCResponse | []> {
     // let last20 = false;
 
     //TODO CHEQUEAR BIEN LOS VALORES Y QUE SE ESTEN SUMANDO BIEN LOS MONTOS. VER CON FACU y JOSE
 
     try {
-      const verify = await this.jwt.verifyAsync(token);
-
       const { nrocli, email }: RawClient = await this.prisma.cliente.findFirst({
-        where: { nrocli: verify.sub },
+        where: { nrocli: id },
       });
 
       //   // Obtener la fecha actual y la del mes anterior
