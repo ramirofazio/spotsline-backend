@@ -49,7 +49,7 @@ export class UsersController {
   }
 
   @Get('orders/:id')
-  async getUserOrders(@Param('id') id: number): Promise<CleanOrders[]> {
+  async getUserOrders(@Param('id') id: number): Promise<any[]> {
     return await this.userService.getUserOrders(id);
   }
 

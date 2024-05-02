@@ -102,7 +102,7 @@ export class UsersService {
     }
   }
 
-  async getUserOrders(id: number): Promise<CleanOrders[]> {
+  async getUserOrders(id: number): Promise<any[]> {
     try {
       const { priceList } = await this.findUserById(id);
 
@@ -124,13 +124,13 @@ export class UsersService {
           nrocli: id,
         },
         select: {
-          id: true, // * mobexId
+          id: true, // * order id
           fechaing: true, // * date
           nroped: true, // * mobexId
-          nrocli: true, // * mobexId
-          aprobado: true, // * mobexId
         },
       });
+
+      // * resctar id de la transaccion y el uuid de la orden
       console.log(_userOrders);
       if (!userOrders) {
         throw new HttpException(
@@ -139,6 +139,37 @@ export class UsersService {
         );
       }
 
+      const _cleanOrders: any[] = await Promise.all(
+        _userOrders.map(async ({ id, fechaing, nroped, nrocli }) => {
+          // const orderProducts: any[] = await this.prisma.pedidoDet.findMany({
+          //   where: { cabeceraid: id },
+          //   // select: { productId: true, qty: true },
+          // });
+
+          // if (!orderProducts) {
+          //   throw new HttpException(
+          //     'hubo un error al recuperar los datos de las ordenes',
+          //     HttpStatus.NOT_FOUND,
+          //   );
+          // }
+
+          // const newOrderProducts: RequestItemDTO[] = orderProducts.map(
+          //   (el) => new OrderProduct(el),
+          // );
+
+          // const cleanOrderProducts: MobbexItem[] =
+          //   await this.products.findCheckoutProducts(
+          //     newOrderProducts,
+          //     priceList,
+          //   );
+
+          return {
+            id,
+            mobbexId: nroped,
+            date: fechaing,
+          };
+        }),
+      );
       const cleanOrders: CleanOrders[] = await Promise.all(
         userOrders.map(async (order) => {
           const orderProducts: RawOrderProduct[] =
