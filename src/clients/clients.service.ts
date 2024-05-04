@@ -223,6 +223,7 @@ export class ClientsService {
             fantasyName: cleanClient.fantasyName,
             id: cleanClient.id,
             shoppingCart: Boolean(shoppingCart),
+            priceList: cleanClient.priceList,
           });
         }),
       );
