@@ -119,6 +119,14 @@ export class UsersService {
           type: true,
         },
       });
+
+      if (!userOrders) {
+        throw new HttpException(
+          'No hay ordenes guardadas para este cliente',
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
       const _userOrders: any = await this.prisma.pedidoCab.findMany({
         where: {
           nrocli: id,
@@ -130,29 +138,42 @@ export class UsersService {
         },
       });
 
-      // * resctar id de la transaccion y el uuid de la orden
-      console.log(_userOrders);
-      if (!userOrders) {
-        throw new HttpException(
-          'hubo un error al recuperar los datos de las ordenes',
-          HttpStatus.NOT_FOUND,
-        );
-      }
-
       const _cleanOrders: any[] = await Promise.all(
         _userOrders.map(async ({ id, fechaing, nroped, nrocli }) => {
-          // const orderProducts: any[] = await this.prisma.pedidoDet.findMany({
-          //   where: { cabeceraid: id },
-          //   // select: { productId: true, qty: true },
-          // });
+          const orderProducts: any[] = await this.prisma.pedidoDet.findMany({
+            where: { cabeceraid: id },
+            select: {
+              cantidad: true,
+              descri: true,
+              marca: true,
+            },
+          });
 
-          // if (!orderProducts) {
-          //   throw new HttpException(
-          //     'hubo un error al recuperar los datos de las ordenes',
-          //     HttpStatus.NOT_FOUND,
-          //   );
-          // }
-
+          if (!orderProducts) {
+            throw new HttpException(
+              'hubo un error al recuperar los datos de las ordenes',
+              HttpStatus.NOT_FOUND,
+            );
+          }
+          const requestItems = await Promise.all(
+            orderProducts.map(async ({ descri, marca, cantidad }) => {
+              const productDetail = await this.prisma.stock.findFirst({
+                where: { AND: [{ descri, marca }] },
+                select: {
+                  id: true,
+                },
+              });
+              console.log(productDetail);
+              return {
+                // description: descri,
+                productId: productDetail.id,
+                qty: cantidad,
+                // image: productDetail.pathfoto2 || '',
+              };
+            }),
+          );
+          console.log('REQUEST1', requestItems);
+          return requestItems;
           // const newOrderProducts: RequestItemDTO[] = orderProducts.map(
           //   (el) => new OrderProduct(el),
           // );
@@ -163,11 +184,12 @@ export class UsersService {
           //     priceList,
           //   );
 
-          return {
-            id,
-            mobbexId: nroped,
-            date: fechaing,
-          };
+          // return {
+          //   id,
+          //   mobbexId: nroped,
+          //   date: fechaing,
+          //   products: rawProducts,
+          // };
         }),
       );
       const cleanOrders: CleanOrders[] = await Promise.all(
@@ -184,7 +206,7 @@ export class UsersService {
               HttpStatus.NOT_FOUND,
             );
           }
-
+          console.log('REQUEST2', orderProducts);
           const newOrderProducts: RequestItemDTO[] = orderProducts.map(
             (el) => new OrderProduct(el),
           );
@@ -410,8 +432,7 @@ export class UsersService {
             });
           });
         }
-        console.log('entorr', newOrder);
-        //? Crea la orden para el sistema de gestion
+        //* Crea la orden para el sistema de gestion
         await this.ordersService.createSystemOrder(newOrder, items);
       }
 

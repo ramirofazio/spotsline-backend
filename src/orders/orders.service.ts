@@ -35,6 +35,7 @@ export class OrdersService {
     try {
       //? Consigo datos necesarios para la cabecera del pedido
       const OrderNumber = await this.getOrderNumber();
+      console.log(OrderNumber);
       const {
         nrocli,
         razsoc,
