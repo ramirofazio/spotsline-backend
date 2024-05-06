@@ -83,6 +83,15 @@ export class OrdersService {
         },
       });
 
+      await this.prisma.web_orders.update({
+        where: {
+          id: newOrder.id,
+        },
+        data: {
+          cabeceraid: pedidoCab.id,
+        },
+      });
+
       if (!pedidoCab) {
         throw new HttpException(
           'no se pudo crear la cabecera del pedido',

@@ -546,7 +546,7 @@ model clictad {
   acreditar   Decimal  @default(0, map: "DF_clictad_acreditar") @db.Decimal(18, 2)
   cotdoc      Decimal  @default(0, map: "DF_clictad_cotdoc") @db.Decimal(18, 4)
   simdoc      String   @default("", map: "DF_clictad_simdoc") @db.Char(3)
-  id          Int      @default(autoincrement())
+  id          Int      @id(map: "PK_clictad_id") @default(autoincrement())
   empresa     Int      @default(0, map: "DF_clictad_empresa")
   clictaID    Int      @default(0, map: "DF_clictad_clictaID")
   acopionro   Int      @default(0, map: "DF_clictad_acopionro")
@@ -3601,6 +3601,7 @@ model web_orders {
   type         String?  @db.VarChar(50)
   couponId     Int?
   deliveryDate String?  @db.VarChar(Max)
+  cabeceraid   Int?
 }
 
 model zonas {
