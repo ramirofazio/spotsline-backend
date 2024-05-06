@@ -69,7 +69,6 @@ export class UsersService {
         await this.getUserProfileDataWithJwt(token);
 
       const userOrders = await this.getUserOrders(userData.id);
-      console.log(userOrders);
       const order = userOrders.find((order) => order.id === parseInt(order_id));
 
       if (order.couponId) {
@@ -104,11 +103,11 @@ export class UsersService {
     }
   }
 
-  async getUserOrders(id: number): Promise<any[]> {
+  async getUserOrders(id: number): Promise<CleanOrders[]> {
     try {
       const { priceList } = await this.findUserById(id);
 
-      const _userOrders: PedidoCabDTO[] = await this.prisma.pedidoCab.findMany({
+      const userOrders: PedidoCabDTO[] = await this.prisma.pedidoCab.findMany({
         where: {
           nrocli: id,
           TotalNet: { not: 0 }, // ? En el caso de que el total neto sea 0 no mostrar en web
@@ -121,15 +120,15 @@ export class UsersService {
         },
       });
 
-      if (!_userOrders) {
+      if (!userOrders) {
         throw new HttpException(
           'No hay ordenes guardadas para este cliente',
           HttpStatus.NOT_FOUND,
         );
       }
 
-      const _cleanOrders: CleanOrders[] = await Promise.all(
-        _userOrders.map(async (pedidoCab: PedidoCabDTO) => {
+      const cleanOrders: CleanOrders[] = await Promise.all(
+        userOrders.map(async (pedidoCab: PedidoCabDTO) => {
           const { id, TotalNet, nroped, fechaing } = pedidoCab;
 
           //? Data almacenada en web_orders
@@ -219,7 +218,7 @@ export class UsersService {
         }),
       );
 
-      return _cleanOrders;
+      return cleanOrders;
     } catch (e) {
       throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }

@@ -18,7 +18,6 @@ import {
 } from './users.dto';
 import { ClientProfileResponse } from 'src/clients/clients.dto';
 import { SellerProfileResponse } from 'src/seller/sellers.dto';
-import { Public } from 'src/auth/publicDecorator';
 
 @Controller('users')
 export class UsersController {
@@ -49,7 +48,7 @@ export class UsersController {
   }
 
   @Get('orders/:id')
-  async getUserOrders(@Param('id') id: number): Promise<any[]> {
+  async getUserOrders(@Param('id') id: number): Promise<CleanOrders[]> {
     return await this.userService.getUserOrders(id);
   }
 
@@ -71,10 +70,8 @@ export class UsersController {
     return await this.userService.getOneOrder(order_id, token);
   }
 
-  @Public()
   @Post('create-order')
   async createOrder(@Body() body: OrderBodyDTO): Promise<HttpStatus> {
-    console.log('Entro a controlle');
     return await this.userService.createOrder(body);
   }
 

@@ -70,11 +70,11 @@ export class OrdersService {
           condicion: condicion,
           cond_vta: cond_vta,
           viaid: 6,
-          via: 'WEB_TESTING',
+          via: 'WEB',
           sucursal: 'CENTRAL',
           nrotra: expreso,
           usuario: nombre || 'WEB',
-          usuarioid: 0, // ? porque usuario id = 0 ?
+          usuarioid: 0,
           lisfac: lista,
           TotalNet: newOrder.total,
           monfac: 'PES',
@@ -126,7 +126,7 @@ export class OrdersService {
             total: variant[priceProperty] * item.qty,
             marca: variant.marca,
             rubro: variant.rubro,
-            nropro: 0, // * productId ACA
+            nropro: 0,
             parafecha: pedidoCab.parafecha,
             detalle: 'VER ESTO', //TODO VER ESTO. ACA VA DESCRO QIE HAC EEL CLIENTE
             moneda: 'PES',
