@@ -31,7 +31,6 @@ export class CurrentAccountService {
         totalBalance += Number(cA.saldo);
         break;
       default:
-        console.log('NO hubo coincidencias al sumar la CC', cA.tipodoc);
         break;
     }
   };
