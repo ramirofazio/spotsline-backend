@@ -71,7 +71,7 @@ export class ClientsService {
   async findByEmail(email: string): Promise<Client | null> {
     try {
       const rawClient: RawClient = await this.prisma.cliente.findFirst({
-        where: { email: email, NOT: { email: '' } },
+        where: { email: { contains: email }, NOT: { email: '' } },
         select: this.selectOpt,
       });
 
@@ -223,6 +223,7 @@ export class ClientsService {
             fantasyName: cleanClient.fantasyName,
             id: cleanClient.id,
             shoppingCart: Boolean(shoppingCart),
+            priceList: cleanClient.priceList,
           });
         }),
       );
