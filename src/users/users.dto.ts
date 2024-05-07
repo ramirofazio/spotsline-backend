@@ -163,14 +163,14 @@ export class UserOrdersDTO {
 }
 
 export interface UserOrders {
-  id: string;
-  date: string;
+  id: string | number;
+  date: Date;
   discount: number;
-  couponId: number;
-  mobbexId: string;
-  total: number;
-  subtotal: Decimal;
-  type: string;
+  couponId: number | false;
+  mobbexId: string | Decimal;
+  total: Decimal;
+  subtotal: Decimal | false;
+  type: string | false;
 }
 
 export interface CleanOrders extends UserOrders {
@@ -195,4 +195,26 @@ export class UpdateUserDataDTO {
   @IsString()
   @IsEmail()
   email: string;
+}
+
+export interface web_order_DTO {
+  total: number;
+  subtotal: Decimal;
+  couponId: number;
+  discount: number;
+  type: string;
+  mobbexId: string;
+}
+
+export interface PedidoCabDTO {
+  id: number;
+  fechaing: Date;
+  nroped: Decimal;
+  TotalNet: Decimal;
+}
+
+export interface PedidoDetDTO {
+  cantidad: Decimal;
+  descri: string;
+  marca: Decimal;
 }

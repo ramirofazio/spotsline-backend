@@ -12,11 +12,13 @@ import {
   CCorriente,
   CleanOrders,
   OrderBodyDTO,
+  PedidoCabDTO,
+  PedidoDetDTO,
   SellerUser,
   UpdateCurrentAccountDTO,
   UpdateUserDataDTO,
   User,
-  UserOrders,
+  web_order_DTO,
 } from './users.dto';
 import { PasswordResetRequestDTO } from 'src/auth/auth.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -65,8 +67,7 @@ export class UsersService {
         await this.getUserProfileDataWithJwt(token);
 
       const userOrders = await this.getUserOrders(userData.id);
-
-      const order = userOrders.find((order) => order.id === order_id);
+      const order = userOrders.find((order) => order.id === parseInt(order_id));
 
       if (order.couponId) {
         const coupon = await this.prisma.coupons.findFirst({
@@ -111,33 +112,55 @@ export class UsersService {
     try {
       const { priceList } = await this.findUserById(id);
 
-      const userOrders: UserOrders[] = await this.prisma.web_orders.findMany({
-        where: { userId: id },
+      const userOrders: PedidoCabDTO[] = await this.prisma.pedidoCab.findMany({
+        where: {
+          nrocli: id,
+          TotalNet: { not: 0 }, // ? En el caso de que el total neto sea 0 no mostrar en web
+        },
         select: {
-          id: true,
-          date: true,
-          couponId: true,
-          discount: true,
-          mobbexId: true,
-          total: true,
-          subtotal: true,
-          type: true,
+          id: true, // * order id
+          fechaing: true, // * date
+          nroped: true, // * mobexId
+          TotalNet: true,
         },
       });
 
       if (!userOrders) {
         throw new HttpException(
-          'hubo un error al recuperar los datos de las ordenes',
+          'No hay ordenes guardadas para este cliente',
           HttpStatus.NOT_FOUND,
         );
       }
 
       const cleanOrders: CleanOrders[] = await Promise.all(
-        userOrders.map(async (order) => {
-          const orderProducts: RawOrderProduct[] =
-            await this.prisma.order_products.findMany({
-              where: { orderId: order.id },
-              select: { productId: true, qty: true },
+        userOrders.map(async (pedidoCab: PedidoCabDTO) => {
+          const { id, TotalNet, nroped, fechaing } = pedidoCab;
+
+          //? Data almacenada en web_orders
+
+          const web_order: web_order_DTO =
+            await this.prisma.web_orders.findFirst({
+              where: {
+                cabeceraid: id,
+              },
+              select: {
+                total: true,
+                subtotal: true,
+                couponId: true,
+                discount: true,
+                type: true,
+                mobbexId: true,
+              },
+            });
+          //? Productos relacionados
+          const orderProducts: PedidoDetDTO[] =
+            await this.prisma.pedidoDet.findMany({
+              where: { cabeceraid: id },
+              select: {
+                cantidad: true,
+                descri: true,
+                marca: true,
+              },
             });
 
           if (!orderProducts) {
@@ -146,21 +169,57 @@ export class UsersService {
               HttpStatus.NOT_FOUND,
             );
           }
-
-          const newOrderProducts: RequestItemDTO[] = orderProducts.map(
-            (el) => new OrderProduct(el),
+          const requestItems = await Promise.all(
+            orderProducts.map(async ({ descri, marca, cantidad }) => {
+              const productDetail = await this.prisma.stock.findFirst({
+                where: { AND: [{ descri, marca }] },
+                select: {
+                  id: true,
+                },
+              });
+              if (productDetail === null) {
+                // ? puede venir null si el TotalNet = 0
+                return false;
+              }
+              return {
+                productId: productDetail.id,
+                qty: cantidad,
+              };
+            }),
           );
+          const filtered: any[] = [...requestItems].filter((i) => i !== false);
+          const newOrderProducts = filtered.map((el) => new OrderProduct(el));
 
           const cleanOrderProducts: MobbexItem[] =
             await this.products.findCheckoutProducts(
               newOrderProducts,
               priceList,
             );
-
-          return {
-            ...order,
-            products: [...cleanOrderProducts],
-          };
+          if (web_order) {
+            return {
+              id,
+              mobbexId: web_order.mobbexId,
+              date: fechaing,
+              total: TotalNet,
+              subtotal: web_order.subtotal,
+              type: web_order.type,
+              couponId: web_order.couponId,
+              discount: web_order.discount,
+              products: [...cleanOrderProducts],
+            };
+          } else {
+            return {
+              id,
+              mobbexId: nroped,
+              date: fechaing,
+              total: TotalNet,
+              products: [...cleanOrderProducts],
+              subtotal: false,
+              couponId: false,
+              discount: 0,
+              type: false,
+            };
+          }
         }),
       );
 
@@ -372,8 +431,7 @@ export class UsersService {
             });
           });
         }
-
-        //? Crea la orden para el sistema de gestion
+        //* Crea la orden para el sistema de gestion
         await this.ordersService.createSystemOrder(newOrder, items);
       }
 

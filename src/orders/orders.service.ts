@@ -53,6 +53,7 @@ export class OrdersService {
       //? Creo la cabecera de la orden en la tabla `pedidoCab`
       const pedidoCab = await this.prisma.pedidoCab.create({
         data: {
+          // TODO agregar cupon Id & Discount
           empresaid: 1,
           tipodocid: 10007,
           tipodoc: 'PD',
@@ -77,6 +78,15 @@ export class OrdersService {
           monfac: 'PES',
           direcc: direcc,
           localiid: locali,
+        },
+      });
+
+      await this.prisma.web_orders.update({
+        where: {
+          id: newOrder.id,
+        },
+        data: {
+          cabeceraid: pedidoCab.id,
         },
       });
 
