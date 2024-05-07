@@ -135,6 +135,10 @@ export class OrderBodyDTO {
   @IsNotEmpty()
   @IsString()
   deliveryDate: string;
+
+  @IsString()
+  @IsOptional()
+  description: string;
 }
 
 export class UserOrdersDTO {
