@@ -3607,6 +3607,7 @@ model web_orders {
   type         String?  @db.VarChar(50)
   couponId     Int?
   deliveryDate String?  @db.VarChar(Max)
+  cabeceraid   Int?
 }
 
 model zonas {
