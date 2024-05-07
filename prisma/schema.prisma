@@ -521,7 +521,6 @@ model clicta {
   @@index([codven], map: "codven")
 }
 
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model clictad {
   nrocli      Decimal  @default(0, map: "DF_clictad_nrocli") @db.Decimal(5, 0)
   fecha       DateTime @default(dbgenerated("0"), map: "DF_clictad_fecha") @db.DateTime
@@ -552,8 +551,6 @@ model clictad {
   acopionro   Int      @default(0, map: "DF_clictad_acopionro")
   totalacopio Decimal  @default(0, map: "DF_clictad_totalacopio") @db.Decimal(18, 2)
   proxenvio   DateTime @default(dbgenerated("0"), map: "DF_clictad_proxenvio") @db.DateTime
-
-  @@ignore
 }
 
 model cliente {
@@ -3189,6 +3186,15 @@ model sec_objetos {
   @@ignore
 }
 
+model shoppingCart {
+  id       Int     @unique(map: "UQ_id") @default(autoincrement())
+  userId   Int
+  discount Int?
+  total    Decimal @db.Decimal(10, 2)
+  subtotal Decimal @db.Decimal(10, 2)
+  couponId Int?
+}
+
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model siniibb {
   nrocli    Int      @default(0, map: "DF_siniibb_nrocli")
@@ -3608,13 +3614,4 @@ model zonas {
   id     Int     @default(autoincrement())
   codigo Decimal @id(map: "PK_zonas") @default(0, map: "DF_zonas_codigo") @db.Decimal(5, 0)
   descri String  @default("", map: "DF_zonas_descri") @db.Char(30)
-}
-
-model shoppingCart {
-  id       Int     @unique(map: "UQ_id") @default(autoincrement())
-  userId   Int
-  discount Int?
-  total    Decimal @db.Decimal(10, 2)
-  subtotal Decimal @db.Decimal(10, 2)
-  couponId Int?
 }

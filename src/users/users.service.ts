@@ -45,8 +45,6 @@ export class UsersService {
     cuit,
     email,
   }: UpdateUserDataDTO): Promise<HttpStatus.OK> {
-    //TODO VER QUE ONDA ESTO CON LOS SELLERS
-
     try {
       await this.prisma.cliente.update({
         where: { nrocli: id },
@@ -89,11 +87,18 @@ export class UsersService {
   }
 
   async getUserProfileData(
-    token: string,
+    id: number,
   ): Promise<ClientProfileResponse | SellerProfileResponse> {
     try {
-      const userData: ClientProfileResponse | SellerProfileResponse =
-        await this.getUserProfileDataWithJwt(token);
+      let userData: ClientProfileResponse | SellerProfileResponse;
+
+      const client: Client = await this.clients.findById(id);
+
+      if (client) {
+        userData = new ClientProfileResponse(client);
+      } else {
+        throw new HttpException('usuario no encontrado', HttpStatus.NOT_FOUND);
+      }
 
       if (userData) {
         return userData;
