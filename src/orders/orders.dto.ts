@@ -13,4 +13,5 @@ export interface NewOrder {
   type: string;
   couponId: number;
   deliveryDate: string;
+  description?: string;
 }

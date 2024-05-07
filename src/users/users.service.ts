@@ -388,6 +388,7 @@ export class UsersService {
     couponId,
     discount,
     deliveryDate,
+    description,
   }: OrderBodyDTO) {
     try {
       const { email, id, fantasyName, priceList } =
@@ -431,8 +432,12 @@ export class UsersService {
             });
           });
         }
-        //* Crea la orden para el sistema de gestion
-        await this.ordersService.createSystemOrder(newOrder, items);
+
+        //? Crea la orden para el sistema de gestion
+        await this.ordersService.createSystemOrder(
+          { ...newOrder, description },
+          items,
+        );
       }
 
       return HttpStatus.OK;

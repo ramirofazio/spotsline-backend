@@ -126,7 +126,7 @@ export class OrdersService {
             rubro: variant.rubro,
             nropro: 0,
             parafecha: pedidoCab.parafecha,
-            detalle: 'VER ESTO', //TODO VER ESTO. ACA VA DESCRO QIE HAC EEL CLIENTE
+            detalle: newOrder.description || '',
             moneda: 'PES',
             ivaporc1: ivaPorc,
             impiva1: ((variant[priceProperty] * Number(ivaPorc)) / 100).toFixed(
