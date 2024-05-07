@@ -23,21 +23,11 @@ import { SellerProfileResponse } from 'src/seller/sellers.dto';
 export class UsersController {
   constructor(private userService: UsersService) {}
 
-  @Get('profile')
+  @Get('profile/:id')
   async getUserProfileData(
-    @Headers('authorization') authorizationHeader: string,
+    @Param('id') id: number,
   ): Promise<ClientProfileResponse | SellerProfileResponse> {
-    if (!authorizationHeader) {
-      throw new UnauthorizedException();
-    }
-
-    const [bearer, token] = authorizationHeader.split(' ');
-
-    if (bearer !== 'Bearer' || !token) {
-      throw new UnauthorizedException('Invalid authorization header format');
-    }
-
-    return await this.userService.getUserProfileData(token);
+    return await this.userService.getUserProfileData(id);
   }
 
   @Post('update-data')

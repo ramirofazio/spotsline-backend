@@ -42,7 +42,6 @@ export class OrdersService {
         condicion,
         cond_vta,
         expreso,
-        fantasia,
         lista,
         locali,
         direcc,

@@ -149,12 +149,14 @@ export class ManagedClientResponse {
   fantasyName: string;
   avatar: string;
   shoppingCart: boolean;
+  priceList: number;
 
-  constructor({ id, email, fantasyName, avatar, shoppingCart }) {
+  constructor({ id, email, fantasyName, avatar, shoppingCart, priceList }) {
     this.id = id;
     this.email = email;
     this.fantasyName = fantasyName;
     this.avatar = avatar;
     this.shoppingCart = shoppingCart;
+    this.priceList = priceList;
   }
 }
