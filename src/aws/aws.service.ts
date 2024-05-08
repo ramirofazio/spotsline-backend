@@ -84,86 +84,96 @@ export class AwsService {
     }
   }
 
+  async uploadImg({ originalname, buffer }) {
+    const res = await this.s3Client.send(
+      new PutObjectCommand({
+        Bucket: this.bucketName,
+        Key: originalname,
+        Body: buffer,
+      }),
+    );
 
-  async uploadImg({originalname, buffer}) {
-        const res = await this.s3Client.send(
-          new PutObjectCommand({
-            Bucket: this.bucketName,
-            Key: originalname,
-            Body: buffer,
-          }),
-        );
-        
-        if (!res) {
-          throw new HttpException(
-            'error al cargar la imagen',
-            HttpStatus.INTERNAL_SERVER_ERROR,
-          );
-        }
+    if (!res) {
+      throw new HttpException(
+        'error al cargar la imagen',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
 
-        return res
+    return res;
   }
 
   async updateAvatar(
     { originalname, buffer }: Express.Multer.File,
-    user_id: number, web_role: string,
+    user_id: number,
+    web_role: string,
   ): Promise<HttpStatus> {
     try {
-      if(!user_id || !web_role) {
+      const _originalname = originalname.trim().replace(/\s+/g, '_');
+
+      if (!user_id || !web_role) {
         throw new HttpException(
           'falta indicar el tipo de usuario',
           HttpStatus.BAD_REQUEST,
         );
       }
 
-      const imageUrl = `${this.bucketUrl}${user_id}_${originalname}`;
+      const imageUrl = `${this.bucketUrl}${user_id}_${_originalname}`;
 
-      if(web_role === "client") {
+      if (web_role === 'client') {
         const { avatar } = await this.prisma.cliente.findFirst({
           where: {
-            nrocli: user_id
-          }})
-          
-          if(avatar) {
-            //* Elmino avatar viejo de AWS
-            await this.deleteAwsImg(avatar);
-          }
-          
-          const res = await this.uploadImg({originalname: `${user_id}_${originalname}`, buffer})
-          if(res) await this.prisma.cliente.update({
-            where: {
-              nrocli: user_id
-            },
-            data: {
-              avatar: imageUrl
-            }
-          })
-          
-      }
-      else if(web_role === "seller") {
-        const { avatar } = await this.prisma.vende.findFirst({
-        where: {
-          codven: user_id
-        }})
-        if(avatar) {
-            //* Elmino avatar viejo de AWS
-            await this.deleteAwsImg(avatar);
+            nrocli: user_id,
+          },
+        });
+
+        if (avatar) {
+          //* Elmino avatar viejo de AWS
+          await this.deleteAwsImg(avatar);
         }
-        
-          const res = await this.uploadImg({originalname, buffer})
-          if(res) await this.prisma.vende.update({
+
+        const res = await this.uploadImg({
+          originalname: `${user_id}_${_originalname}`,
+          buffer,
+        });
+        if (res) {
+          await this.prisma.cliente.update({
             where: {
-              codven: user_id
+              nrocli: user_id,
             },
             data: {
-              avatar: imageUrl
-            }
-          })
-        
+              avatar: imageUrl,
+            },
+          });
+        }
+      } else if (web_role === 'seller') {
+        const { avatar } = await this.prisma.vende.findFirst({
+          where: {
+            codven: user_id,
+          },
+        });
+        if (avatar) {
+          //* Elmino avatar viejo de AWS
+          await this.deleteAwsImg(avatar);
+        }
+
+        const res = await this.uploadImg({
+          originalname: _originalname,
+          buffer,
+        });
+        if (res)
+          await this.prisma.vende.update({
+            where: {
+              codven: user_id,
+            },
+            data: {
+              avatar: imageUrl,
+            },
+          });
       }
       return HttpStatus.ACCEPTED;
     } catch (e) {
-      console.log(e)
+      console.log(e);
       throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
