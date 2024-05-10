@@ -3,16 +3,18 @@ import { Coupon } from 'src/cupons/coupons.dto';
 
 export class Item {
   productId: number;
+  marcaId: number;
   qty: number;
   name: string;
   img: string;
   price: number;
 
-  constructor({ productId, qty, name, img, price }) {
+  constructor({ productId, qty, name, img, price, marcaId }) {
     this.productId = productId;
     this.qty = qty;
     this.name = name;
     this.img = img;
+    this.marcaId = marcaId;
     this.price = Number(price);
   }
 }
