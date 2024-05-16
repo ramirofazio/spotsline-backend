@@ -5,7 +5,7 @@ networks:
         external: true
 services:
   spotsline-backend:
-    container_name: spotsline-backend
+    container_name: ${NEST_CONTAINER_NAME}
     cap_add:
      - NET_ADMIN
     build:
