@@ -1,32 +1,18 @@
-version: '3'
+version: '3.4'
 
 networks:
-  vpn-network:
-    external: true
-    name: vpn-network
-
+    docker-net-vpn:
+        external: true
 services:
   spotsline-backend:
     container_name: spotsline-backend
+    cap_add:
+     - NET_ADMIN
     build:
       context: ./
       dockerfile: Dockerfile
     ports:
       - ${NEST_PORT}:3000
     networks:
-      - vpn-network
-  l2tp-ipsec-vpn-client:
-    stdin_open: true
-    tty: true
-    privileged: true
-    networks:
-      - vpn-network
-    volumes:
-      - /lib/modules:/lib/modules:ro
-    environment:
-      - VPN_SERVER_IPV4=vpnspot.no-ip.info
-      - VPN_PSK=@Just1234!
-      - VPN_USERNAME=just
-      - VPN_PASSWORD=just1234
-    image: ubergarm/l2tp-ipsec-vpn-client
-    restart: unless-stopped
+      - docker-net-vpn
+

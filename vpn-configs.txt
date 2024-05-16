@@ -1,0 +1,21 @@
+docker network create --attachable=true --driver=bridge --subnet=172.20.20.0/24 --gateway=172.20.20.1 docker-net-vpn
+docker run --rm --net=none -it -v $PWD/files/openvpn:/etc/openvpn kylemanna/openvpn:2.4 ovpn_genconfig -u udp://85.31.231.196 -N -d -c -p "route 172.20.20.0 255.255.255.0" -e "topology subnet"
+docker run --detach --name openvpn -v /root/proyects/openvpn:/etc/openvpn --net=docker-net-vpn --ip=172.20.20.2 -p 1194:1194/udp --cap-add=NET_ADMIN kylemanna/openvpn:2.4
+docker-compose run --rm openvpn ovpn_genconfig -N -d -n 192.168.13.6 -u udp://85.31.231.196  -p "route 192.168.0.0 255.255.0.0" -p "route 172.0.0.0 255.0.0.0"
+docker-compose run --rm openvpn ovpn_initpki
+
+Generar pasos para el certificado - Password just1234
+export CLIENTNAME="your_client_name" - "your_client_name" es DB-Windows
+docker-compose run --rm openvpn easyrsa build-client-full $CLIENTNAME
+
+docker-compose run --rm openvpn ovpn_getclient $CLIENTNAME > $CLIENTNAME.ovpn
+esto exporta el archivo ovpn para el cliente de openvpn connect
+
+sudo sysctl -w net.ipv4.ip_forward=1
+sudo iptables -A FORWARD -i tun+ -j ACCEPT
+sudo ip route add 192.168.255.0/24 via 172.20.20.2
+
+
+
+
+

@@ -1433,6 +1433,7 @@ model itemsOnCart {
   price          Decimal? @db.Decimal(10, 2)
   qty            Int?
   shoppingCartId Int?
+  marcaId        Int?
 }
 
 model iva {

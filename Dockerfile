@@ -16,10 +16,8 @@ COPY . .
 
 RUN npm install
 
+RUN npm run build
+
 EXPOSE 3000
 
-CMD ["./start.sh"]
-
-
-
-
+CMD npm run start:prod
