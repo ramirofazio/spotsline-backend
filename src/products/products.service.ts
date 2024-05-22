@@ -437,15 +437,10 @@ export class ProductsService {
     }
   }
 
+  //TODO REVISAR ESTO QUE SE LE SACO EL PAGE
   async getDashboardProducts(page: number): Promise<Product[] | any> {
     try {
-      const take = 50;
-      page = formatPage(page);
-      const skip = take * page - take;
-
       const marcas = await this.prisma.marcas.findMany({
-        take,
-        skip,
         orderBy: [{ featured: 'desc' }, { descripcion: 'asc' }],
       });
 
@@ -501,16 +496,26 @@ export class ProductsService {
             );
           }
 
-          return new Product({
-            codigo: marca.codigo,
-            description: marca.descripcion,
-            featured: marca.featured,
-            variants: variants,
-          });
+          const isActive = variants.some((variant) => variant.incluido);
+
+          return {
+            producto: new Product({
+              codigo: marca.codigo,
+              description: marca.descripcion,
+              featured: marca.featured,
+              variants: variants,
+            }),
+            activo: isActive,
+          };
         }),
       );
 
-      return products.filter((p) => p !== null);
+      // Filtrar los productos nulos y ordenar por activos e inactivos
+      const validProducts = products.filter((p) => p !== null);
+      validProducts.sort((a, b) => (b.activo ? 1 : 0) - (a.activo ? 1 : 0));
+
+      // Map back to the product objects without the 'activo' property
+      return validProducts.map((p) => p.producto);
     } catch (e) {
       throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
