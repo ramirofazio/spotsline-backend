@@ -438,7 +438,7 @@ export class ProductsService {
   }
 
   //TODO REVISAR ESTO QUE SE LE SACO EL PAGE
-  async getDashboardProducts(page: number): Promise<Product[] | any> {
+  async getDashboardProducts(): Promise<Product[] | any> {
     try {
       const marcas = await this.prisma.marcas.findMany({
         orderBy: [{ featured: 'desc' }, { descripcion: 'asc' }],
@@ -453,6 +453,11 @@ export class ProductsService {
 
       const products = await Promise.all(
         marcas.map(async (marca) => {
+          //! VER ESTO. OJOOOOOOOOOOO. ESTA PORQUE ESTA MARCA TIENE 95 VARIANTES Y REVIENTA TODO XDDD
+          if (marca.descripcion.trim() === '400') {
+            return null;
+          }
+
           const rows = await this.prisma.stock.findMany({
             where: {
               marca: marca.codigo,
@@ -470,16 +475,14 @@ export class ProductsService {
 
           const variants = await Promise.all(
             rows.map(async (variant) => {
-              const [rubro, subRubro] = await this.prisma.$transaction([
-                this.prisma.rubros.findFirst({
-                  where: { codigo: variant.rubro },
-                  select: { descri: true },
-                }),
-                this.prisma.subrub.findFirst({
-                  where: { codigo: variant.subrub },
-                  select: { descri: true },
-                }),
-              ]);
+              const rubro = await this.prisma.rubros.findFirst({
+                where: { codigo: variant.rubro },
+                select: { descri: true },
+              });
+              const subRubro = await this.prisma.subrub.findFirst({
+                where: { codigo: variant.subrub },
+                select: { descri: true },
+              });
 
               return new ProductVariant(
                 { ...variant },

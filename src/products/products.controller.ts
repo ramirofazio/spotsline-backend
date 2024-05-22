@@ -65,7 +65,7 @@ export class ProductsController {
   async getDashboardProducts(
     @Query('page') page: number,
   ): Promise<ProductProps[] | any> {
-    return await this.productsService.getDashboardProducts(page);
+    return await this.productsService.getDashboardProducts();
   }
 
   @Public()
