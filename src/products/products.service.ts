@@ -443,7 +443,11 @@ export class ProductsService {
       page = formatPage(page);
       const skip = take * page - take;
 
-      const marcas = await this.prisma.marcas.findMany({ take, skip });
+      const marcas = await this.prisma.marcas.findMany({
+        take,
+        skip,
+        orderBy: [{ featured: 'desc' }, { descripcion: 'asc' }],
+      });
 
       if (!marcas || marcas.length === 0) {
         throw new HttpException(
@@ -462,7 +466,7 @@ export class ProductsService {
               },
             },
             select: this.productsSelectOpt,
-            orderBy: { incluido: 'desc' },
+            orderBy: [{ incluido: 'desc' }, { descri: 'asc' }],
           });
 
           if (!rows || rows.length === 0) {
@@ -524,7 +528,7 @@ export class ProductsService {
           },
         },
         select: this.productsSelectOpt,
-        orderBy: { incluido: 'desc' },
+        orderBy: [{ incluido: 'desc' }, { descri: 'asc' }],
       });
 
       if (!rows || rows.length === 0) {
