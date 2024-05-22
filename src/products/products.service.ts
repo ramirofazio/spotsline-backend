@@ -320,9 +320,9 @@ export class ProductsService {
       const hasPhoto = await this.prisma.stock.findFirst({
         where: {
           incluido: true,
-          marca: marca.id,
+          marca: marca.codigo,
           pathfoto2: {
-            contains: 'spotsline-bucket',
+            contains: 'https://spotsline-bucket.s3.amazonaws.com',
           },
         },
         select: {
@@ -332,7 +332,7 @@ export class ProductsService {
       });
       if (!hasPhoto) {
         throw new HttpException(
-          'Agreugue una foto a alguna variante activa de este porducto',
+          'Agregue una foto a alguna variante activa de este producto',
           HttpStatus.CONFLICT,
         );
       }
