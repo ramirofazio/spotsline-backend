@@ -73,7 +73,6 @@ export class ShoppingCartService {
             couponId: coupon && discount ? coupon.id : null,
           },
         });
-        console.log(items);
         await tx.itemsOnCart.createMany({
           data: items.map((i: Item) => {
             return { ...new Item(i), shoppingCartId: cart.id };
