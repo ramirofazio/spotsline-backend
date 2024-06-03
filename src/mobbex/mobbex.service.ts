@@ -57,7 +57,7 @@ export class MobbexService {
       return {
         total: total,
         currency: 'ARS',
-        reference: `${new Date().toLocaleDateString()} ${String(userId)}`,
+        reference: `${new Date().toLocaleDateString()} ${String(userId)} ${Math.random()}`,
         description: `Venta WEB para ${email}`,
         items: mobbexItems,
         return_url: env.MOBBEX_X_RETURN_URL,
@@ -66,6 +66,7 @@ export class MobbexService {
           name: email.split('@')[0],
           identification: String(userId),
         },
+        test: env.ENV === 'production' ? false : true,
         sources: [
           'naranja',
           'mastercard',

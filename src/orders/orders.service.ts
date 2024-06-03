@@ -34,7 +34,13 @@ export class OrdersService {
   async createSystemOrder(newOrder: NewOrder, items: RequestItemDTO[]) {
     try {
       //? Consigo datos necesarios para la cabecera del pedido
-      const OrderNumber = await this.getOrderNumber();
+      let OrderNumber;
+
+      if (newOrder.email !== 'user@spotsline.com.ar') {
+        //? Cuando no es una orden de prueba del usuario spot creo el numero de orden
+        OrderNumber = await this.getOrderNumber();
+      }
+
       const {
         nrocli,
         razsoc,
@@ -46,7 +52,7 @@ export class OrdersService {
         locali,
         direcc,
       }: RawClient = await this.getClientData(newOrder.userId);
-      const { nombre } = await this.prisma.vende.findFirst({
+      const seller = await this.prisma.vende.findFirst({
         where: { codven: codven },
       });
 
@@ -59,7 +65,7 @@ export class OrdersService {
           tipodoc: 'PD',
           letra: 'X',
           punto: 5,
-          nroped: OrderNumber,
+          nroped: OrderNumber || 99999,
           fechaing: new Date().toISOString(),
           parafecha: newOrder.deliveryDate,
           nrocli: nrocli,
@@ -71,7 +77,7 @@ export class OrdersService {
           via: 'WEB',
           sucursal: 'CENTRAL',
           nrotra: expreso,
-          usuario: nombre || 'WEB',
+          usuario: seller?.nombre || 'WEB',
           usuarioid: 0,
           lisfac: lista,
           TotalNet: newOrder.total,

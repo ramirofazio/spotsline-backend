@@ -67,10 +67,15 @@ export class CurrentAccountService {
         },
       });
 
-      const { nombre } = await this.prisma.vende.findFirst({
+      const seller = await this.prisma.vende.findFirst({
         where: { codven: codven },
         select: { nombre: true },
       });
+
+      if (!seller) {
+        //? Si no tiene un seller asignado no tiene CC. Por lo menos en el user@spotsline rompia si no esta este bloque
+        return [];
+      }
 
       let rawCurrentAccounts: clicta[] | [];
 
@@ -125,7 +130,7 @@ export class CurrentAccountService {
         direcc,
         direcom,
         cuit,
-        nombre,
+        seller.nombre,
       );
 
       // return { ...response, last20: last20 };
