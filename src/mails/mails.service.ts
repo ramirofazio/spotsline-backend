@@ -450,4 +450,25 @@ a[x-apple-data-detectors] {
       throw new HttpException(err.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
+
+  async sendDBDownMessage() {
+    try {
+      const emailSended = await resend.emails.send({
+        from: 'SPOTSLINE <spotsline@resend.dev>',
+        to: [`ramifazio@gmail.com`],
+        subject: 'SPOTSLINE DB CAIDA',
+        html: `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html dir="ltr" lang="en">
+<h1>DB NO CONECTADA</h1>
+</html>
+`,
+      });
+      if (!emailSended.error) {
+        console.log('EMAIL SENT!');
+        return HttpStatus.OK;
+      }
+    } catch (err) {
+      throw new HttpException(err.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
 }

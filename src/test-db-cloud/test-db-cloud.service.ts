@@ -6,14 +6,29 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { env } from 'process';
+import { MailsService } from 'src/mails/mails.service';
+import { Cron } from '@nestjs/schedule';
 const bcrypt = require('bcrypt');
 
 @Injectable()
 export class TestDbCloudService implements OnModuleInit {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private mail: MailsService,
+  ) {}
 
   async onModuleInit() {
     await this.testDb();
+  }
+
+  @Cron('0 * * * *')
+  async handleCron() {
+    try {
+      await this.testDb();
+    } catch (e) {
+      console.log('##### CLOUD DB NO CONECTADA #####');
+      await this.mail.sendDBDownMessage();
+    }
   }
 
   async testDb() {
@@ -21,6 +36,7 @@ export class TestDbCloudService implements OnModuleInit {
       const client = await this.prisma.cliente.findFirst();
 
       if (!client) {
+        await this.mail.sendDBDownMessage();
         throw new HttpException(
           '##### CLOUD DB NO CONECTADA #####',
           HttpStatus.PRECONDITION_FAILED,
@@ -78,10 +94,10 @@ export class TestDbCloudService implements OnModuleInit {
       console.log('#### TEST USERS CREATED ####');
       console.log(newTestUsers);
     } catch (error) {
-      console.error('Error during testDb:', error);
+      await this.mail.sendDBDownMessage();
       throw new HttpException(
-        'Internal Server Error',
-        HttpStatus.INTERNAL_SERVER_ERROR,
+        '##### CLOUD DB NO CONECTADA #####',
+        HttpStatus.GATEWAY_TIMEOUT,
       );
     }
   }

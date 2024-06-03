@@ -16,6 +16,7 @@ import { ConfigModule } from '@nestjs/config';
 import { AwsModule } from './aws/aws.module';
 import { CouponsModule } from './cupons/coupons.module';
 import { CurrentAccountModule } from './current-account/current-account.module';
+import { ScheduleModule } from '@nestjs/schedule';
 @Module({
   imports: [
     PrismaModule,
@@ -32,6 +33,7 @@ import { CurrentAccountModule } from './current-account/current-account.module';
     CouponsModule,
     ConfigModule.forRoot({ isGlobal: true }),
     CurrentAccountModule,
+    ScheduleModule.forRoot(),
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],
