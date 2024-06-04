@@ -15,6 +15,7 @@ import {
   OrderBodyDTO,
   CleanOrders,
   UpdateUserDataDTO,
+  GetOneOrderDTO,
 } from './users.dto';
 import { ClientProfileResponse } from 'src/clients/clients.dto';
 import { SellerProfileResponse } from 'src/seller/sellers.dto';
@@ -42,22 +43,10 @@ export class UsersController {
     return await this.userService.getUserOrders(id);
   }
 
-  @Get('order/:order_id')
-  async getOneOrder(
-    @Headers('authorization') authorizationHeader: string,
-    @Param('order_id') order_id: string,
-  ): Promise<CleanOrders> {
-    if (!authorizationHeader) {
-      throw new UnauthorizedException();
-    }
-
-    const [bearer, token] = authorizationHeader.split(' ');
-
-    if (bearer !== 'Bearer' || !token) {
-      throw new UnauthorizedException('Invalid authorization header format');
-    }
-
-    return await this.userService.getOneOrder(order_id, token);
+  @Post('one-order')
+  async getOneOrder(@Body() body: GetOneOrderDTO): Promise<CleanOrders> {
+    const { order_id, user_id } = body;
+    return await this.userService.getOneOrder(order_id, user_id);
   }
 
   @Post('create-order')
