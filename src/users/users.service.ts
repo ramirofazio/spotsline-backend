@@ -61,14 +61,12 @@ export class UsersService {
     }
   }
 
-  async getOneOrder(order_id: string, token: string): Promise<CleanOrders> {
+  async getOneOrder(order_id: string, user_id: number): Promise<CleanOrders> {
     try {
-      const userData: ClientProfileResponse | SellerProfileResponse =
-        await this.getUserProfileDataWithJwt(token);
 
-      const userOrders = await this.getUserOrders(userData.id);
+      const userOrders = await this.getUserOrders(user_id);
+
       const order = userOrders.find((order) => order.id === parseInt(order_id));
-
       if (order.couponId) {
         const coupon = await this.prisma.coupons.findFirst({
           where: {
@@ -134,97 +132,104 @@ export class UsersService {
 
       const cleanOrders: CleanOrders[] = await Promise.all(
         userOrders.map(async (pedidoCab: PedidoCabDTO) => {
-          const { id, TotalNet, nroped, fechaing } = pedidoCab;
+          try {
+            const { id, TotalNet, nroped, fechaing } = pedidoCab;
 
-          //? Data almacenada en web_orders
+            //? Data almacenada en web_orders
 
-          const web_order: web_order_DTO =
-            await this.prisma.web_orders.findFirst({
-              where: {
-                cabeceraid: id,
-              },
-              select: {
-                total: true,
-                subtotal: true,
-                couponId: true,
-                discount: true,
-                type: true,
-                mobbexId: true,
-              },
-            });
-          //? Productos relacionados
-          const orderProducts: PedidoDetDTO[] =
-            await this.prisma.pedidoDet.findMany({
-              where: { cabeceraid: id },
-              select: {
-                cantidad: true,
-                descri: true,
-                marca: true,
-              },
-            });
-
-          if (!orderProducts) {
-            throw new HttpException(
-              'hubo un error al recuperar los datos de las ordenes',
-              HttpStatus.NOT_FOUND,
-            );
-          }
-          const requestItems = await Promise.all(
-            orderProducts.map(async ({ descri, marca, cantidad }) => {
-              const productDetail = await this.prisma.stock.findFirst({
-                where: { AND: [{ descri, marca }] },
+            const web_order: web_order_DTO =
+              await this.prisma.web_orders.findFirst({
+                where: {
+                  cabeceraid: id,
+                },
                 select: {
-                  id: true,
+                  total: true,
+                  subtotal: true,
+                  couponId: true,
+                  discount: true,
+                  type: true,
+                  mobbexId: true,
                 },
               });
-              if (productDetail === null) {
-                // ? puede venir null si el TotalNet = 0
-                return false;
-              }
-              return {
-                productId: productDetail.id,
-                qty: cantidad,
-              };
-            }),
-          );
-          const filtered: any[] = [...requestItems].filter((i) => i !== false);
-          const newOrderProducts = filtered.map((el) => new OrderProduct(el));
+            //? Productos relacionados
+            const orderProducts: PedidoDetDTO[] =
+              await this.prisma.pedidoDet.findMany({
+                where: { cabeceraid: id },
+                select: {
+                  cantidad: true,
+                  descri: true,
+                  marca: true,
+                },
+              });
 
-          const cleanOrderProducts: MobbexItem[] =
-            await this.products.findCheckoutProducts(
-              newOrderProducts,
-              priceList,
+            if (!orderProducts) {
+              throw new HttpException(
+                'hubo un error al recuperar los datos de las ordenes',
+                HttpStatus.NOT_FOUND,
+              );
+            }
+            const requestItems = await Promise.all(
+              orderProducts.map(async ({ descri, marca, cantidad }) => {
+                const productDetail = await this.prisma.stock.findFirst({
+                  where: { AND: [{ descri, marca }] },
+                  select: {
+                    id: true,
+                  },
+                });
+                if (productDetail === null) {
+                  // ? puede venir null si el TotalNet = 0
+                  return false;
+                }
+                return {
+                  productId: productDetail.id,
+                  qty: cantidad,
+                };
+              }),
             );
-          if (web_order) {
-            return {
-              id,
-              mobbexId: web_order.mobbexId,
-              date: fechaing,
-              total: TotalNet,
-              subtotal: web_order.subtotal,
-              type: web_order.type,
-              couponId: web_order.couponId,
-              discount: web_order.discount,
-              products: [...cleanOrderProducts],
-            };
-          } else {
-            return {
-              id,
-              mobbexId: nroped,
-              date: fechaing,
-              total: TotalNet,
-              products: [...cleanOrderProducts],
-              subtotal: false,
-              couponId: false,
-              discount: 0,
-              type: false,
-            };
+            const filtered: any[] = [...requestItems].filter(
+              (i) => i !== false,
+            );
+            const newOrderProducts = filtered.map((el) => new OrderProduct(el));
+
+            const cleanOrderProducts: MobbexItem[] =
+              await this.products.findCheckoutProducts(
+                newOrderProducts,
+                priceList,
+              );
+            if (web_order) {
+              return {
+                id,
+                mobbexId: web_order.mobbexId,
+                date: fechaing,
+                total: TotalNet,
+                subtotal: web_order.subtotal,
+                type: web_order.type,
+                couponId: web_order.couponId,
+                discount: web_order.discount,
+                products: [...cleanOrderProducts],
+              };
+            } else {
+              return {
+                id,
+                mobbexId: nroped,
+                date: fechaing,
+                total: TotalNet,
+                products: [...cleanOrderProducts],
+                subtotal: false,
+                couponId: false,
+                discount: 0,
+                type: false,
+              };
+            }
+          } catch (err) {
+            console.log(err);
           }
         }),
       );
 
       return cleanOrders;
     } catch (e) {
+      console.log(e);
       throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }

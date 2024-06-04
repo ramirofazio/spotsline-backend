@@ -222,3 +222,13 @@ export interface PedidoDetDTO {
   descri: string;
   marca: Decimal;
 }
+
+export class GetOneOrderDTO {
+  @IsNotEmpty()
+  @IsString()
+  order_id: string;
+
+  @IsNotEmpty()
+  @IsNumber()
+  user_id: number;
+}

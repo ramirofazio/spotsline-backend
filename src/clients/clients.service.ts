@@ -53,7 +53,7 @@ export class ClientsService {
 
   async findById(id: number): Promise<Client | null> {
     try {
-      const rawClient: RawClient = await this.prisma.cliente.findUnique({
+      const rawClient: RawClient = await this.prisma.cliente.findFirst({
         where: { nrocli: id, NOT: { email: '' } },
         select: this.selectOpt,
       });
