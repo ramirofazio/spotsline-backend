@@ -179,12 +179,13 @@ export class ProductsService {
       stock.map((s) => {
         if (!isAlready[Number(s.marca)]) {
           isAlready[Number(s.marca)] = {
-            pathfoto: s.pathfoto2,
+            pathfoto: [s.pathfoto2],
             marca: s.marca,
           };
           return uniqueStock.push(s);
+        } else {
+          isAlready[Number(s.marca)].pathfoto.push(s.pathfoto2);
         }
-        return;
       });
 
       // * Se hace el ordenamiento aca y no en prisma
@@ -239,8 +240,6 @@ export class ProductsService {
 
       return {
         metadata: {
-          isAlready,
-          uniqueStock,
           total_pages: Math.ceil(count / take),
           total_items: count,
           items_per_page: take,
