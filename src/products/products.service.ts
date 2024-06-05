@@ -186,6 +186,7 @@ export class ProductsService {
         }
         return;
       });
+
       // * Se hace el ordenamiento aca y no en prisma
       if (order) {
         uniqueStock.sort((stock1, stock2) => {
@@ -224,11 +225,11 @@ export class ProductsService {
 
       const addPathfoto = products.map(
         ({ codigo, descripcion, featured }: any) => {
-          const pathfoto = isAlready[Number(codigo)]?.pathfoto;
+          const pathfotos = isAlready[Number(codigo)]?.pathfoto;
           return {
             codigo,
             featured,
-            pathfoto: pathfoto || '',
+            pathfoto: pathfotos || '',
             description: descripcion.trim(),
           };
         },
@@ -238,6 +239,8 @@ export class ProductsService {
 
       return {
         metadata: {
+          isAlready,
+          uniqueStock,
           total_pages: Math.ceil(count / take),
           total_items: count,
           items_per_page: take,
