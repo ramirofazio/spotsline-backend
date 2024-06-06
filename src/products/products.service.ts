@@ -179,13 +179,15 @@ export class ProductsService {
       stock.map((s) => {
         if (!isAlready[Number(s.marca)]) {
           isAlready[Number(s.marca)] = {
-            pathfoto: s.pathfoto2,
+            pathfoto: [s.pathfoto2],
             marca: s.marca,
           };
           return uniqueStock.push(s);
+        } else {
+          isAlready[Number(s.marca)].pathfoto.push(s.pathfoto2);
         }
-        return;
       });
+
       // * Se hace el ordenamiento aca y no en prisma
       if (order) {
         uniqueStock.sort((stock1, stock2) => {
@@ -224,11 +226,11 @@ export class ProductsService {
 
       const addPathfoto = products.map(
         ({ codigo, descripcion, featured }: any) => {
-          const pathfoto = isAlready[Number(codigo)]?.pathfoto;
+          const pathfotos = isAlready[Number(codigo)]?.pathfoto;
           return {
             codigo,
             featured,
-            pathfoto: pathfoto || '',
+            pathfoto: pathfotos || '',
             description: descripcion.trim(),
           };
         },
