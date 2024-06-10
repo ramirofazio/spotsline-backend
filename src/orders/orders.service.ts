@@ -17,7 +17,7 @@ export class OrdersService {
           id: true,
           userId: true,
           email: true,
-          name: true,
+          orderName: true,
           total: true,
           subtotal: true,
           discount: true,

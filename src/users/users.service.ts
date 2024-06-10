@@ -23,8 +23,8 @@ import {
 import { PasswordResetRequestDTO } from 'src/auth/auth.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ProductsService } from 'src/products/products.service';
-import { OrderProduct, RawOrderProduct } from 'src/products/products.dto';
-import { MobbexItem, RequestItemDTO } from 'src/mobbex/mobbex.dto';
+import { OrderProduct } from 'src/products/products.dto';
+import { MobbexItem } from 'src/mobbex/mobbex.dto';
 import { JwtService } from '@nestjs/jwt';
 import { OrdersService } from 'src/orders/orders.service';
 
@@ -63,7 +63,6 @@ export class UsersService {
 
   async getOneOrder(order_id: string, user_id: number): Promise<CleanOrders> {
     try {
-
       const userOrders = await this.getUserOrders(user_id);
 
       const order = userOrders.find((order) => order.id === parseInt(order_id));
@@ -417,7 +416,7 @@ export class UsersService {
             couponId: couponId ? couponId : 0,
             email: email,
             mobbexId: transactionId,
-            name: fantasyName,
+            orderName: fantasyName,
             userId: userId,
             subtotal: subtotal, // TODO Cambiarlo a INT en DB
             total: total,

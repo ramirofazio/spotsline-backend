@@ -4,7 +4,7 @@ export interface NewOrder {
   id: string;
   userId: number;
   email: string;
-  name: string;
+  orderName: string;
   total: number;
   discount: number;
   mobbexId: string;

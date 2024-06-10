@@ -5,14 +5,14 @@ export class Item {
   productId: number;
   marcaId: number;
   qty: number;
-  name: string;
+  itemName: string;
   img: string;
   price: number;
 
-  constructor({ productId, qty, name, img, price, marcaId }) {
+  constructor({ productId, qty, itemName, img, price, marcaId }) {
     this.productId = productId;
     this.qty = qty;
-    this.name = name;
+    this.itemName = itemName;
     this.img = img;
     this.marcaId = marcaId;
     this.price = Number(price);

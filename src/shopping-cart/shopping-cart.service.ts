@@ -18,7 +18,7 @@ export class ShoppingCartService {
         return null;
       }
 
-      const rawItems = await this.prisma.itemsOnCart.findMany({
+      const rawItems = await this.prisma.web_itemsOnCart.findMany({
         where: {
           shoppingCartId: cart.id,
         },
@@ -73,7 +73,7 @@ export class ShoppingCartService {
             couponId: coupon && discount ? coupon.id : null,
           },
         });
-        await tx.itemsOnCart.createMany({
+        await tx.web_itemsOnCart.createMany({
           data: items.map((i: Item) => {
             return { ...new Item(i), shoppingCartId: cart.id };
           }),
@@ -105,13 +105,13 @@ export class ShoppingCartService {
         },
       });
 
-      const prevItems = await this.prisma.itemsOnCart.findMany({
+      const prevItems = await this.prisma.web_itemsOnCart.findMany({
         where: { shoppingCartId: id },
         select: {
           id: true,
           productId: true,
           qty: true,
-          name: true,
+          itemName: true,
           price: true,
           img: true,
         },
@@ -122,7 +122,7 @@ export class ShoppingCartService {
         items.map(async (i) => {
           const cleanItem = new Item(i);
 
-          return await this.prisma.itemsOnCart.create({
+          return await this.prisma.web_itemsOnCart.create({
             data: { ...cleanItem, shoppingCartId: id },
           });
         });
@@ -130,7 +130,7 @@ export class ShoppingCartService {
         return HttpStatus.OK;
       } else if (items.length === 0) {
         //? si no hay items borra los previos
-        await this.prisma.itemsOnCart.deleteMany({
+        await this.prisma.web_itemsOnCart.deleteMany({
           where: { shoppingCartId: id },
         });
 
@@ -155,7 +155,7 @@ export class ShoppingCartService {
                 (item) => item.productId === prevItem.productId,
               );
               if (newItem.qty !== prevItem.qty) {
-                await prisma.itemsOnCart.update({
+                await prisma.web_itemsOnCart.update({
                   where: { id: prevItem.id },
                   data: { qty: newItem.qty },
                 });
@@ -165,7 +165,7 @@ export class ShoppingCartService {
 
           // Eliminar los elementos que deben ser borrados
           if (itemsToDelete.length > 0) {
-            await prisma.itemsOnCart.deleteMany({
+            await prisma.web_itemsOnCart.deleteMany({
               where: { id: { in: itemsToDelete } },
             });
           }
@@ -179,7 +179,7 @@ export class ShoppingCartService {
           );
           for (const newItem of newItemsToAdd) {
             const cleanItem = new Item(newItem);
-            await prisma.itemsOnCart.create({
+            await prisma.web_itemsOnCart.create({
               data: { ...cleanItem, shoppingCartId: id },
             });
           }
@@ -197,7 +197,7 @@ export class ShoppingCartService {
 
   async deleteCart(cartId: number, force?: boolean) {
     try {
-      await this.prisma.itemsOnCart.deleteMany({
+      await this.prisma.web_itemsOnCart.deleteMany({
         where: {
           shoppingCartId: cartId,
         },

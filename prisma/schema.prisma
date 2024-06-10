@@ -53,6 +53,7 @@ model acopioc {
   empresaid  Int      @default(0, map: "DF_acopioc_empresaid")
   fechavence DateTime @default(dbgenerated("0"), map: "DF_acopioc_fechavence") @db.DateTime
   cerrado    Boolean  @default(false, map: "DF_acopioc_cerrado")
+  tasaIIBB   Decimal  @default(0, map: "DF_acopioc_tasaIIBB") @db.Decimal(6, 2)
 
   @@ignore
 }
@@ -636,6 +637,7 @@ model cliente {
   firstSignIn3 Boolean? @default(true, map: "DF__cliente__firstSi__5E912F82")
   web_role     Int?     @default(0, map: "DF__cliente__web_rol__70AFDFBD")
   avatar       String?  @db.NVarChar(Max)
+  ctpaga       Boolean  @default(false, map: "DF_cliente_ctpaga")
 
   @@index([razsoc], map: "IX_cliente")
 }
@@ -797,6 +799,7 @@ model configen {
   conOC            Boolean  @default(false, map: "DF_configen_conOC")
   mlnofacta        Boolean  @default(false, map: "DF_configen_mlnofacta")
   PedixRub         Boolean  @default(false, map: "DF_configen_PedixRub")
+  soloduplicado    Boolean  @default(false, map: "DF_configen_soloduplicado")
 }
 
 model configenML {
@@ -884,13 +887,6 @@ model conjuprod {
   detalle    String   @default("", map: "DF_conjuprod_detalle") @db.VarChar(50)
 
   @@ignore
-}
-
-model coupons {
-  id                 Int      @id(map: "PK__coupons__3213E83F15D7A415") @default(autoincrement())
-  name               String?  @db.NVarChar(255)
-  discountPercentaje Int?
-  enabled            Boolean? @default(false, map: "DF__coupons__enabled__781BF75B")
 }
 
 model cuebanc {
@@ -1086,6 +1082,7 @@ model detmovim {
   nrousu     Int      @default(0, map: "DF_detmovim_nrousu")
   ubiacionid Int      @default(0, map: "DF_detmovim_ubiacionid")
   conjunto   String   @default("", map: "DF_detmovim_conjunto") @db.Char(16)
+  entregado  Boolean  @default(false, map: "DF_detmovim_entregado")
 
   @@index([ivavenid], map: "IX_detmovim")
   @@index([codpro], map: "pk_detmovim_codpro")
@@ -1423,17 +1420,6 @@ model informe {
   detalle String   @default("1)", map: "DF_informe_detalle") @db.VarChar(250)
 
   @@ignore
-}
-
-model itemsOnCart {
-  id             Int      @id(map: "PK__itemsOnC__3213E83F08564A8C") @default(autoincrement())
-  name           String?  @db.NVarChar(255)
-  img            String?  @db.NVarChar(255)
-  productId      Int?
-  price          Decimal? @db.Decimal(10, 2)
-  qty            Int?
-  shoppingCartId Int?
-  marcaId        Int?
 }
 
 model iva {
@@ -3304,6 +3290,10 @@ model stock {
   chkptopedido  Boolean  @default(false, map: "DF_stock_chkptopedido")
   pathfoto2     String   @default("", map: "DF_stock_pathfoto2") @db.VarChar(Max)
   featured      Boolean? @default(false, map: "DF__stock__featured__29E85D19")
+  sector        Int      @default(0, map: "DF_stock_sector")
+  maquina       Int      @default(0, map: "DF_stock_maquina")
+  caract1       Int      @default(0, map: "DF_stock_caract1")
+  caract2       Int      @default(0, map: "DF_stock_caract2")
 
   @@index([descri], map: "IX_stock_1", clustered: true)
 }
@@ -3595,13 +3585,180 @@ model Visitasweb {
   @@ignore
 }
 
+model zonas {
+  id     Int     @default(autoincrement())
+  codigo Decimal @id(map: "PK_zonas") @default(0, map: "DF_zonas_codigo") @db.Decimal(5, 0)
+  descri String  @default("", map: "DF_zonas_descri") @db.Char(30)
+}
+
+model accefab {
+  id       Int      @id(map: "PK_accesosPROD") @default(autoincrement())
+  ncodigo  Int?     @default(0, map: "DF_accesosPROD_ncodigo")
+  cpad     String?  @default("", map: "DF_accesosPROD_cpad") @db.VarChar(50)
+  cbar     String?  @default("", map: "DF_accesosPROD_cbar") @db.VarChar(100)
+  ccomando String?  @default("", map: "DF_accesosPROD_ccomando") @db.VarChar(250)
+  form     String?  @default("", map: "DF_accesosPROD_form") @db.VarChar(25)
+  activo   Boolean? @default(false, map: "DF_accesosPROD_activo")
+  codafec  Int?     @default(0, map: "DF_accesosPROD_codafec")
+  borrar   Boolean? @default(false, map: "DF_accesosPROD_borrar")
+  ccomweb  String?  @default("", map: "DF_accesosPROD_ccomweb") @db.VarChar(250)
+  cPadWeb  String?  @default("", map: "DF_accesosPROD_cPadWeb") @db.VarChar(30)
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model caract1 {
+  id     Int    @default(autoincrement())
+  codigo Int    @default(0, map: "DF_caract1_codigo")
+  descri String @default("", map: "DF_caract1_descri") @db.VarChar(50)
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model caract2 {
+  id     Int    @default(autoincrement())
+  codigo Int
+  descri String @default("", map: "DF_caract2_descri") @db.VarChar(50)
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model fabricac {
+  id        Int      @default(autoincrement())
+  fecha     DateTime @default(dbgenerated("0"), map: "DF_fabricac_fecha") @db.DateTime
+  codpro    String   @default("", map: "DF_fabricac_codpro") @db.Char(16)
+  fabricado Decimal  @default(0, map: "DF_fabricac_fabricado") @db.Decimal(18, 2)
+  scrap     Decimal  @default(0, map: "DF_fabricac_scrap") @db.Decimal(18, 2)
+  horaini   String   @default("", map: "DF_fabricac_horaini") @db.Char(10)
+  horafin   String   @default("", map: "DF_fabricac_horafin") @db.Char(10)
+  legajo    Int      @default(0, map: "DF_fabricac_legajo")
+  maquina   Int      @default(0, map: "DF_fabricac_maquina")
+  observa   String   @default("", map: "DF_fabricac_observa") @db.VarChar(50)
+  orden     Int      @default(0, map: "DF_fabricac_orden")
+  nroint    Int      @default(0, map: "DF_fabricac_nroint")
+  cantper   Int      @default(0, map: "DF_fabricac_cantper")
+  empresa   Int      @default(0, map: "DF_fabricac_empresa")
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model fabrileg {
+  id      Int      @default(autoincrement())
+  legajo  Int      @default(0, map: "DF_fabrileg_legajo")
+  horaini String   @default("", map: "DF_fabrileg_horaini") @db.Char(13)
+  horafin String   @default("", map: "DF_fabrileg_horafin") @db.Char(13)
+  maquina Int      @default(0, map: "DF_fabrileg_maquina")
+  nroint  Int      @default(0, map: "DF_fabrileg_nroint")
+  orden   Int      @default(0, map: "DF_fabrileg_orden")
+  empresa Int      @default(0, map: "DF_fabrileg_empresa")
+  fecha   DateTime @default(dbgenerated("0"), map: "DF_fabrileg_fecha") @db.DateTime
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model maquinas {
+  id     Int     @default(autoincrement())
+  codigo Int     @default(0, map: "DF_maquinas_codigo")
+  descri String  @default("", map: "DF_maquinas_descri") @db.VarChar(50)
+  valor  Decimal @default(0, map: "DF_maquinas_valor") @db.Decimal(18, 2)
+  sector Int     @default(0, map: "DF_maquinas_sector")
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model ordenfac {
+  id        Int      @default(autoincrement())
+  orden     Int      @default(0, map: "DF_ordenfac_orden")
+  fecha     DateTime @default(dbgenerated("0"), map: "DF_ordenfac_fecha") @db.DateTime
+  parafecha DateTime @default(dbgenerated("0"), map: "DF_ordenfac_parafecha") @db.DateTime
+  codpro    String   @default("", map: "DF_ordenfac_codpro") @db.Char(16)
+  cantid    Decimal  @default(0, map: "DF_ordenfac_cantid") @db.Decimal(18, 2)
+  estado    Int      @default(0, map: "DF_ordenfac_estado") @db.TinyInt
+  finicio   DateTime @default(dbgenerated("0"), map: "DF_ordenfac_finicio") @db.DateTime
+  ffin      DateTime @default(dbgenerated("0"), map: "DF_ordenfac_ffin") @db.DateTime
+  faprob    DateTime @default(dbgenerated("0"), map: "DF_ordenfac_faprob") @db.DateTime
+  totfabri  Decimal  @default(0, map: "DF_ordenfac_totfabri") @db.Decimal(18, 2)
+  empresa   Int      @default(0, map: "DF_ordenfac_empresa")
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model ordenfad {
+  id         Int      @default(autoincrement())
+  orden      Int      @default(0, map: "DF_ordenfad_orden")
+  codpro     String   @default("", map: "DF_ordenfad_codpro") @db.Char(16)
+  componen   String   @default("", map: "DF_ordenfad_componen") @db.Char(16)
+  cantid     Decimal  @default(0, map: "DF_ordenfad_cantid") @db.Decimal(18, 2)
+  prioridad  Decimal  @default(0, map: "DF_ordenfad_prioridad") @db.Decimal(18, 4)
+  aprobado   Boolean  @default(false, map: "DF_ordenfad_aprobado")
+  fabricado  Decimal  @default(0, map: "DF_ordenfad_fabricado") @db.Decimal(18, 2)
+  pendiente  Decimal  @default(0, map: "DF_ordenfad_pendiente") @db.Decimal(18, 2)
+  maquina    Int      @default(0, map: "DF_ordenfad_maquina")
+  fecfab     DateTime @default(dbgenerated("0"), map: "DF_ordenfad_fecfab") @db.DateTime
+  cantper    Int      @default(0, map: "DF_ordenfad_cantper")
+  nroint     Int      @default(0, map: "DF_ordenfad_nroint")
+  cabeceraid Int      @default(0, map: "DF_ordenfad_cabeceraid")
+  empresa    Int      @default(0, map: "DF_ordenfad_empresa")
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model personal {
+  codigo  Int     @default(0, map: "DF_personal_codigo")
+  nombre  String  @default("", map: "DF_personal_nombre") @db.NVarChar(50)
+  direcc  String  @default("", map: "DF_personal_direcc") @db.VarChar(50)
+  locali  String  @default("", map: "DF_personal_locali") @db.VarChar(50)
+  telefo  String  @default("", map: "DF_personal_telefo") @db.VarChar(50)
+  observa String  @default("", map: "DF_personal_observa") @db.NVarChar(Max)
+  turno   Decimal @default(0, map: "DF_personal_turno") @db.Decimal(4, 0)
+  baja    Boolean @default(false, map: "DF_personal_baja")
+  tarjeta Int     @default(0, map: "DF_personal_tarjeta")
+  valor   Decimal @default(0, map: "DF_personal_valor") @db.Decimal(18, 2)
+  id      Int     @default(autoincrement())
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model sectores {
+  id     Int    @default(autoincrement())
+  codigo Int    @default(0, map: "DF_sectores_codigo")
+  descri String @default("", map: "DF_sectores_descri") @db.VarChar(50)
+
+  @@ignore
+}
+
+model coupons {
+  id                 Int     @id(map: "PK__coupons__3213E83F61209B30") @default(autoincrement())
+  name               String? @db.NVarChar(255)
+  discountPercentaje Int?
+  enabled            Boolean @default(false, map: "DF__coupons__enabled__1BBA3953")
+}
+
+model web_itemsOnCart {
+  id             Int      @id(map: "PK__web_item__3213E83F448FEBA3") @default(autoincrement())
+  itemName       String?  @db.NVarChar(255)
+  img            String?  @db.NVarChar(255)
+  productId      Int?
+  price          Decimal? @db.Decimal(10, 2)
+  qty            Int?
+  shoppingCartId Int?
+  marcaId        Int?
+}
+
 model web_orders {
-  id           String   @id(map: "PK__web_orde__3213E83F18B72CB2") @default(dbgenerated("newid()"), map: "DF__web_orders__id__05AAFCA3") @db.UniqueIdentifier
+  id           String   @id(map: "PK__web_orde__3213E83FA9DB51AA") @default(dbgenerated("newid()"), map: "DF__web_orders__id__2543A38D") @db.UniqueIdentifier
   userId       Int?
   email        String?  @db.VarChar(Max)
-  name         String?  @db.VarChar(Max)
+  orderName    String?  @db.VarChar(Max)
   total        Int?
-  discount     Int?     @default(0, map: "DF__web_order__disco__0887694E")
+  discount     Int?     @default(0, map: "DF__web_order__disco__2637C7C6")
   mobbexId     String?  @db.VarChar(Max)
   date         String?  @db.VarChar(Max)
   subtotal     Decimal? @db.Decimal(18, 0)
@@ -3609,10 +3766,4 @@ model web_orders {
   couponId     Int?
   deliveryDate String?  @db.VarChar(Max)
   cabeceraid   Int?
-}
-
-model zonas {
-  id     Int     @default(autoincrement())
-  codigo Decimal @id(map: "PK_zonas") @default(0, map: "DF_zonas_codigo") @db.Decimal(5, 0)
-  descri String  @default("", map: "DF_zonas_descri") @db.Char(30)
 }
