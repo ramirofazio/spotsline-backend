@@ -9,9 +9,11 @@ import {
   RawVariantProduct,
   UpdateFeatured,
   ProductVariantProps,
+  FeaturedProduct,
 } from './products.dto';
 import { MobbexItem, RequestItemDTO } from 'src/mobbex/mobbex.dto';
 import { formatPage, formatTake } from 'src/utils/pagination';
+import { marcas } from '@prisma/client';
 
 @Injectable()
 export class ProductsService {
@@ -255,44 +257,51 @@ export class ProductsService {
     }
   }
 
-  async getFeaturedProdutcs(take: number = 5) {
-    const marcas: any[] = await this.prisma.marcas.findMany({
-      take,
+  async getFeaturedProduts(): Promise<FeaturedProduct[]> {
+    const marcas: marcas[] = await this.prisma.marcas.findMany({
       where: {
         featured: true,
       },
     });
+
     if (!marcas.length) {
       throw new HttpException('productos no encontrados', HttpStatus.NOT_FOUND);
     }
 
-    const featureProducts = await Promise.all(
-      marcas.map(async (m) => {
+    const featuredProducts = await Promise.all(
+      marcas.map(async (marca) => {
         try {
-          const firstProduct = await this.prisma.stock.findFirst({
-            where: {
-              marca: m.codigo,
-              incluido: true,
-              pathfoto2: {
-                contains: 'spotsline-bucket',
+          //? Me traigo las fotos de las variantes que cumplan las condiciones del where
+          const variants: { pathfoto2: string }[] =
+            await this.prisma.stock.findMany({
+              where: {
+                marca: marca.codigo,
+                incluido: true,
+                pathfoto2: {
+                  contains: 'spotsline-bucket',
+                },
+                NOT: { precio1: 0 },
               },
-            },
-          });
+              select: {
+                pathfoto2: true,
+              },
+            });
 
-          if (firstProduct) {
-            return {
-              ...m,
-              pathfoto: firstProduct.pathfoto2,
-            };
+          if (!variants.length) {
+            return null;
           }
-          return null;
+
+          return new FeaturedProduct({
+            ...marca,
+            variants,
+          });
         } catch (err) {
-          console.log('La marca no tiene un producto asosciado', err);
+          console.log('La marca no tiene variantes asosciadas', err);
         }
       }),
     );
 
-    return featureProducts.filter((product) => product !== null);
+    return featuredProducts.filter((item) => item !== null);
   }
 
   async editFeatured(body: UpdateFeatured): Promise<string> {
@@ -305,11 +314,11 @@ export class ProductsService {
             select: { featured: true },
           });
 
-        const validateFive = featuredArray.filter((el) => el.featured === true);
+        const validateMax = featuredArray.filter((el) => el.featured === true);
 
-        if (validateFive.length > 4) {
+        if (validateMax.length > 9) {
           throw new HttpException(
-            'Ya existen 5 productos destacados',
+            'Ya existen 10 productos destacados',
             HttpStatus.CONFLICT,
           );
         }
