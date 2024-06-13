@@ -42,10 +42,8 @@ export class ProductsController {
 
   @Public()
   @Get('featured')
-  async getFeaturedProducts(
-    @Query('take') take: number,
-  ): Promise<FeaturedProduct[]> {
-    return await this.productsService.getFeaturedProdutcs(take);
+  async getFeaturedProducts(): Promise<FeaturedProduct[]> {
+    return await this.productsService.getFeaturedProduts();
   }
 
   @Patch('edit_featured')

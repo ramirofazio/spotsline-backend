@@ -199,9 +199,16 @@ export interface UpdateFeatured {
   featured: boolean;
 }
 
-export interface FeaturedProduct {
+export class FeaturedProduct {
   id: number;
   codigo: Decimal | number | string;
-  featured: boolean;
-  pathfoto: string;
+  name: string;
+  variantsImages: { pathfoto2: string }[];
+
+  constructor({ id, codigo, descripcion, variants }) {
+    this.id = id;
+    this.codigo = codigo;
+    this.name = descripcion.trim();
+    this.variantsImages = variants;
+  }
 }
