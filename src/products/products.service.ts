@@ -287,7 +287,6 @@ export class ProductsService {
               select: {
                 pathfoto2: true,
                 usoart: true,
-                descri: true,
               },
             });
 

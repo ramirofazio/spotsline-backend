@@ -208,7 +208,6 @@ export class FeaturedProduct {
   id: number;
   codigo: Decimal | number | string;
   name: string;
-  variantsImages: { pathfoto2: string }[];
   variants: FeaturedVariant[];
 
   constructor({ id, codigo, descripcion, variants }) {
@@ -216,19 +215,17 @@ export class FeaturedProduct {
     this.codigo = codigo;
     this.name = descripcion.trim();
     this.variants = variants.map(
-      (variant: { descri: string; usoart: string; pathfoto2: string }) =>
+      (variant: { usoart: string; pathfoto2: string }) =>
         new FeaturedVariant(variant),
     );
   }
 }
 
 export class FeaturedVariant {
-  name: string;
   description: string;
   img: string;
 
-  constructor({ descri, usoart, pathfoto2 }) {
-    this.name = descri?.trim();
+  constructor({ usoart, pathfoto2 }) {
     this.description = usoart?.trim();
     this.img = pathfoto2;
   }
