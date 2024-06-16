@@ -23,7 +23,7 @@ export class ShoppingCartService {
           shoppingCartId: cart.id,
         },
       });
-      console.log(rawItems);
+
       if (cart.couponId) {
         const coupon = await this.prisma.coupons.findFirst({
           where: {
@@ -42,6 +42,7 @@ export class ShoppingCartService {
       return new ShoppingCart({
         ...cart,
         userId,
+        discount: 0,
         coupon: false,
         items: rawItems.map((item) => new Item(item)),
       });
