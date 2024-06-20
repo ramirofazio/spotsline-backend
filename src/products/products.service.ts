@@ -38,6 +38,7 @@ export class ProductsService {
     incluido: true,
     ivagrupo: true,
     unimed: true,
+    usoart: true,
   };
 
   async getOrderProductsData(items: RequestItemDTO[], userPriceList: number) {
@@ -171,6 +172,7 @@ export class ProductsService {
           pathfoto2: true,
           rubro: true,
           precio1: true,
+          usoart: true,
         },
       });
 
@@ -284,6 +286,7 @@ export class ProductsService {
               },
               select: {
                 pathfoto2: true,
+                usoart: true,
               },
             });
 

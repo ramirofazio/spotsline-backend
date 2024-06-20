@@ -1,3 +1,4 @@
+import { stock } from '@prisma/client';
 import { Decimal } from '@prisma/client/runtime/library';
 
 export interface ProductVariantProps {
@@ -63,6 +64,8 @@ export class ProductVariant implements ProductVariantProps {
   precio5: Decimal;
   incluido: boolean;
   precio6: Decimal;
+  description2: string;
+
   constructor(variant: RawVariantProduct, rubro: string, subrubro: string) {
     this.id = variant.id;
     this.description = variant?.descri.trim();
@@ -79,6 +82,7 @@ export class ProductVariant implements ProductVariantProps {
     this.precio5 = variant.precio5;
     this.precio6 = variant.precio6;
     this.incluido = variant.incluido;
+    this.description2 = variant?.usoart.trim();
   }
 }
 export interface RawVariantProduct {
@@ -101,6 +105,7 @@ export interface RawVariantProduct {
   incluido: boolean;
   unimed: Decimal;
   ivagrupo: Decimal;
+  usoart: string;
 }
 
 export interface RawProduct {
@@ -203,12 +208,25 @@ export class FeaturedProduct {
   id: number;
   codigo: Decimal | number | string;
   name: string;
-  variantsImages: { pathfoto2: string }[];
+  variants: FeaturedVariant[];
 
   constructor({ id, codigo, descripcion, variants }) {
     this.id = id;
     this.codigo = codigo;
     this.name = descripcion.trim();
-    this.variantsImages = variants;
+    this.variants = variants.map(
+      (variant: { usoart: string; pathfoto2: string }) =>
+        new FeaturedVariant(variant),
+    );
+  }
+}
+
+export class FeaturedVariant {
+  description: string;
+  img: string;
+
+  constructor({ usoart, pathfoto2 }) {
+    this.description = usoart?.trim();
+    this.img = pathfoto2;
   }
 }
