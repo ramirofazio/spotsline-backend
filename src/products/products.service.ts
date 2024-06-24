@@ -121,9 +121,6 @@ export class ProductsService {
       take = formatTake(take);
       page = formatPage(page);
       const skip = take * page - take;
-      console.log('PAGE', page);
-      console.log('search', search);
-      console.log('order', order);
       const pricesRequired = {
         incluido: true,
         precio1: {
@@ -232,7 +229,6 @@ export class ProductsService {
 
       // * Se hace el ordenamiento aca y no en prisma
       function sortStock(order: string, stockArr: any) {
-        console.log('entro al order');
         const sortedStock = stockArr.sort((stock1, stock2) => {
           const price1 = parseFloat(stock1.price);
           const price2 = parseFloat(stock2.price);
@@ -248,7 +244,7 @@ export class ProductsService {
       }
 
       if (order) {
-        sortStock(order, addPathfoto)
+        sortStock(order, addPathfoto);
       }
 
       return {
