@@ -58,7 +58,7 @@ export class ProductsController {
     return await this.productsService.toggleIncluido(productCode);
   }
 
-  @Public()
+  @Public() // ? esto deberia ser publico?
   @Get('/dashboard-products')
   async getDashboardProducts(
     @Query('page') page: number,
@@ -66,7 +66,7 @@ export class ProductsController {
     return await this.productsService.getDashboardProducts();
   }
 
-  @Public()
+  @Public() // ? esto deberia ser publico?
   @Get('/dashboard-product-variants')
   async getDashboardProductVariant(
     @Query('productCode') productCode: number,

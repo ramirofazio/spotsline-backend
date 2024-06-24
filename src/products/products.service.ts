@@ -121,7 +121,9 @@ export class ProductsService {
       take = formatTake(take);
       page = formatPage(page);
       const skip = take * page - take;
-
+      console.log('PAGE', page);
+      console.log('search', search);
+      console.log('order', order);
       const pricesRequired = {
         incluido: true,
         precio1: {
@@ -191,8 +193,10 @@ export class ProductsService {
       });
 
       // * Se hace el ordenamiento aca y no en prisma
+
       if (order) {
-        uniqueStock.sort((stock1, stock2) => {
+        console.log('entro al order');
+        const sortedStock = uniqueStock.sort((stock1, stock2) => {
           const price1 = parseFloat(stock1.precio1);
           const price2 = parseFloat(stock2.precio1);
 
@@ -204,7 +208,7 @@ export class ProductsService {
           return 0;
         });
       }
-
+      console.log(isAlready);
       const mappedMarcas = Object.keys(isAlready);
 
       const products: RawProduct[] | any[] = await this.prisma.marcas.findMany({
@@ -216,7 +220,7 @@ export class ProductsService {
             codigo: 9999,
           },
           descripcion: {
-            contains: search === 'null' ? '' : search,
+            contains: search,
           },
         },
         select: {
@@ -229,6 +233,7 @@ export class ProductsService {
       const addPathfoto = products.map(
         ({ codigo, descripcion, featured }: any) => {
           const pathfotos = isAlready[Number(codigo)]?.pathfoto;
+          const price = isAlready[Number(codigo)]?.pathfoto;
           return {
             codigo,
             featured,
