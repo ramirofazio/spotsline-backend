@@ -12,7 +12,7 @@ export class MailsService {
     try {
       const data = await resend.emails.send({
         from: 'SPOTSLINE <info@spotsline.com.ar>',
-        to: [email],
+        to: ['ramifazio@gmail.com'],
         subject: 'Actualiza tu contraseña',
         html: `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html dir="ltr" xmlns="http://www.w3.org/1999/xhtml" xmlns:o="urn:schemas-microsoft-com:office:office" lang="und">
