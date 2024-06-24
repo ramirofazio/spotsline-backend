@@ -185,6 +185,7 @@ export class ProductsService {
           isAlready[Number(s.marca)] = {
             pathfoto: [s.pathfoto2],
             marca: s.marca,
+            price: s.precio1, // ? se maneja todo el orden por el precio1
           };
           return uniqueStock.push(s);
         } else {
@@ -192,23 +193,6 @@ export class ProductsService {
         }
       });
 
-      // * Se hace el ordenamiento aca y no en prisma
-
-      if (order) {
-        console.log('entro al order');
-        const sortedStock = uniqueStock.sort((stock1, stock2) => {
-          const price1 = parseFloat(stock1.precio1);
-          const price2 = parseFloat(stock2.precio1);
-
-          if (order === 'asc') {
-            return price1 - price2;
-          } else if (order === 'desc') {
-            return price2 - price1;
-          }
-          return 0;
-        });
-      }
-      console.log(isAlready);
       const mappedMarcas = Object.keys(isAlready);
 
       const products: RawProduct[] | any[] = await this.prisma.marcas.findMany({
@@ -230,20 +214,42 @@ export class ProductsService {
         },
       });
 
-      const addPathfoto = products.map(
+      let addPathfoto = products.map(
         ({ codigo, descripcion, featured }: any) => {
           const pathfotos = isAlready[Number(codigo)]?.pathfoto;
-          const price = isAlready[Number(codigo)]?.pathfoto;
+          const price = isAlready[Number(codigo)]?.price;
           return {
             codigo,
             featured,
             pathfoto: pathfotos || '',
+            price,
             description: descripcion.trim(),
           };
         },
       );
 
       const count = uniqueStock.length;
+
+      // * Se hace el ordenamiento aca y no en prisma
+      function sortStock(order: string, stockArr: any) {
+        console.log('entro al order');
+        const sortedStock = stockArr.sort((stock1, stock2) => {
+          const price1 = parseFloat(stock1.price);
+          const price2 = parseFloat(stock2.price);
+
+          if (order === 'asc') {
+            return price1 - price2;
+          } else if (order === 'desc') {
+            return price2 - price1;
+          }
+          return 0;
+        });
+        return sortedStock;
+      }
+
+      if (order) {
+        sortStock(order, addPathfoto)
+      }
 
       return {
         metadata: {
