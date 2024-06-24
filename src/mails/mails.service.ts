@@ -11,8 +11,8 @@ export class MailsService {
   ): Promise<HttpStatus> {
     try {
       const data = await resend.emails.send({
-        from: 'SPOTSLINE <info@spotsline.com.ar>',
-        to: ['ramifazio@gmail.com'],
+        from: 'SPOTSLINE <spotsline@resend.dev>',
+        to: [email],
         subject: 'Actualiza tu contraseña',
         html: `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html dir="ltr" xmlns="http://www.w3.org/1999/xhtml" xmlns:o="urn:schemas-microsoft-com:office:office" lang="und">
@@ -215,7 +215,7 @@ a[x-apple-data-detectors] {
   async sendRrhhContact({ emailData, file }) {
     try {
       const emailSended = await resend.emails.send({
-        from: 'SPOTSLINE <info@spotsline.com.ar>',
+        from: 'SPOTSLINE <spotsline@resend.dev>',
         to: [`${env.RRHH_EMAIL}`],
         subject: emailData.subject ? emailData.subject : '',
         attachments: [
@@ -387,7 +387,7 @@ a[x-apple-data-detectors] {
   async sendDBDownMessage() {
     try {
       const emailSended = await resend.emails.send({
-        from: 'SPOTSLINE <info@spotsline.com.ar>',
+        from: 'SPOTSLINE <spotsline@resend.dev>',
         to: [`ramifazio@gmail.com`],
         subject: 'SPOTSLINE DB CAIDA',
         html: `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
