@@ -49,11 +49,11 @@ export class MobbexController {
   async webHook(@Body() body: any) {
     console.log('----body complete', body);
 
-    console.log('----payment', body.payment);
-    console.log('----customer', body.customer);
+    console.log('----payment', body.data.payment);
+    console.log('----customer', body.data.customer);
 
     const checkoutData = await mobbex.loyalty.search({
-      reference: body.payment.reference,
+      reference: body.data.payment.reference,
     });
 
     console.log('checkout data', checkoutData);
