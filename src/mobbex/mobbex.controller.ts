@@ -47,7 +47,11 @@ export class MobbexController {
   @Public()
   @Post('/webhook')
   async webHook(@Body() body: any) {
-    console.log(body);
+    const checkoutData = await mobbex.loyalty.search({
+      reference: body.payment.reference,
+    });
+
+    console.log(checkoutData);
 
     try {
     } catch (error) {

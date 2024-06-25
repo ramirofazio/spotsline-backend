@@ -22,6 +22,7 @@ export class User {
   web_role: number;
   priceList: number;
   fantasyName: string;
+  celphone: string;
 
   constructor({
     id,
@@ -31,6 +32,7 @@ export class User {
     web_role,
     priceList,
     fantasyName,
+    celphone,
   }: Client) {
     this.id = id;
     this.email = email;
@@ -39,6 +41,7 @@ export class User {
     this.web_role = web_role;
     this.priceList = priceList;
     this.fantasyName = fantasyName;
+    this.celphone = celphone;
   }
 }
 export class SellerUser {

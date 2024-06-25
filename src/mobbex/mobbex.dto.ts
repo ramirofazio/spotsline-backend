@@ -49,6 +49,7 @@ export interface MobbexCustomer {
   email: string;
   name: string;
   identification: string;
+  phone: string;
 }
 
 export interface MobbexItem {

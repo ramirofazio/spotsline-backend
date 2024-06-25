@@ -46,7 +46,7 @@ export class MobbexService {
     discount,
   }: CheckoutRequestDTO): Promise<MobbexCheckoutBody> {
     try {
-      const { email, priceList }: User =
+      const { email, priceList, celphone }: User =
         await this.usersService.findUserById(userId);
 
       const mobbexItems: MobbexItem[] =
@@ -66,6 +66,7 @@ export class MobbexService {
           email: email,
           name: email.split('@')[0],
           identification: String(userId),
+          phone: celphone,
         },
         test: env.ENV === 'production' ? false : true,
 
