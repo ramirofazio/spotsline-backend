@@ -27,6 +27,7 @@ import { OrderProduct } from 'src/products/products.dto';
 import { MobbexItem } from 'src/mobbex/mobbex.dto';
 import { JwtService } from '@nestjs/jwt';
 import { OrdersService } from 'src/orders/orders.service';
+import { MailsService } from 'src/mails/mails.service';
 
 @Injectable()
 export class UsersService {
@@ -37,6 +38,7 @@ export class UsersService {
     private products: ProductsService,
     private jwt: JwtService,
     private ordersService: OrdersService,
+    private mail: MailsService,
   ) {}
 
   async updateUserData({
@@ -442,6 +444,8 @@ export class UsersService {
           { ...newOrder, description },
           items,
         );
+
+        await this.mail.sendConfirmOrderEmail(newOrder, email, fantasyName);
       }
 
       return HttpStatus.OK;

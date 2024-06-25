@@ -19,6 +19,8 @@ import { Decimal } from '@prisma/client/runtime/library';
 import { ShoppingCartService } from 'src/shopping-cart/shopping-cart.service';
 import { ShoppingCart } from 'src/shopping-cart/shoppingCart.dto';
 import { env } from 'process';
+import { MailsService } from 'src/mails/mails.service';
+import { cliente } from '@prisma/client';
 
 @Injectable()
 export class ClientsService {
@@ -26,6 +28,7 @@ export class ClientsService {
     private prisma: PrismaService,
     private jwt: JwtService,
     private shoppingCart: ShoppingCartService,
+    private mail: MailsService,
   ) {}
 
   selectOpt = {
@@ -104,12 +107,16 @@ export class ClientsService {
         //? si el cliente ya hizo su primer inicio, tira el error
         throw new UnauthorizedException();
       }
-
       //? Pongo firstSignIn en true para chequear que ya hizo su primer inicio
-      await this.prisma.cliente.update({
+      const updated: cliente = await this.prisma.cliente.update({
         where: { nrocli: client.id },
         data: { clave: bcrypt.hashSync(newPassword, 10), firstSignIn: false },
       });
+
+      if (updated) {
+        //? Mando mail de bienvenida
+        await this.mail.sendWelcomeEmail(email, updated.fantasia);
+      }
 
       return HttpStatus.OK;
     } catch (e) {
