@@ -122,7 +122,6 @@ export class ProductsService {
       take = formatTake(take);
       page = formatPage(page);
       const skip = take * page - take;
-
       const pricesRequired = {
         incluido: true,
         precio1: {
@@ -185,27 +184,13 @@ export class ProductsService {
           isAlready[Number(s.marca)] = {
             pathfoto: [s.pathfoto2],
             marca: s.marca,
+            price: s.precio1, // ? se maneja todo el orden por el precio1
           };
           return uniqueStock.push(s);
         } else {
           isAlready[Number(s.marca)].pathfoto.push(s.pathfoto2);
         }
       });
-
-      // * Se hace el ordenamiento aca y no en prisma
-      if (order) {
-        uniqueStock.sort((stock1, stock2) => {
-          const price1 = parseFloat(stock1.precio1);
-          const price2 = parseFloat(stock2.precio1);
-
-          if (order === 'asc') {
-            return price1 - price2;
-          } else if (order === 'desc') {
-            return price2 - price1;
-          }
-          return 0;
-        });
-      }
 
       const mappedMarcas = Object.keys(isAlready);
 
@@ -218,7 +203,7 @@ export class ProductsService {
             codigo: 9999,
           },
           descripcion: {
-            contains: search === 'null' ? '' : search,
+            contains: search,
           },
         },
         select: {
@@ -228,19 +213,41 @@ export class ProductsService {
         },
       });
 
-      const addPathfoto = products.map(
+      let addPathfoto = products.map(
         ({ codigo, descripcion, featured }: any) => {
           const pathfotos = isAlready[Number(codigo)]?.pathfoto;
+          const price = isAlready[Number(codigo)]?.price;
           return {
             codigo,
             featured,
             pathfoto: pathfotos || '',
+            price,
             description: descripcion.trim(),
           };
         },
       );
 
       const count = uniqueStock.length;
+
+      // * Se hace el ordenamiento aca y no en prisma
+      function sortStock(order: string, stockArr: any) {
+        const sortedStock = stockArr.sort((stock1, stock2) => {
+          const price1 = parseFloat(stock1.price);
+          const price2 = parseFloat(stock2.price);
+
+          if (order === 'asc') {
+            return price1 - price2;
+          } else if (order === 'desc') {
+            return price2 - price1;
+          }
+          return 0;
+        });
+        return sortedStock;
+      }
+
+      if (order) {
+        sortStock(order, addPathfoto);
+      }
 
       return {
         metadata: {
