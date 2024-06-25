@@ -59,6 +59,7 @@ export interface MobbexItem {
 }
 
 export interface MobbexCheckoutBody {
+  webhook: string;
   total: number;
   currency: string;
   reference: string;

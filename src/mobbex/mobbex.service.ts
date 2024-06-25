@@ -55,6 +55,7 @@ export class MobbexService {
       const total = this.calculateTotal(mobbexItems, discount);
 
       return {
+        webhook: 'https://rfddevelopment.tech/mobbex/webhook',
         total: total,
         currency: 'ARS',
         reference: `${new Date().toLocaleDateString()} ${String(userId)} ${Math.random()}`,
@@ -67,6 +68,7 @@ export class MobbexService {
           identification: String(userId),
         },
         test: env.ENV === 'production' ? false : true,
+
         sources: [
           'naranja',
           'mastercard',

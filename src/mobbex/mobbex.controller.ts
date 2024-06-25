@@ -8,6 +8,7 @@ import {
   MobbexPayOrderBody,
   PaymentOrderDTO,
 } from './mobbex.dto';
+import { Public } from 'src/auth/publicDecorator';
 
 @Controller('mobbex')
 export class MobbexController {
@@ -37,6 +38,18 @@ export class MobbexController {
       if ('error' in checkout) {
         throw checkout.error;
       }
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
+  }
+
+  @Public()
+  @Post('/webhook')
+  async webHook(@Body() body: any) {
+    console.log(body);
+
+    try {
     } catch (error) {
       console.log(error);
       throw error;
