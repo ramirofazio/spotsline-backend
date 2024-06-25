@@ -52,6 +52,9 @@ export class MobbexService {
       const mobbexItems: MobbexItem[] =
         await this.productsService.findCheckoutProducts(items, priceList);
 
+      //! ACA HABRIA QUE CREAR ALGO PENDIENTE PARA RECUPERAR CON EL WEBHOOK LOS ITEMS
+      //! EN OTRA TABLA GUARDAR LOS ITEMS Y DEPENDIENOD DE LA RESPUESTA DEL CHECKOUT CREAR LA ORDEN CON ESOS ITEMS O ELIMINAR
+
       const total = this.calculateTotal(mobbexItems, discount);
 
       return {
