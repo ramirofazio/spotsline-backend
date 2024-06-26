@@ -46,17 +46,14 @@ export class MobbexController {
 
   @Public()
   @Post('/webhook')
+  //? El type del body seria una respuesta del webhook de mobbex:
   async webHook(@Body() body: any) {
     console.log('----body complete', body);
 
+    console.log('----checkout', body.checkout);
+    console.log('----checkout items', body.checkout.items);
     console.log('----payment', body.data.payment);
     console.log('----customer', body.data.customer);
-
-    const checkoutData = await mobbex.loyalty.search({
-      reference: body.data.payment.reference,
-    });
-
-    console.log('checkout data', checkoutData);
 
     try {
     } catch (error) {
