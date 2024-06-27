@@ -72,7 +72,7 @@ export class MobbexService {
 
       //TODO ACA TENGO QUE UPDATEAR LA ORDEN. PUEDO FILTRAR CON LA ULTIMA CREADA  y el total capaz
       await this.prisma.web_orders.update({
-        where: { id: orderId, userId, type: 'TEMPORAL' },
+        where: { id: orderId, type: 'TEMPORAL' },
         data: { type, mobbexId: transactionId },
       });
 
