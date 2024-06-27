@@ -20,7 +20,7 @@ export class MobbexService {
 
   async webhookResponse(data: any) {
     try {
-      console.log(data);
+      console.log('WEBHOOK DATA RAW', data);
       const userId = data.customer.identification;
       const transactionId = data.payment.transaction.transactionId;
       const type = data.payment.type;

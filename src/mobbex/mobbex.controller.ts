@@ -43,9 +43,8 @@ export class MobbexController {
   @Post('/webhook')
   //? El type del body seria una respuesta del webhook de mobbex:
   async webHook(@Body() { data }: any) {
-    await this.mobbexService.webhookResponse(data);
-
     try {
+      await this.mobbexService.webhookResponse(data);
     } catch (error) {
       console.log(error);
       throw error;
