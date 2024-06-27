@@ -26,6 +26,8 @@ export class MobbexService {
       const type = data.payment.type;
       const orderId = data.payment.reference;
 
+      console.log('WEBHOOK DATA:', userId, transactionId, type, orderId);
+
       if (data.payment.status.code !== '200') {
         //? EN ESTE BLOQUE A FUTURO SE PUEDEN HACER COSITAS DE EMAIL MARKETING U OTROS FLUJOS CUANDO EL PAGO FALLO
         console.log('PAGO FALLIDO');
@@ -63,6 +65,8 @@ export class MobbexService {
       //   const cleanItems = items.map((i) => {
       //     return { productId: i.productId, qty: i.productQty };
       //   });
+
+      console.log('llegue aca?');
 
       //TODO ACA TENGO QUE UPDATEAR LA ORDEN. PUEDO FILTRAR CON LA ULTIMA CREADA  y el total capaz
       await this.prisma.web_orders.update({
