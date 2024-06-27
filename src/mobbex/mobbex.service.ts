@@ -70,8 +70,7 @@ export class MobbexService {
         data: { type, mobbexId: transactionId },
       });
 
-console.log("UPDATEE ORDEN TEMPORAL", );
-
+      console.log('UPDATEE ORDEN TEMPORAL');
 
       //TODO ACA MANDAR MAIL Y CREAR SYSTEM ORDER
 
@@ -148,7 +147,7 @@ console.log("UPDATEE ORDEN TEMPORAL", );
 
       return {
         webhook: 'https://rfddevelopment.tech/mobbex/webhook',
-        webhooksType: 'final',
+        webhooksType: 'all',
         total: total,
         currency: 'ARS',
         reference: orderId,
