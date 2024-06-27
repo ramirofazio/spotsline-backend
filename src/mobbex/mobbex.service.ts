@@ -21,20 +21,15 @@ export class MobbexService {
   async webhookResponse(data: any) {
     try {
       console.log('WEBHOOK DATA RAW', data);
-      const userId = data.customer.identification;
-      const transactionId = data.payment.transaction.transactionId;
-      const type = data.payment.type;
-      const orderId = data.payment.reference;
-
-      console.log('WEBHOOK DATA:', userId, transactionId, type, orderId);
 
       if (data.payment.status.code !== '200') {
         //? EN ESTE BLOQUE A FUTURO SE PUEDEN HACER COSITAS DE EMAIL MARKETING U OTROS FLUJOS CUANDO EL PAGO FALLO
         console.log('PAGO FALLIDO');
+        const orderId = data.checkout.reference;
 
         //? Elimino la orden temporal creada porque fallo el pago
         await this.prisma.web_orders.delete({
-          where: { id: orderId, userId, type: 'TEMPORAL' },
+          where: { id: orderId, type: 'TEMPORAL' },
         });
 
         //? Elimino los items de la orden temporal porque fallo el pago
@@ -49,6 +44,13 @@ export class MobbexService {
           HttpStatus.BAD_REQUEST,
         );
       }
+
+      const orderId = data.payment.reference;
+      const userId = data.customer.identification;
+      const transactionId = data.payment.id;
+      const type = data.payment.source.type;
+
+      console.log('WEBHOOK DATA:', userId, transactionId, type, orderId);
 
       //   //? Recupero los items temporales guardados
       //   const items = await this.prisma.checkout_items.findMany({
