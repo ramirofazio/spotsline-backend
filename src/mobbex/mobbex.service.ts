@@ -27,14 +27,14 @@ export class MobbexService {
     try {
       console.log('WEBHOOK DATA RAW', data);
       const status =
-        data?.status?.code ?? data?.payment?.status?.code ?? data.status.code;
+        data?.status?.code || data?.payment?.status?.code || data.status.code;
 
       if (status !== '200') {
         //! EN ESTE BLOQUE A FUTURO SE PUEDEN HACER COSITAS DE EMAIL MARKETING U OTROS FLUJOS CUANDO EL PAGO FALLO
         console.log('PAGO FALLIDO');
         const orderId =
-          data?.payment?.reference ??
-          data?.checkout?.reference ??
+          data?.payment?.reference ||
+          data?.checkout?.reference ||
           data.reference;
 
         //? Elimino la orden temporal creada porque fallo el pago
@@ -60,8 +60,9 @@ export class MobbexService {
       const transactionId = data.payment.id;
       const type = data.payment.source.type;
 
-      const { email, fantasyName } =
-        await this.usersService.findUserById(userId);
+      const { email, fantasyName } = await this.usersService.findUserById(
+        Number(userId),
+      );
 
       console.log('WEBHOOK DATA:', userId, transactionId, type, orderId);
 
