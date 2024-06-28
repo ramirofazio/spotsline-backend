@@ -25,7 +25,7 @@ export class MobbexService {
         data?.status?.code ?? data?.payment?.status?.code ?? data.status.code;
 
       if (status !== '200') {
-        //? EN ESTE BLOQUE A FUTURO SE PUEDEN HACER COSITAS DE EMAIL MARKETING U OTROS FLUJOS CUANDO EL PAGO FALLO
+        //! EN ESTE BLOQUE A FUTURO SE PUEDEN HACER COSITAS DE EMAIL MARKETING U OTROS FLUJOS CUANDO EL PAGO FALLO
         console.log('PAGO FALLIDO');
         const orderId =
           data?.payment?.reference ??

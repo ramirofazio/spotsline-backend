@@ -137,11 +137,11 @@ export class UsersService {
             const { id, TotalNet, nroped, fechaing } = pedidoCab;
 
             //? Data almacenada en web_orders
-
             const web_order: web_order_DTO =
               await this.prisma.web_orders.findFirst({
                 where: {
                   cabeceraid: id,
+                  type: { not: 'TEMPORAL' },
                 },
                 select: {
                   total: true,
