@@ -21,12 +21,16 @@ export class MobbexService {
   async webhookResponse(data: any) {
     try {
       console.log('WEBHOOK DATA RAW', data);
-      const status = data.status.code || data.payment.status.code;
+      const status =
+        data?.status?.code ?? data?.payment?.status?.code ?? data.status.code;
 
       if (status !== '200') {
         //? EN ESTE BLOQUE A FUTURO SE PUEDEN HACER COSITAS DE EMAIL MARKETING U OTROS FLUJOS CUANDO EL PAGO FALLO
         console.log('PAGO FALLIDO');
-        const orderId = data.payment.reference || data.checkout.reference;
+        const orderId =
+          data?.payment?.reference ??
+          data?.checkout?.reference ??
+          data.reference;
 
         //? Elimino la orden temporal creada porque fallo el pago
         await this.prisma.web_orders.delete({
