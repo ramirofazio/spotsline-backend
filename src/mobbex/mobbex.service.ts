@@ -6,9 +6,12 @@ import {
   CheckoutRequestDTO,
   MobbexCheckoutBody,
   MobbexItem,
+  RequestItemDTO,
 } from './mobbex.dto';
 import { ProductsService } from 'src/products/products.service';
 import { env } from 'process';
+import { OrdersService } from 'src/orders/orders.service';
+import { MailsService } from 'src/mails/mails.service';
 
 @Injectable()
 export class MobbexService {
@@ -16,6 +19,8 @@ export class MobbexService {
     private readonly prisma: PrismaService,
     private readonly usersService: UsersService,
     private readonly productsService: ProductsService,
+    private readonly orderService: OrdersService,
+    private readonly mail: MailsService,
   ) {}
 
   async webhookResponse(data: any) {
@@ -55,18 +60,29 @@ export class MobbexService {
       const transactionId = data.payment.id;
       const type = data.payment.source.type;
 
-      console.log('WEBHOOK DATA:', userId, transactionId, type, orderId);
-      console.log('llegue aca?');
+      const { email, fantasyName } =
+        await this.usersService.findUserById(userId);
 
-      //TODO ACA TENGO QUE UPDATEAR LA ORDEN. PUEDO FILTRAR CON LA ULTIMA CREADA  y el total capaz
-      await this.prisma.web_orders.update({
+      console.log('WEBHOOK DATA:', userId, transactionId, type, orderId);
+
+      const newOrder = await this.prisma.web_orders.update({
         where: { id: orderId, type: 'TEMPORAL' },
         data: { type, mobbexId: transactionId },
       });
 
-      console.log('UPDATEE ORDEN TEMPORAL');
+      const items = await this.prisma.order_products.findMany({
+        where: { orderId: newOrder.id },
+      });
 
-      //TODO ACA MANDAR MAIL Y CREAR SYSTEM ORDER
+      const cleanItems: RequestItemDTO[] = items.map(({ productId, qty }) => {
+        return { productId, qty };
+      });
+
+      await this.orderService.createSystemOrder(newOrder, cleanItems);
+      await this.mail.sendConfirmOrderEmail(newOrder, email, fantasyName);
+
+      console.log('TODO ACTUALIZADO');
+      return HttpStatus.CREATED;
     } catch (e) {
       throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
