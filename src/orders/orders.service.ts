@@ -174,7 +174,7 @@ export class OrdersService {
   async getClientData(userId: number): Promise<RawClient> {
     try {
       return await this.prisma.cliente.findFirst({
-        where: { nrocli: userId },
+        where: { nrocli: Number(userId) },
       });
     } catch (e) {
       throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR);
