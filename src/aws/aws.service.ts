@@ -27,7 +27,7 @@ export class AwsService {
     variant_id: number,
   ): Promise<HttpStatus> {
     try {
-      const imageUrl = `${this.bucketUrl}${originalname}`;
+      const imageUrl = `${this.bucketUrl}${originalname.trim()}`;
 
       const { codpro, pathfoto2 } = await this.prisma.stock.findFirst({
         where: { id: variant_id },
