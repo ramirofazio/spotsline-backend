@@ -3767,3 +3767,10 @@ model web_orders {
   deliveryDate String?  @db.VarChar(Max)
   cabeceraid   Int?
 }
+
+model checkout_items {
+  id         Int  @id(map: "PK__checkout__3213E83F13E20C65") @default(autoincrement())
+  userId     Int?
+  productId  Int?
+  productQty Int?
+}

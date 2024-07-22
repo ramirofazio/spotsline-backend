@@ -2,12 +2,7 @@ import { Body, Controller, Post, Headers } from '@nestjs/common';
 import { MobbexService } from './mobbex.service';
 import { UsersService } from 'src/users/users.service';
 import { mobbex } from 'mobbex';
-import {
-  CheckoutRequestDTO,
-  MobbexCheckoutBody,
-  MobbexPayOrderBody,
-  PaymentOrderDTO,
-} from './mobbex.dto';
+import { CheckoutRequestDTO, MobbexCheckoutBody } from './mobbex.dto';
 import { Public } from 'src/auth/publicDecorator';
 
 @Controller('mobbex')
@@ -46,39 +41,10 @@ export class MobbexController {
 
   @Public()
   @Post('/webhook')
-  async webHook(@Body() body: any) {
-    console.log('----body complete', body);
-
-    console.log('----payment', body.data.payment);
-    console.log('----customer', body.data.customer);
-
-    const checkoutData = await mobbex.loyalty.search({
-      reference: body.data.payment.reference,
-    });
-
-    console.log('checkout data', checkoutData);
-
+  //? El type del body seria una respuesta del webhook de mobbex:
+  async webHook(@Body() { data }: any) {
     try {
-    } catch (error) {
-      console.log(error);
-      throw error;
-    }
-  }
-
-  @Post('/pay-order')
-  async generatePayOrder(@Body() body: PaymentOrderDTO): Promise<string> {
-    //? Genera un link de pago directo para ir cancelando pagos de Cuentas corrientes
-    try {
-      const payOrderBody: MobbexPayOrderBody =
-        await this.mobbexService.generatePayOrderBody(body);
-
-      const payOrder: any = await mobbex.paymentOrder.create(payOrderBody);
-      if ('data' in payOrder) {
-        return payOrder.data.url;
-      }
-      if ('error' in payOrder) {
-        throw payOrder.error;
-      }
+      await this.mobbexService.webhookResponse(data);
     } catch (error) {
       console.log(error);
       throw error;

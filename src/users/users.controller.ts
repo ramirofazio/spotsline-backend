@@ -49,11 +49,6 @@ export class UsersController {
     return await this.userService.getOneOrder(order_id, user_id);
   }
 
-  @Post('create-order')
-  async createOrder(@Body() body: OrderBodyDTO): Promise<HttpStatus> {
-    return await this.userService.createOrder(body);
-  }
-
   @Get('current-account/:nroCli')
   async getCurrentAccount(@Param('nroCli') nroCli: string) {
     return await this.userService.getCurrentAccount(nroCli);

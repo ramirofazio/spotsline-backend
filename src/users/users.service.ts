@@ -137,11 +137,11 @@ export class UsersService {
             const { id, TotalNet, nroped, fechaing } = pedidoCab;
 
             //? Data almacenada en web_orders
-
             const web_order: web_order_DTO =
               await this.prisma.web_orders.findFirst({
                 where: {
                   cabeceraid: id,
+                  type: { not: 'TEMPORAL' },
                 },
                 select: {
                   total: true,
@@ -439,16 +439,21 @@ export class UsersService {
           });
         }
 
-        //? Crea la orden para el sistema de gestion
-        await this.ordersService.createSystemOrder(
-          { ...newOrder, description },
-          items,
-        );
+        console.log('------CREE ORDEN TEMPORAL', newOrder);
 
-        await this.mail.sendConfirmOrderEmail(newOrder, email, fantasyName);
+        //TODO ESTO CAPAZ TIENE QUE IR EN LA PARTE DE WEBHOOK RECUPERANDO LA ORDEN ACTUALIZADA PARA EVITAR ERRORES
+        if (type !== 'TEMPORAL') {
+          //? Crea la orden para el sistema de gestion
+          await this.ordersService.createSystemOrder(
+            { ...newOrder, description },
+            items,
+          );
+
+          await this.mail.sendConfirmOrderEmail(newOrder, email, fantasyName);
+        }
+
+        return newOrder.id;
       }
-
-      return HttpStatus.OK;
     } catch (e) {
       throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }

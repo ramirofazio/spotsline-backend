@@ -5,23 +5,27 @@ import {
   ArrayMinSize,
   ValidateNested,
   IsNumber,
+  IsString,
   IsOptional,
 } from 'class-validator';
-
-export class PaymentOrderDTO {
-  @IsNumber()
-  @IsNotEmpty()
-  total: number;
-
-  @IsNumber()
-  @IsNotEmpty()
-  userId: number;
-}
+import { Coupon } from 'src/cupons/coupons.dto';
 
 export class CheckoutRequestDTO {
   @IsNumber()
+  @IsNotEmpty()
+  discount: number;
+
+  @IsNotEmpty()
   @IsOptional()
-  discount?: number;
+  coupon?: Coupon;
+
+  @IsOptional()
+  @IsString()
+  description?: string;
+
+  @IsNotEmpty()
+  @IsString()
+  deliveryDate: string;
 
   @IsNumber()
   @IsNotEmpty()
@@ -60,6 +64,7 @@ export interface MobbexItem {
 }
 
 export interface MobbexCheckoutBody {
+  webhooksType: string;
   webhook: string;
   total: number;
   currency: string;
@@ -70,11 +75,4 @@ export interface MobbexCheckoutBody {
   test?: boolean;
   sources: Array<string>;
   customer: MobbexCustomer;
-}
-
-export interface MobbexPayOrderBody {
-  total: number;
-  description: string;
-  reference: string;
-  return_url: string;
 }
