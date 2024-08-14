@@ -3734,13 +3734,6 @@ model sectores {
   @@ignore
 }
 
-model coupons {
-  id                 Int     @id(map: "PK__coupons__3213E83F61209B30") @default(autoincrement())
-  name               String? @db.NVarChar(255)
-  discountPercentaje Int?
-  enabled            Boolean @default(false, map: "DF__coupons__enabled__1BBA3953")
-}
-
 model web_itemsOnCart {
   id             Int      @id(map: "PK__web_item__3213E83F448FEBA3") @default(autoincrement())
   itemName       String?  @db.NVarChar(255)
@@ -3773,4 +3766,11 @@ model checkout_items {
   userId     Int?
   productId  Int?
   productQty Int?
+}
+
+model coupons {
+  id                 Int     @id(map: "PK__coupons__3213E83F7F33F0FC") @default(autoincrement())
+  couponName         String? @db.NVarChar(255)
+  discountPercentaje Int?
+  enabled            Boolean @default(false, map: "DF__coupons__enabled__41DFE23B")
 }

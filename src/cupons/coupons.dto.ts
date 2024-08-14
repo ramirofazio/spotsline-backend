@@ -1,11 +1,11 @@
 export interface CreateCoupon {
-  name: string;
+  couponName: string;
   discountPercentaje: number;
 }
 
 export interface Coupon {
   id: number;
-  name: string;
+  couponName: string;
   discountPercentaje: number;
   enabled: boolean;
 }

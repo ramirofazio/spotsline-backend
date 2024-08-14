@@ -19,7 +19,7 @@ export class CouponsService {
   async validateCoupon(couponName: string): Promise<Coupon> {
     try {
       const coupon = await this.prisma.coupons.findFirst({
-        where: { name: couponName },
+        where: { couponName: couponName },
       });
 
       if (!coupon) {
@@ -36,17 +36,17 @@ export class CouponsService {
 
   async createCoupon({
     discountPercentaje,
-    name,
+    couponName,
   }: CreateCoupon): Promise<HttpStatus> {
     try {
       const exist = await this.prisma.coupons.findFirst({
-        where: { name: name },
+        where: { couponName },
       });
 
       if (!exist) {
         await this.prisma.coupons.create({
           data: {
-            name,
+            couponName,
             discountPercentaje,
             enabled: true,
           },
