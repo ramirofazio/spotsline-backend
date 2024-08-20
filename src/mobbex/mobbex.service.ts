@@ -1,4 +1,10 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  forwardRef,
+  HttpException,
+  HttpStatus,
+  Inject,
+  Injectable,
+} from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { User } from 'src/users/users.dto';
 import { UsersService } from 'src/users/users.service';
@@ -17,21 +23,24 @@ import { MailsService } from 'src/mails/mails.service';
 export class MobbexService {
   constructor(
     private readonly prisma: PrismaService,
+    @Inject(forwardRef(() => UsersService))
     private readonly usersService: UsersService,
+    @Inject(forwardRef(() => ProductsService))
     private readonly productsService: ProductsService,
     private readonly orderService: OrdersService,
     private readonly mail: MailsService,
   ) {}
 
+  //! TODO EL FLUJO DE MOBBEX NO SE ESTA USANDO, DE TODAS FORMAS SE VA A IMPLEMENTAR ASI EN UN FUTURO CUNADO LOS USER PAGUEN.
+  //! LAS ORDENES VAN DEL SHOPPING CART AL MODULO DE ORDENES. DONDE SE CREAN LAS WEB-ORDERS Y LAS SYSTEM-ORDERS.
+
   async webhookResponse(data: any) {
     try {
-      console.log('WEBHOOK DATA RAW', data);
       const status =
         data?.status?.code || data?.payment?.status?.code || data.status.code;
 
       if (status !== '200') {
         //! EN ESTE BLOQUE A FUTURO SE PUEDEN HACER COSITAS DE EMAIL MARKETING U OTROS FLUJOS CUANDO EL PAGO FALLO
-        console.log('PAGO FALLIDO');
         const orderId =
           data?.payment?.reference ||
           data?.checkout?.reference ||
@@ -47,8 +56,6 @@ export class MobbexService {
           where: { orderId },
         });
 
-        console.log('BORRE ORDEN TEMPORAL E ITEMS');
-
         throw new HttpException(
           JSON.stringify(data.payment.status),
           HttpStatus.BAD_REQUEST,
@@ -63,8 +70,6 @@ export class MobbexService {
       const { email, fantasyName } = await this.usersService.findUserById(
         Number(userId),
       );
-
-      console.log('WEBHOOK DATA:', userId, transactionId, type, orderId);
 
       const newOrder = await this.prisma.web_orders.update({
         where: { id: orderId, type: 'TEMPORAL' },
@@ -82,7 +87,6 @@ export class MobbexService {
       await this.orderService.createSystemOrder(newOrder, cleanItems);
       await this.mail.sendConfirmOrderEmail(newOrder, email, fantasyName);
 
-      console.log('TODO ACTUALIZADO');
       return HttpStatus.CREATED;
     } catch (e) {
       throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -116,8 +120,6 @@ export class MobbexService {
         deliveryDate,
         description,
       });
-
-      console.log('ORDERID + ', orderId);
 
       return {
         webhook: 'https://rfddevelopment.tech/mobbex/webhook',

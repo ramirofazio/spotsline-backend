@@ -1,6 +1,8 @@
 import {
+  forwardRef,
   HttpException,
   HttpStatus,
+  Inject,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -37,6 +39,7 @@ export class UsersService {
     private prisma: PrismaService,
     private products: ProductsService,
     private jwt: JwtService,
+    @Inject(forwardRef(() => OrdersService))
     private ordersService: OrdersService,
     private mail: MailsService,
   ) {}
@@ -437,19 +440,6 @@ export class UsersService {
               },
             });
           });
-        }
-
-        console.log('------CREE ORDEN TEMPORAL', newOrder);
-
-        //TODO ESTO CAPAZ TIENE QUE IR EN LA PARTE DE WEBHOOK RECUPERANDO LA ORDEN ACTUALIZADA PARA EVITAR ERRORES
-        if (type !== 'TEMPORAL') {
-          //? Crea la orden para el sistema de gestion
-          await this.ordersService.createSystemOrder(
-            { ...newOrder, description },
-            items,
-          );
-
-          await this.mail.sendConfirmOrderEmail(newOrder, email, fantasyName);
         }
 
         return newOrder.id;

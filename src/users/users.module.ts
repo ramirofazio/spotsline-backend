@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UsersController } from './users.controller';
 import { ClientsModule } from 'src/clients/clients.module';
@@ -14,7 +14,7 @@ import { MailsModule } from 'src/mails/mails.module';
     SellerModule,
     PrismaModule,
     ProductsModule,
-    OrdersModule,
+    forwardRef(() => OrdersModule),
     MailsModule,
   ],
   providers: [UsersService],

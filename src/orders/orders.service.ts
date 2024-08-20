@@ -1,14 +1,36 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  forwardRef,
+  HttpException,
+  HttpStatus,
+  Inject,
+  Injectable,
+} from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { NewOrder } from './orders.dto';
 import { Decimal } from '@prisma/client/runtime/library';
 import { RawClient } from 'src/clients/clients.dto';
-import { RequestItemDTO } from 'src/mobbex/mobbex.dto';
+import {
+  CheckoutRequestDTO,
+  MobbexItem,
+  RequestItemDTO,
+} from 'src/mobbex/mobbex.dto';
 import { RawVariantProduct } from 'src/products/products.dto';
+import { User } from 'src/users/users.dto';
+import { randomUUID } from 'crypto';
+import { UsersService } from 'src/users/users.service';
+import { ProductsService } from 'src/products/products.service';
+import { MailsService } from 'src/mails/mails.service';
 
 @Injectable()
 export class OrdersService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    @Inject(forwardRef(() => UsersService))
+    private readonly usersService: UsersService,
+    @Inject(forwardRef(() => ProductsService))
+    private readonly productsService: ProductsService,
+    readonly mail: MailsService,
+  ) {}
 
   async getOrders() {
     try {
@@ -31,15 +53,53 @@ export class OrdersService {
     }
   }
 
+  async createNewOrder({
+    deliveryDate,
+    discount,
+    items,
+    userId,
+    coupon,
+    description,
+  }: CheckoutRequestDTO): Promise<any> {
+    try {
+      const { priceList, email, fantasyName }: User =
+        await this.usersService.findUserById(userId);
+
+      const mobbexItems: MobbexItem[] =
+        await this.productsService.findCheckoutProducts(items, priceList);
+
+      const newOrderId = await this.usersService.createOrder({
+        items,
+        transactionId: randomUUID(),
+        type: 'PEDIDO WEB',
+        userId,
+        couponId: coupon.id ?? 0,
+        discount,
+        deliveryDate,
+        description,
+      });
+
+      const newOrder = await this.prisma.web_orders.findUnique({
+        where: { id: newOrderId },
+      });
+
+      await this.createSystemOrder(newOrder, items);
+      await this.mail.sendConfirmOrderEmail(newOrder, email, fantasyName);
+    } catch (err) {
+      console.log(err);
+      throw new HttpException(err.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
   async createSystemOrder(newOrder: NewOrder, items: RequestItemDTO[]) {
     try {
       //? Consigo datos necesarios para la cabecera del pedido
       let OrderNumber;
 
-      if (newOrder.email !== 'user@spotsline.com.ar') {
-        //? Cuando no es una orden de prueba del usuario spot creo el numero de orden
-        OrderNumber = await this.getOrderNumber();
-      }
+      //if (newOrder.email !== 'user@spotsline.com.ar') {
+      //? Cuando no es una orden de prueba del usuario spot creo el numero de orden
+      OrderNumber = await this.getOrderNumber();
+      // }
 
       const {
         nrocli,

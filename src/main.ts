@@ -23,8 +23,9 @@ async function bootstrap() {
     .setVersion('1.0')
     .addTag('SPT')
     .build();
+
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('docu', app, document);
+  SwaggerModule.setup('swagger', app, document);
 
   app.useGlobalPipes(
     new ValidationPipe({

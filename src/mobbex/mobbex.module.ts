@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { MobbexService } from './mobbex.service';
 import { MobbexController } from './mobbex.controller';
 
@@ -11,9 +11,9 @@ import { MailsModule } from 'src/mails/mails.module';
 @Module({
   imports: [
     PrismaModule,
-    UsersModule,
-    ProductsModule,
-    OrdersModule,
+    forwardRef(() => OrdersModule),
+    forwardRef(() => UsersModule),
+    forwardRef(() => ProductsModule),
     MailsModule,
   ],
   providers: [MobbexService],
