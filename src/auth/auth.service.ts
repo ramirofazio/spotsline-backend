@@ -61,6 +61,8 @@ export class AuthService {
           };
         }
       }
+
+      throw new HttpException('JWT invalido', HttpStatus.UNAUTHORIZED);
     } catch (e) {
       throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
